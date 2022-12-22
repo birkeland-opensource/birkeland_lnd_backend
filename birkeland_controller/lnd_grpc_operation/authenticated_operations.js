@@ -4,7 +4,7 @@ const tls_cert = 'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNaRENDQWdxZ0F3SUJBZ0
 const base_sixtyfoir_macroon = 'AgEDbG5kAvgBAwoQWHJoclgj0Kn3rODEcS2ZjRIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaIQoIbWFjYXJvb24SCGdlbmVyYXRlEgRyZWFkEgV3cml0ZRoWCgdtZXNzYWdlEgRyZWFkEgV3cml0ZRoXCghvZmZjaGFpbhIEcmVhZBIFd3JpdGUaFgoHb25jaGFpbhIEcmVhZBIFd3JpdGUaFAoFcGVlcnMSBHJlYWQSBXdyaXRlGhgKBnNpZ25lchIIZ2VuZXJhdGUSBHJlYWQAAAYg7K6k/guxNh1tu58D0ZSne5DdQJG5Nmpif6m+H8mlmjk=user';
 const {lnd} = authenticatedLndGrpc({
     cert : tls_cert,
-    macroon : base_sixtyfoir_macroon,
+    macaroon : base_sixtyfoir_macroon,
     socket : '127.0.0.1:10009'
 
 })
