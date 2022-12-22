@@ -18,7 +18,6 @@ const LND_GRPC_OPERATION = {
     GET_NODE : "get_node", //6
     GET_NETWORK_INFO : "get_network_info", //7
     GET_PEERS : "get_peers", //8
-    GET_WALLET_STATUS : "get_wallet_status", //9
     GET_WALLET_VERSION : "get_wallet_version", //10
     GET_WALLET_INFO :"get_wallet_info" //11
 }
@@ -49,9 +48,6 @@ exports.PerformAuthenticatedOperation =async (req,res) =>{
             break;
         case LND_GRPC_OPERATION.GET_PEERS:
             resp = await get_peers(req.body);
-            break;
-        case LND_GRPC_OPERATION.GET_WALLET_STATUS:
-            resp = await get_wallet_status(req.body);
             break;
         case LND_GRPC_OPERATION.GET_WALLET_VERSION:
             resp = await get_wallet_version(req.body);
@@ -204,21 +200,6 @@ const get_peers = async(req)=>{
 }
 
 //9
-const get_wallet_status = async(req)=>{
-    try{
-        // {
-        //     lnd: <Authenticated LND API Object>
-        // }
-        console.log("get_wallet_status");
-        let resp = await getWalletStatus({lnd:lnd});
-        return resp;
-    }
-    catch(err){
-        return err;
-    }
-}
-
-//10
 const get_wallet_version = async(req)=>{
     try{
         // {
@@ -233,7 +214,7 @@ const get_wallet_version = async(req)=>{
     }
 }
 
-//11
+//10
 const get_wallet_info = async(req)=>{
     try{
         // {
