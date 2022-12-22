@@ -1,0 +1,5 @@
+"git status" => Status of the existing changes
+"git checkout -b ft/docker" => checkout the code into new branch
+"git add ." => Stages existing changes
+"git commit -m "'comments on commit'" 
+"git push origin ft/docker"
