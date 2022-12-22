@@ -143,9 +143,8 @@ const get_methods = async (req) =>{
         // {
         //     lnd: <Authenticated LND API Object>
         // }
-        console.log("get_channel");
-        let {channel_id} = req.body;
-        let resp = await getMethods({id :channel_id, lnd:lnd});
+        console.log("get_methods");
+        let resp = await getMethods({lnd:lnd});
         console.log(resp);
         return resp;
     }
@@ -164,7 +163,7 @@ const get_node = async(req)=>{
         //     public_key: <Node Public Key Hex String>
         // }
         let {public_key} = req.body;
-        console.log("get_wallet_info");
+        console.log("get_node");
         let resp = await getNode({lnd:lnd, public_key:public_key});
         return resp;
     }
