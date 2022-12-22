@@ -16,6 +16,9 @@ app.use(cors());
 var terminal_operation_router = require("./birkeland_router/terminal_operation_router/terminal_operation_router");
 app.use('/terminal',terminal_operation_router);
 
+var lnd_operation_router = require("./birkeland_router/lnd_operation_router");
+app.use('/lnd',lnd_operation_router);
+
 app.get("/",(req,res)=>{
 
     res.status(200).send({success:true, message : "Balances of Statoshi API endpoint is running"});
