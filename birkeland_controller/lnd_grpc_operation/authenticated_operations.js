@@ -1,4 +1,4 @@
-const { getWalletInfo, authenticatedLndGrpc, getChainBalance, getChannel, getChannelBalance, getChannels, getMethods, getNode, getNetworkInfo, getPeers, getWalletStatus, getWalletVersion, getPublicKey, openChannel } = require("lightning")
+const { getWalletInfo, authenticatedLndGrpc, getChainBalance, getChannel, getChannelBalance, getChannels, getMethods, getNode, getNetworkInfo, getPeers, getWalletStatus, getWalletVersion, getPublicKey, openChannel, createChainAddress } = require("lightning")
 
 const fs = require("fs")
 const tls_cert = fs.readFileSync('/home/birkeland/temp',{encoding:'utf8', flag:'r'});
@@ -16,6 +16,7 @@ const {lnd} = authenticatedLndGrpc({
 })
 
 const LND_GRPC_OPERATION = {
+    CREATE_CHAIN_ADDRESS : "create_chain_address",
     GET_CHAIN_BALANCE : "get_chain_balance", //1
     GET_CHANNEL: "get_channel", //2
     GET_CHANNEL_BALANCE : "get_channel_balance", //3
@@ -33,6 +34,9 @@ exports.PerformAuthenticatedOperation =async (req,res) =>{
     let {operation} = req.body;
     var resp = "";
     switch(operation){
+        case LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS:
+            resp = await create_chain_address();
+            break;
         case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
             resp = await get_chain_balance(req);
             break;
@@ -75,6 +79,21 @@ exports.PerformAuthenticatedOperation =async (req,res) =>{
     return res.status(200).send({success : true,message:resp});
 }
 
+const create_chain_address = async() =>{
+    try{
+        // {
+        //     lnd: <Authenticated LND API Object>,
+        //      format:'p2wpkh'
+        // }
+        console.log("create_chain_address");
+        let resp = await createChainAddress({lnd:lnd, format:'p2wpkh'});
+        console.log(resp);
+        return resp;
+    }
+    catch(err){
+        return err;
+    }
+}
 
 const open_channel = async (body) =>{
     try{
