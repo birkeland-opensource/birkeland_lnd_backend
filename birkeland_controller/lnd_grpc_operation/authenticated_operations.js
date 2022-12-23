@@ -87,7 +87,6 @@ const get_u_txos = async () =>{
     try{
         // {
         //     lnd: <Authenticated LND API Object>,
-        //      format:'p2wpkh'
         // }
         console.log("get_u_txos");
         let resp = await getUtxos({lnd:lnd});
