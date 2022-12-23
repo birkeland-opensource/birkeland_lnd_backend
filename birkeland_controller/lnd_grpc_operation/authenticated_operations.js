@@ -89,7 +89,7 @@ const get_u_txos = async () =>{
         //     lnd: <Authenticated LND API Object>,
         //      format:'p2wpkh'
         // }
-        console.log("create_chain_address");
+        console.log("get_u_txos");
         let resp = await getUtxos({lnd:lnd});
         console.log(resp);
         return resp;
