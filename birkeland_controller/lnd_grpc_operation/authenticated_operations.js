@@ -1,4 +1,4 @@
-const { getWalletInfo, authenticatedLndGrpc, getChainBalance, getChannel, getChannelBalance, getChannels, getMethods, getNode, getNetworkInfo, getPeers, getWalletStatus, getWalletVersion, getPublicKey, openChannel, createChainAddress, getUtxos } = require("lightning")
+const { getWalletInfo, authenticatedLndGrpc, getChainBalance, getChannel, getChannelBalance, getChannels, getMethods, getNode, getNetworkInfo, getPeers, getWalletStatus, getWalletVersion, getPublicKey, openChannel, createChainAddress, getUtxos, addPeer } = require("lightning")
 
 const fs = require("fs")
 const tls_cert = fs.readFileSync('/home/birkeland/temp',{encoding:'utf8', flag:'r'});
@@ -16,8 +16,6 @@ const {lnd} = authenticatedLndGrpc({
 })
 
 const LND_GRPC_OPERATION = {
-    GET_U_TXOS : "get_u_txos",
-    CREATE_CHAIN_ADDRESS : "create_chain_address",
     GET_CHAIN_BALANCE : "get_chain_balance", //1
     GET_CHANNEL: "get_channel", //2
     GET_CHANNEL_BALANCE : "get_channel_balance", //3
@@ -26,10 +24,13 @@ const LND_GRPC_OPERATION = {
     GET_NODE : "get_node", //6
     GET_NETWORK_INFO : "get_network_info", //7
     GET_PEERS : "get_peers", //8
-    GET_WALLET_VERSION : "get_wallet_version", //10
-    GET_WALLET_INFO :"get_wallet_info", //11
-    GET_PUBLIC_KEY : "get_public_key", //12
-    OPEN_CHANNEL : "open_channel", //13
+    GET_WALLET_VERSION : "get_wallet_version", //9
+    GET_WALLET_INFO :"get_wallet_info", //10
+    GET_PUBLIC_KEY : "get_public_key", //11
+    OPEN_CHANNEL : "open_channel", //12
+    GET_U_TXOS : "get_u_txos", //13
+    CREATE_CHAIN_ADDRESS : "create_chain_address", //14
+    ADD_PEER : "add_peer", //15
 }
 exports.PerformAuthenticatedOperation =async (req,res) =>{
     let {operation} = req.body;
@@ -77,11 +78,30 @@ exports.PerformAuthenticatedOperation =async (req,res) =>{
         case LND_GRPC_OPERATION.OPEN_CHANNEL:
             resp = await open_channel(req.body);
             break;
+        case LND_GRPC_OPERATION.ADD_PEER:
+            resp = await add_peer(req.body);
         default:
             return res.status(500).send({success : false,message :"Invalid operation"});
     }
     return res.status(200).send({success : true,message:resp});
 }
+
+const add_peer = async(body) =>{
+    try{
+        // {
+        //     lnd: <Authenticated LND API Object>,
+        // },
+        console.log("add_peer");
+        let {socket,public_key } = body;
+        let resp = await addPeer({lnd:lnd, public_key: public_key, socket : socket});
+        console.log(resp);
+        return resp;
+    }
+    catch(err){
+        return err;
+    }
+}
+
 
 const get_u_txos = async () =>{
     try{
