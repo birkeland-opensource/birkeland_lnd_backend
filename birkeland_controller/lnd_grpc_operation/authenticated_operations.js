@@ -22,15 +22,15 @@ const {
 } = require("lightning");
 
 const fs = require("fs");
-const tls_cert = fs.readFileSync("/home/birkeland/temp", {
+const tls_cert = `fs.readFileSync("/home/birkeland/temp", {
   encoding: "utf8",
   flag: "r",
-});
+})`;
 
-const base_sixtyfoir_macroon = fs.readFileSync("/home/birkeland/macaroon", {
+const base_sixtyfoir_macroon = `fs.readFileSync("/home/birkeland/macaroon", {
   encoding: "utf8",
   flag: "r",
-});
+})`;
 
 //const tls_cert = 'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNaRENDQWdxZ0F3SUJBZ0lRY0ZVbTlTWGR1ZTBZYUs2TVpXakhmakFLQmdncWhrak9QUVFEQWpCRk1SOHcKSFFZRFZRUUtFeFpzYm1RZ1lYVjBiMmRsYm1WeVlYUmxaQ0JqWlhKME1TSXdJQVlEVlFRREV4bDFjMlZ5TFZSeQpZWFpsYkUxaGRHVXRVRFEwT1MxSE15MU5NQjRYRFRJeU1USXhPREV5TXpVd01Wb1hEVEkwTURJeE1qRXlNelV3Ck1Wb3dSVEVmTUIwR0ExVUVDaE1XYkc1a0lHRjFkRzluWlc1bGNtRjBaV1FnWTJWeWRERWlNQ0FHQTFVRUF4TVoKZFhObGNpMVVjbUYyWld4TllYUmxMVkEwTkRrdFJ6TXRUVEJaTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSApBMElBQkVyVkx0VjhRejhsWDFTS0NCQ0dITFVKU1RrNUY3NTRaL29iemhvZVlXbS9jTFlHTzJXZFZWRGZEczl1CllBTGsrcGpVd3hGNzBjeUZ0akNTRXpHT1g5bWpnZHN3Z2Rnd0RnWURWUjBQQVFIL0JBUURBZ0trTUJNR0ExVWQKSlFRTU1Bb0dDQ3NHQVFVRkJ3TUJNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdIUVlEVlIwT0JCWUVGTWRVY01HeAo1aWZWU0hWNGdOVVIwZ2FmUU1NS01JR0FCZ05WSFJFRWVUQjNnaGwxYzJWeUxWUnlZWFpsYkUxaGRHVXRVRFEwCk9TMUhNeTFOZ2dsc2IyTmhiR2h2YzNTQ0JIVnVhWGlDQ25WdWFYaHdZV05yWlhTQ0IySjFabU52Ym02SEJIOEEKQUFHSEVBQUFBQUFBQUFBQUFBQUFBQUFBQUFHSEJBb0MwV2VIRVA2QUFBQUFBQUFBWHllTURZVmRyeENIQkFBQQpBQUF3Q2dZSUtvWkl6ajBFQXdJRFNBQXdSUUloQUk5MWQ5SUxicE1xd0hja0pQMnV2c1BjZ3lJSjhBRUZ2dytJClRmRllhTWI0QWlBd1ZIekVZS3ZlVEZ3eDhzT0p3UmFMRnE1MW5nMlN2cWx6cnhtYVpFQWxRQT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K';
 //const base_sixtyfoir_macroon = 'AgEDbG5kAvgBAwoQWHJoclgj0Kn3rODEcS2ZjRIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaIQoIbWFjYXJvb24SCGdlbmVyYXRlEgRyZWFkEgV3cml0ZRoWCgdtZXNzYWdlEgRyZWFkEgV3cml0ZRoXCghvZmZjaGFpbhIEcmVhZBIFd3JpdGUaFgoHb25jaGFpbhIEcmVhZBIFd3JpdGUaFAoFcGVlcnMSBHJlYWQSBXdyaXRlGhgKBnNpZ25lchIIZ2VuZXJhdGUSBHJlYWQAAAYg7K6k/guxNh1tu58D0ZSne5DdQJG5Nmpif6m+H8mlmjk=user';
@@ -71,7 +71,7 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
       resp = await create_chain_address();
       break;
     case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
-      resp = await get_chain_balance(req);
+      await get_chain_balance(res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL:
       resp = await get_channel(req.body);
@@ -119,7 +119,7 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
         .status(500)
         .send({ success: false, message: "Invalid operation" });
   }
-  return res.status(200).send({ success: true, message: resp });
+  
 };
 
 const get_backups = async () => {
@@ -231,7 +231,7 @@ const open_channel = async (body) => {
 };
 
 //1
-const get_chain_balance = async (req) => {
+const get_chain_balance = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -239,9 +239,11 @@ const get_chain_balance = async (req) => {
     console.log("get_chain_balance");
     let resp = await getChainBalance({ lnd: lnd });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res
+        .status(500)
+        .send({ success: false, message: err });
   }
 };
 

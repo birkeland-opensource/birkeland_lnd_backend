@@ -6,8 +6,8 @@ var authenticated_lnd_operation = require("./../birkeland_controller/lnd_grpc_op
 var unauthenticated_lnd_operation = require("./../birkeland_controller/lnd_grpc_operation/unauthenticated_operations");
 
 
-apirouter.get("/auth_lnd_ops", authenticated_lnd_operation.PerformAuthenticatedOperation);
+apirouter.post("/auth_lnd_ops", authenticated_lnd_operation.PerformAuthenticatedOperation);
 
-apirouter.get("/unauth_lnd_ops", unauthenticated_lnd_operation.PerformUnAuthenticatedOperation);
+apirouter.post("/unauth_lnd_ops", unauthenticated_lnd_operation.PerformUnAuthenticatedOperation);
 
 module.exports = apirouter;
