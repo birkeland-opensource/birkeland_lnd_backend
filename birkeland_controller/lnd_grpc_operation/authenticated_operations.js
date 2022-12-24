@@ -65,89 +65,88 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
   var resp = "";
   switch (operation) {
     case LND_GRPC_OPERATION.GET_U_TXOS:
-      resp = await get_u_txos();
+      resp = await get_u_txos(res);
       break;
     case LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS:
-      resp = await create_chain_address();
+      resp = await create_chain_address(res);
       break;
     case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
       await get_chain_balance(res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL:
-      resp = await get_channel(req.body);
+      resp = await get_channel(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL_BALANCE:
-      resp = await get_channel_balance(req.body);
+      resp = await get_channel_balance(res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNELS:
-      resp = await get_channels(req.body);
+      resp = await get_channels(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_METHODS:
-      resp = await get_methods(req.body);
+      resp = await get_methods(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_NODE:
-      resp = await get_node(req.body);
+      resp = await get_node(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_NETWORK_INFO:
-      resp = await get_network_info(req.body);
+      resp = await get_network_info(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_PEERS:
-      resp = await get_peers(req.body);
+      resp = await get_peers(res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_VERSION:
-      resp = await get_wallet_version(req.body);
+      resp = await get_wallet_version(res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_INFO:
-      resp = await get_wallet_info(req);
+      resp = await get_wallet_info(res);
       break;
     case LND_GRPC_OPERATION.GET_PUBLIC_KEY:
-      resp = await get_public_key(req);
+      resp = await get_public_key(res);
       break;
     case LND_GRPC_OPERATION.OPEN_CHANNEL:
-      resp = await open_channel(req.body);
+      resp = await open_channel(req.body,res);
       break;
     case LND_GRPC_OPERATION.ADD_PEER:
-      resp = await add_peer(req.body);
+      resp = await add_peer(req.body,res);
     case LND_GRPC_OPERATION.PAY:
-      resp = await make_payment(req.body);
+      resp = await make_payment(req.body,res);
     case LND_GRPC_OPERATION.GET_BACKUP:
-      resp = get_backup();
+      resp = get_backup(res);
     case LND_GRPC_OPERATION.GET_BACKUPS:
-        resp = await get_backups();
+      resp = await get_backups(res);
     default:
       return res
         .status(500)
         .send({ success: false, message: "Invalid operation" });
   }
-  
 };
 
-const get_backups = async () => {
-    try {
-      const resp = await getBackups({lnd});
-      return resp
-    } catch (err) {
-      return err;
-    }
-  };
-  
+const get_backups = async (res) => {
+  try {
+    const resp = await getBackups({ lnd });
 
-const get_backup = async () => {
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    return res.status(500).send({ success: false, message: err });
+  }
+};
+
+const get_backup = async (res) => {
   try {
     const [channel] = (await getChannels({ lnd })).channels;
-    const resp  = await getBackup({
+    const resp = await getBackup({
       lnd,
       transaction_id: channel.transaction_id,
       transaction_vout: channel.transaction_vout,
     });
 
-    return resp
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
-const make_payment = async (body) => {
+const make_payment = async (body, res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -157,13 +156,13 @@ const make_payment = async (body) => {
     let { request } = body;
     let resp = await pay({ lnd: lnd, request: request });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
-const add_peer = async (body) => {
+const add_peer = async (body, res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -176,13 +175,13 @@ const add_peer = async (body) => {
       socket: socket,
     });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
-const get_u_txos = async () => {
+const get_u_txos = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -190,13 +189,13 @@ const get_u_txos = async () => {
     console.log("get_u_txos");
     let resp = await getUtxos({ lnd: lnd });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
-const create_chain_address = async () => {
+const create_chain_address = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -205,13 +204,13 @@ const create_chain_address = async () => {
     console.log("create_chain_address");
     let resp = await createChainAddress({ lnd: lnd, format: "p2wpkh" });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
-const open_channel = async (body) => {
+const open_channel = async (body, res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -224,9 +223,9 @@ const open_channel = async (body) => {
       lnd: lnd,
     });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
@@ -241,14 +240,12 @@ const get_chain_balance = async (res) => {
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return res
-        .status(500)
-        .send({ success: false, message: err });
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //2
-const get_channel = async (req) => {
+const get_channel = async (req, res) => {
   try {
     // {
     //     id: <Standard Format Channel Id String>
@@ -258,27 +255,28 @@ const get_channel = async (req) => {
     let { channel_id } = req.body;
     let resp = await getChannel({ id: channel_id, lnd: lnd });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //3
-const get_channel_balance = async (req) => {
+const get_channel_balance = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_channel_balance");
     let resp = await getChannelBalance({ lnd: lnd });
+    return res.status(200).send({ success: true, message: resp });
     return resp;
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 //4
-const get_channels = async (req) => {
+const get_channels = async (req, res) => {
   try {
     // {
     //     [is_active]: <Limit Results To Only Active Channels Bool> // false
@@ -291,15 +289,16 @@ const get_channels = async (req) => {
     console.log("get_channel");
     let { channel_id } = req.body;
     let resp = await getChannels({ id: channel_id, lnd: lnd });
+    return res.status(200).send({ success: true, message: resp });
     console.log(resp);
     return resp;
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //5
-const get_methods = async (req) => {
+const get_methods = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -307,14 +306,14 @@ const get_methods = async (req) => {
     console.log("get_methods");
     let resp = await getMethods({ lnd: lnd });
     console.log(resp);
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //6
-const get_node = async (req) => {
+const get_node = async (req, res) => {
   try {
     // {
     //     [is_omitting_channels]: <Omit Channels from Node Bool>
@@ -324,78 +323,78 @@ const get_node = async (req) => {
     let { public_key } = req.body;
     console.log("get_node");
     let resp = await getNode({ lnd: lnd, public_key: public_key });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //7
-const get_network_info = async (req) => {
+const get_network_info = async (req, res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_wallet_info");
     let resp = await getNetworkInfo({ lnd: lnd });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //8
-const get_peers = async (req) => {
+const get_peers = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_peers");
     let resp = await getPeers({ lnd: lnd });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //9
-const get_wallet_version = async (req) => {
+const get_wallet_version = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_wallet_version");
     let resp = await getWalletVersion({ lnd: lnd });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //10
-const get_wallet_info = async (req) => {
+const get_wallet_info = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_wallet_info");
     let resp = await getWalletInfo({ lnd: lnd });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
 //11
-const get_public_key = async (req) => {
+const get_public_key = async (res) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_public_key");
     let resp = await getPublicKey({ family: 1, index: 1, lnd: lnd });
-    return resp;
+    return res.status(200).send({ success: true, message: resp });
   } catch (err) {
-    return err;
+    return res.status(500).send({ success: false, message: err });
   }
 };
