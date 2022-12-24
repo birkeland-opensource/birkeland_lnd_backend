@@ -62,58 +62,61 @@ const LND_GRPC_OPERATION = {
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
-  var resp = "";
   switch (operation) {
     case LND_GRPC_OPERATION.GET_U_TXOS:
-      resp = await get_u_txos(res);
+      await get_u_txos(res);
       break;
     case LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS:
-      resp = await create_chain_address(res);
+      await create_chain_address(res);
       break;
     case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
       await get_chain_balance(res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL:
-      resp = await get_channel(req.body, res);
+      await get_channel(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL_BALANCE:
-      resp = await get_channel_balance(res);
+      await get_channel_balance(res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNELS:
-      resp = await get_channels(req.body, res);
+      await get_channels(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_METHODS:
-      resp = await get_methods(req.body, res);
+      await get_methods( res);
       break;
     case LND_GRPC_OPERATION.GET_NODE:
-      resp = await get_node(req.body, res);
+      await get_node(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_NETWORK_INFO:
-      resp = await get_network_info(req.body, res);
+      await get_network_info(req.body, res);
       break;
     case LND_GRPC_OPERATION.GET_PEERS:
-      resp = await get_peers(res);
+       await get_peers(res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_VERSION:
-      resp = await get_wallet_version(res);
+       await get_wallet_version(res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_INFO:
-      resp = await get_wallet_info(res);
+      await get_wallet_info(res);
       break;
     case LND_GRPC_OPERATION.GET_PUBLIC_KEY:
-      resp = await get_public_key(res);
+      await get_public_key(res);
       break;
     case LND_GRPC_OPERATION.OPEN_CHANNEL:
-      resp = await open_channel(req.body,res);
+      await open_channel(req.body, res);
       break;
     case LND_GRPC_OPERATION.ADD_PEER:
-      resp = await add_peer(req.body,res);
+      await add_peer(req.body, res);
+      break;
     case LND_GRPC_OPERATION.PAY:
-      resp = await make_payment(req.body,res);
+      await make_payment(req.body, res);
+      break;
     case LND_GRPC_OPERATION.GET_BACKUP:
-      resp = get_backup(res);
+      await get_backup(res);
+      break;
     case LND_GRPC_OPERATION.GET_BACKUPS:
-      resp = await get_backups(res);
+      await get_backups(res);
+      break;
     default:
       return res
         .status(500)
@@ -169,6 +172,7 @@ const add_peer = async (body, res) => {
     // },
     console.log("add_peer");
     let { socket, public_key } = body;
+    console.log(body)
     let resp = await addPeer({
       lnd: lnd,
       public_key: public_key,
@@ -290,8 +294,7 @@ const get_channels = async (req, res) => {
     let { channel_id } = req.body;
     let resp = await getChannels({ id: channel_id, lnd: lnd });
     return res.status(200).send({ success: true, message: resp });
-    console.log(resp);
-    return resp;
+
   } catch (err) {
     return res.status(500).send({ success: false, message: err });
   }
@@ -313,14 +316,14 @@ const get_methods = async (res) => {
 };
 
 //6
-const get_node = async (req, res) => {
+const get_node = async (body, res) => {
   try {
     // {
     //     [is_omitting_channels]: <Omit Channels from Node Bool>
     //     lnd: <Authenticated LND API Object>
     //     public_key: <Node Public Key Hex String>
     // }
-    let { public_key } = req.body;
+    let { public_key } = body;
     console.log("get_node");
     let resp = await getNode({ lnd: lnd, public_key: public_key });
     return res.status(200).send({ success: true, message: resp });
@@ -335,7 +338,7 @@ const get_network_info = async (req, res) => {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
-    console.log("get_wallet_info");
+    console.log("get_network_info");
     let resp = await getNetworkInfo({ lnd: lnd });
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
