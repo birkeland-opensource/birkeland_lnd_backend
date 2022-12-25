@@ -29,12 +29,8 @@ exports.perform_lnd_operation = async(req,res) =>{
     try{
         let {operation,ops_params} = req.body;
         let command = get_command_with_params_for_operation(operation,ops_params);
-        if(execute_solo_command(command)){
-            return res.status(200).send({success : true});
-        }
-        else{
-            return res.status(200).send({success : false});
-        }
+       execute_solo_command(command,res)
+     
     }
     catch(e){
         console.log(e)
@@ -47,13 +43,8 @@ exports.manage_a_process = async(req,res) =>{
 
         let {operation} = req.body;
         let command_to_execute = get_command_for_operation(operation);
-        if(execute_solo_command(command_to_execute)){
-            return res.status(200).send({success : true});
-        }
-        else{
-            return res.status(200).send({success : false});
-        }
-
+        console.log(command_to_execute)
+        execute_solo_command(command_to_execute,res);
     }
     catch(e){
         return res.status(400).send({success : false});
