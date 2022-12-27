@@ -19,6 +19,7 @@ const {
   pay,
   getBackup,
   getBackups,
+  getPendingChannels,
 } = require("lightning");
 
 const fs = require("fs");
@@ -59,6 +60,7 @@ const LND_GRPC_OPERATION = {
   PAY: "pay", //16
   GET_BACKUP: "get_backup", //17
   GET_BACKUPS: "get_backups", //18
+  GET_PENDING_CHANNELS : "get_pending_channels" //19
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -116,6 +118,9 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
       break;
     case LND_GRPC_OPERATION.GET_BACKUPS:
       await get_backups(res);
+      break;
+    case LND_GRPC_OPERATION.GET_PENDING_CHANNELS:
+      await get_pending_channels(res);
       break;
     default:
       return res
@@ -250,14 +255,14 @@ const get_chain_balance = async (res) => {
 };
 
 //2
-const get_channel = async (req, res) => {
+const get_channel = async (body, res) => {
   try {
     // {
     //     id: <Standard Format Channel Id String>
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_channel");
-    let { channel_id } = req.body;
+    let { channel_id } = body;
     let resp = await getChannel({ id: channel_id, lnd: lnd });
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
@@ -291,7 +296,7 @@ const get_channels = async (req, res) => {
     //     lnd: <Authenticated LND gRPC API Object>
     //     [partner_public_key]: <Only Channels With Public Key Hex String>
     //  }
-    console.log("get_channel");
+    console.log("get_channels");
     let { channel_id } = req.body;
     let resp = await getChannels({ id: channel_id, lnd: lnd });
     return res.status(200).send({ success: true, message: resp });
@@ -385,6 +390,20 @@ const get_wallet_info = async (res) => {
     // }
     console.log("get_wallet_info");
     let resp = await getWalletInfo({ lnd: lnd });
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    return res.status(500).send({ success: false, message: err });
+  }
+};
+
+//10
+const get_pending_channels = async (res) => {
+  try {
+    // {
+    //     lnd: <Authenticated LND API Object>
+    // }
+    console.log("get_pending_channels");
+    let resp = await getPendingChannels({ lnd: lnd });
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
     return res.status(500).send({ success: false, message: err });
