@@ -22,12 +22,12 @@ const {
 } = require("lightning");
 
 const fs = require("fs");
-const tls_cert = fs.readFileSync("/home/birkeland/temp", {
+const tls_cert = fs.readFileSync("/home/user/temp", {
     encoding: "utf8",
     flag: "r",
   });
 
-const base_sixtyfoir_macroon = fs.readFileSync("/home/birkeland/macaroon", {
+const base_sixtyfoir_macroon = fs.readFileSync("/home/user/macaroon", {
     encoding: "utf8",
     flag: "r",
   });
