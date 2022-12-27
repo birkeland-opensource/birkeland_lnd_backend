@@ -181,6 +181,7 @@ const add_peer = async (body, res) => {
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
+    console.log(err)
     return res.status(500).send({ success: false, message: err });
   }
 };
@@ -354,8 +355,10 @@ const get_peers = async (res) => {
     // }
     console.log("get_peers");
     let resp = await getPeers({ lnd: lnd });
+    console.log(resp)
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
+    console.log(err)
     return res.status(500).send({ success: false, message: err });
   }
 };
