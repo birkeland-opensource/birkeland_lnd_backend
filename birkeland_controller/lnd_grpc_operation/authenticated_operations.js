@@ -21,15 +21,16 @@ const {
   getPendingChannels,
   createInvoice,
   getInvoices,
+  getIdentity
 } = require("lightning");
 
 const fs = require("fs");
-const tls_cert = fs.readFileSync("/home/birkeland/temp", {
+const tls_cert = fs.readFileSync("/home/user/temp", {
   encoding: "utf8",
   flag: "r",
 });
 
-const base_sixtyfoir_macroon = fs.readFileSync("/home/birkeland/macaroon", {
+const base_sixtyfoir_macroon = fs.readFileSync("/home/user/macaroon", {
   encoding: "utf8",
   flag: "r",
 });
@@ -61,7 +62,8 @@ const LND_GRPC_OPERATION = {
   GET_BACKUPS: "get_backups", //18
   GET_PENDING_CHANNELS : "get_pending_channels", //19
   CREATE_INVOICE : "create_invoice", //20
-  GET_INVOICES : "get_invoices" //21
+  GET_INVOICES : "get_invoices", //21
+  GET_IDENTITY : "get_identity" //22    
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -129,10 +131,23 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.GET_INVOICES:
       await get_invoices(res);
       break;
+    case LND_GRPC_OPERATION.GET_IDENTITY:
+      await get_identity(res);
+      break;
     default:
       return res
         .status(500)
         .send({ success: false, message: "Invalid operation" });
+  }
+};
+
+const get_identity = async(res) =>{
+  try {
+    const resp = await getIdentity({ lnd });
+
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    return res.status(500).send({ success: false, message: err });
   }
 };
 
