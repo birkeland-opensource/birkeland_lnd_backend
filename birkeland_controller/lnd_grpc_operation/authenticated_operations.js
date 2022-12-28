@@ -24,12 +24,12 @@ const {
 } = require("lightning");
 
 const fs = require("fs");
-const tls_cert = fs.readFileSync("/home/user/temp", {
+const tls_cert = fs.readFileSync("/home/birkeland/temp", {
   encoding: "utf8",
   flag: "r",
 });
 
-const base_sixtyfoir_macroon = fs.readFileSync("/home/user/macaroon", {
+const base_sixtyfoir_macroon = fs.readFileSync("/home/birkeland/macaroon", {
   encoding: "utf8",
   flag: "r",
 });
@@ -169,6 +169,7 @@ const make_payment = async (body, res) => {
     // },
     console.log("make_payment");
     let { request } = body;
+    console.log(request)
     let resp = await pay({ lnd: lnd, request: request });
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
