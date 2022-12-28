@@ -294,8 +294,7 @@ const get_channels = async (req, res) => {
     //     [partner_public_key]: <Only Channels With Public Key Hex String>
     //  }
     console.log("get_channels");
-    let { channel_id } = req.body;
-    let resp = await getChannels({ id: channel_id, lnd: lnd });
+    let resp = await getChannels({lnd: lnd });
     return res.status(200).send({ success: true, message: resp });
 
   } catch (err) {
