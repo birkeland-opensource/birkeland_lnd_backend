@@ -20,6 +20,7 @@ const {
   getBackup,
   getBackups,
   getPendingChannels,
+  createInvoice,
 } = require("lightning");
 
 const fs = require("fs");
@@ -58,7 +59,8 @@ const LND_GRPC_OPERATION = {
   PAY: "pay", //16
   GET_BACKUP: "get_backup", //17
   GET_BACKUPS: "get_backups", //18
-  GET_PENDING_CHANNELS : "get_pending_channels" //19
+  GET_PENDING_CHANNELS : "get_pending_channels", //19
+  CREATE_INVOICE : "create_invoice" //20
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -119,6 +121,9 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
       break;
     case LND_GRPC_OPERATION.GET_PENDING_CHANNELS:
       await get_pending_channels(res);
+      break;
+    case LND_GRPC_OPERATION.CREATE_INVOICE:
+      await create_invoice(req.body,res);
       break;
     default:
       return res
@@ -419,3 +424,20 @@ const get_public_key = async (res) => {
     return res.status(500).send({ success: false, message: err });
   }
 };
+
+const create_invoice = async(body,res) =>{
+  try {
+    // {
+    //     [is_omitting_channels]: <Omit Channels from Node Bool>
+    //     lnd: <Authenticated LND API Object>
+    //     tokens: <Tokens Number>
+    // }
+    let { tokens } = body;
+    console.log("create_invoice");
+    console.log(tokens)
+    let resp = await createInvoice({ lnd: lnd, tokens: tokens });
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    return res.status(500).send({ success: false, message: err });
+  }
+}
