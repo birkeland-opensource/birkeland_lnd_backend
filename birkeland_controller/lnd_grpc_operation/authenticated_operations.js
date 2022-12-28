@@ -9,7 +9,6 @@ const {
   getNode,
   getNetworkInfo,
   getPeers,
-  getWalletStatus,
   getWalletVersion,
   getPublicKey,
   openChannel,
@@ -21,7 +20,7 @@ const {
   getBackups,
   getPendingChannels,
   createInvoice,
-  getInvoice,
+  getInvoices,
 } = require("lightning");
 
 const fs = require("fs");
@@ -454,7 +453,7 @@ const get_invoices = async (res) => {
     //     lnd: <Authenticated LND API Object>,
     // }
     console.log("get_invoices");
-    let resp = await getInvoice({ lnd: lnd });
+    let resp = await getInvoices({ lnd: lnd });
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
