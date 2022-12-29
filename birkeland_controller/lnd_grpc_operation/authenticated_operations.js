@@ -226,6 +226,7 @@ const make_payment = async (body, res) => {
     console.log(resp);
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
+    console.log(err)
     return res.status(500).send({ success: false, message: err });
   }
 };
