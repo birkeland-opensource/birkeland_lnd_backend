@@ -21,7 +21,9 @@ const {
   getPendingChannels,
   createInvoice,
   getInvoices,
-  getIdentity
+  getIdentity,
+  cancelHodlInvoice,
+  payViaPaymentDetails
 } = require("lightning");
 
 const fs = require("fs");
@@ -63,7 +65,9 @@ const LND_GRPC_OPERATION = {
   GET_PENDING_CHANNELS : "get_pending_channels", //19
   CREATE_INVOICE : "create_invoice", //20
   GET_INVOICES : "get_invoices", //21
-  GET_IDENTITY : "get_identity" //22    
+  GET_IDENTITY : "get_identity", //22    
+  CANCEL_HODL_INVOICE : "cancel_hodl_invoices", //23
+  PAY_VIA_PAYMENT_DETAILS : "pay_via_payment_details" //23
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -134,6 +138,12 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.GET_IDENTITY:
       await get_identity(res);
       break;
+    case LND_GRPC_OPERATION.CANCEL_HODL_INVOICE:
+      await cancel_hodl_invoices(req.body,res);
+      break;
+    case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
+      await pay_via_payment_details(req.body,res);
+      break;
     default:
       return res
         .status(500)
@@ -141,10 +151,37 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
   }
 };
 
+const pay_via_payment_details = async(body,res) =>{
+  try {
+    console.log("pay_via_payment_details")
+    let {request_id,destination,token} = body;
+    let request_id_object = {id:request_id};
+    console.log({request_id_object,destination,token });
+    const resp = await payViaPaymentDetails({request_id_object,destination,token, lnd });
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).send({ success: false, message: err });
+  }
+};
+
+
+const cancel_hodl_invoices = async(body,res) =>{
+  try {
+    console.log("cancel_hodl_invoices")
+    let {request_id} = body;
+    let request_id_object = {id:request_id}
+    const resp = await cancelHodlInvoice({request_id_object, lnd });
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).send({ success: false, message: err });
+  }
+};
+
 const get_identity = async(res) =>{
   try {
     const resp = await getIdentity({ lnd });
-
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
     return res.status(500).send({ success: false, message: err });
