@@ -146,7 +146,7 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
       await pay_via_payment_details(req.body,res);
       break;
-    case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
+    case LND_GRPC_OPERATION.GET_PAYMENTS:
       await get_payments(res);
       break;
       
