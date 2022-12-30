@@ -152,7 +152,7 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
       await get_payments(res);
       break;
     case LND_GRPC_OPERATION.CLOSE_A_CHANNEL:
-      await close_a_channel(res,body);
+      await close_a_channel(req.body,res);
       break;
       
     default:
