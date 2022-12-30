@@ -166,9 +166,8 @@ const close_a_channel = async(body,res) =>{
   try {
     console.log("close_a_channel")
     let {channel_id} = body;
-    let params_object = {id:channel_id};
-    console.log(params_object);
-    const resp = await closeChannel({params_object, lnd });
+    let id = channel_id;
+    const resp = await closeChannel({lnd,id });
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
     console.log(err)
