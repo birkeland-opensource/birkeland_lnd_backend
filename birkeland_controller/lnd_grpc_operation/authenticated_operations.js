@@ -165,8 +165,8 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
 const close_a_channel = async(body,res) =>{
   try {
     console.log("close_a_channel")
-    let {transaction_id} = body;
-    let params_object = {transaction_id:transaction_id};
+    let {channel_id} = body;
+    let params_object = {id:channel_id};
     console.log(params_object);
     const resp = await closeChannel({params_object, lnd });
     return res.status(200).send({ success: true, message: resp });
