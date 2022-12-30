@@ -24,7 +24,8 @@ const {
   getIdentity,
   cancelHodlInvoice,
   payViaPaymentDetails,
-  getPayments
+  getPayments,
+  closeChannel
 } = require("lightning");
 
 const fs = require("fs");
@@ -69,7 +70,8 @@ const LND_GRPC_OPERATION = {
   GET_IDENTITY : "get_identity", //22    
   CANCEL_HODL_INVOICE : "cancel_hodl_invoices", //23
   PAY_VIA_PAYMENT_DETAILS : "pay_via_payment_details", //24
-  GET_PAYMENTS : "get_payments" //25
+  GET_PAYMENTS : "get_payments", //25
+  CLOSE_A_CHANNEL :"close_a_channel" //26 
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -149,6 +151,9 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.GET_PAYMENTS:
       await get_payments(res);
       break;
+    case LND_GRPC_OPERATION.CLOSE_A_CHANNEL:
+      await close_a_channel(res,body);
+      break;
       
     default:
       return res
@@ -156,6 +161,20 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
         .send({ success: false, message: "Invalid operation" });
   }
 };
+
+const close_a_channel = async(body,res) =>{
+  try {
+    console.log("close_a_channel")
+    let {transaction_id} = body;
+    let params_object = {transaction_id:transaction_id};
+    console.log(params_object);
+    const resp = await closeChannel({params_object, lnd });
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).send({ success: false, message: err });
+  }
+}
 
 const pay_via_payment_details = async(body,res) =>{
   try {
