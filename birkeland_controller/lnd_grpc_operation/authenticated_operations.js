@@ -23,7 +23,8 @@ const {
   getInvoices,
   getIdentity,
   cancelHodlInvoice,
-  payViaPaymentDetails
+  payViaPaymentDetails,
+  getPayments
 } = require("lightning");
 
 const fs = require("fs");
@@ -67,7 +68,8 @@ const LND_GRPC_OPERATION = {
   GET_INVOICES : "get_invoices", //21
   GET_IDENTITY : "get_identity", //22    
   CANCEL_HODL_INVOICE : "cancel_hodl_invoices", //23
-  PAY_VIA_PAYMENT_DETAILS : "pay_via_payment_details" //23
+  PAY_VIA_PAYMENT_DETAILS : "pay_via_payment_details", //24
+  GET_PAYMENTS : "get_payments" //25
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -144,6 +146,10 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
       await pay_via_payment_details(req.body,res);
       break;
+    case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
+      await get_payments(res);
+      break;
+      
     default:
       return res
         .status(500)
@@ -187,6 +193,17 @@ const get_identity = async(res) =>{
     return res.status(500).send({ success: false, message: err });
   }
 };
+
+const get_payments = async(res) =>{
+  try {
+    const resp = await getPayments({ lnd });
+    console.log(resp)
+    return res.status(200).send({ success: true, message: resp });
+  } catch (err) {
+    return res.status(500).send({ success: false, message: err });
+  }
+}
+
 
 const get_backups = async (res) => {
   try {
