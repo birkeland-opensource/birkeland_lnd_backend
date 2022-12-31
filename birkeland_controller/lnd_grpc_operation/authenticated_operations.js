@@ -171,7 +171,7 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
 const get_closed_channels = async(res) =>{
   try{
     console.log("get_closed_channels");
-    const resp = await getClosedChannels({lnd,is_breach_close: true });
+    const resp = await getClosedChannels({lnd });
     return res.status(200).send({ success: true, message: resp });
   }
   catch(err){
