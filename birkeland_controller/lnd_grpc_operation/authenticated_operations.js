@@ -543,10 +543,10 @@ const create_invoice = async(body,res) =>{
     //     lnd: <Authenticated LND API Object>
     //     tokens: <Tokens Number>
     // }
-    let { tokens } = body;
+    let { mtokens } = body;
     console.log("create_invoice");
-    console.log(tokens)
-    let resp = await createInvoice({ lnd: lnd, tokens: tokens });
+    console.log(mtokens)
+    let resp = await createInvoice({ lnd: lnd, mtokens: mtokens });
     return res.status(200).send({ success: true, message: resp });
   } catch (err) {
     return res.status(500).send({ success: false, message: err });
