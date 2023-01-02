@@ -26,16 +26,17 @@ const {
   payViaPaymentDetails,
   getPayments,
   closeChannel,
-  getClosedChannels
+  getClosedChannels,
+  getInvoice
 } = require("lightning");
 
 const fs = require("fs");
-const tls_cert = fs.readFileSync("/home/birkeland/temp", {
+const tls_cert = fs.readFileSync("/home/user/temp", {
   encoding: "utf8",
   flag: "r",
 });
 
-const base_sixtyfoir_macroon = fs.readFileSync("/home/birkeland/macaroon", {
+const base_sixtyfoir_macroon = fs.readFileSync("/home/user/macaroon", {
   encoding: "utf8",
   flag: "r",
 });
@@ -74,6 +75,7 @@ const LND_GRPC_OPERATION = {
   GET_PAYMENTS : "get_payments", //25
   CLOSE_A_CHANNEL :"close_a_channel", //26 
   GET_CLOSED_CHANNELS : "get_closed_channels", //27
+  GET_INVOICE : "get_invoice", //21
 };
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
@@ -159,7 +161,11 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
     case LND_GRPC_OPERATION.GET_CLOSED_CHANNELS:
       await get_closed_channels(res);
       break;
+    case LND_GRPC_OPERATION.GET_INVOICE:
+      await get_invoice(req.body,res);
+      break;
 
+      
     default:
       return res
         .status(500)
@@ -567,3 +573,18 @@ const get_invoices = async (res) => {
     return res.status(500).send({ success: false, message: err });
   }
 };
+
+const get_invoice = async (body,res) => {
+  try {
+  let {invoice_id} = body;
+  let id = invoice_id;
+  console.log("get_invoice");
+  let resp = await getInvoice({id, lnd: lnd });
+  console.log(resp);
+  return res.status(200).send({ success: true, message: resp });
+  }
+  catch(err){
+    return res.status(500).send({ success: false, message: err });
+  }
+
+}
