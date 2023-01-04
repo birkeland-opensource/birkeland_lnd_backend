@@ -1,7 +1,7 @@
 const { unauthenticatedLndGrpc, getWalletStatus, unlockWallet } = require("lightning")
 const fs = require("fs")
 
-const tls_cert = fs.readFileSync('/home/birkeland/temp',{encoding:'utf8', flag:'r'});
+const tls_cert = fs.readFileSync('/etc/birkeland/tlscert',{encoding:'utf8', flag:'r'});
 
 
 const {lnd} = unauthenticatedLndGrpc({
