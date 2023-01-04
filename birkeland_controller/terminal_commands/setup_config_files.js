@@ -11,7 +11,7 @@ const create_birkeland_lnd_comm_config_file = (password) =>{
         `echo "${password}" | sudo -S base64 -w0 ~/.lnd/tls.cert > tlscert \n` +
         `echo "${password}" | sudo -S base64 -w0 ~/.lnd/data/chain/bitcoin/mainnet/admin.macaroon > btc_admin_macroon \n` +
 		`echo "${password}" | sudo -S mv tlscert /etc/birkeland/ \n` +
-		`echo "${password}" | sudo -S mv admin.macaroon /etc/birkeland/ \n` +
+		`echo "${password}" | sudo -S mv btc_admin_macroon /etc/birkeland/ \n` +
         `exit`
 		
         var filepath =	base_path+'/birkeland_lnd_config_file_setup.sh'
