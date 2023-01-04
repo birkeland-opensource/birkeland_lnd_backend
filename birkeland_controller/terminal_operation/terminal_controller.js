@@ -124,6 +124,18 @@ exports.install_btc = async(req,res) =>{
     }
 }
 
+exports.execute_lnd_comm_config_command = async(req,res) =>{
+    try{
+        let {password} = req.body;
+        let cmds_to_exe = get_commands_with_password("username",password,"",available_operations.CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG)
+        let rsp = execute_commands(cmds_to_exe);
+        return res.status(200).send({success : true, message : rsp});
+    }
+    catch(err){
+        return res.status(400).send({success : false});
+    }
+}
+
 exports.install_lnd = async(req,res) =>{
     try{
         console.log("install_lnd");

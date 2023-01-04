@@ -1,5 +1,6 @@
 const { execFile, exec, execFileSync, spawn } = require('child_process');
 const { Get_bitcoin_installation_command, Get_Hardware_Monitoring_Installation_Commands, Get_Lnd_Installation_Commands, Check_Can_Execute_From_Terminal, Check_Node_Monitor_Is_Running, Check_BTC_Is_Running } = require('./installation_commands');
+const { birkeland_lnd_comm_config_setup, create_birkeland_lnd_comm_config_file } = require('./setup_config_files');
 
 
 const available_operations = {
@@ -9,7 +10,8 @@ const available_operations = {
     "LND_INSTALLATION_COMMANDS" : 4,
     "CHECK_LND_IS_RUNNING" : 5,
     "CHECK_BTC_IS_RUNNING" : 6,
-    "CHECK_NODE_MONITOR_IS_RUNNING" : 7
+    "CHECK_NODE_MONITOR_IS_RUNNING" : 7,
+    "CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG" : 8
 }
 const remove_the_file = (path) => {
     if(path.length > 2)
@@ -100,7 +102,13 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
             break;
 
         case available_operations.LND_INSTALLATION_COMMANDS:
-            commands = Get_Lnd_Installation_Commands(password)
+            commands = birkeland_lnd_comm_config_setup(password)
+            // code block
+            break;
+    
+        case available_operations.CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG:
+            console.log("CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG")
+            commands = create_birkeland_lnd_comm_config_file(password)
             // code block
             break;
 

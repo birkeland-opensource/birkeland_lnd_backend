@@ -19,6 +19,7 @@ apirouter.post("/manage_a_process", terminal_controller.manage_a_process);
 
 apirouter.post("/perform_lnd_operation", terminal_controller.perform_lnd_operation);
 
+apirouter.post("/setup_encrypted_config_for_grpc",terminal_controller.execute_lnd_comm_config_command )
 
 
 
