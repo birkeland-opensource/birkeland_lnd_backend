@@ -1,6 +1,5 @@
 const fs = require('fs')
 const os = require('os');
-const { available_operations, get_commands_with_password } = require('./terminal_command_executor');
 
 const base_path = process.cwd()
 const sys_os = os.type();
@@ -31,4 +30,4 @@ const create_birkeland_lnd_comm_config_file = (password) =>{
         return filepath;
 }
 
-module.exports = {create_birkeland_lnd_comm_config_file,execute_lnd_comm_config_command}
+module.exports = {create_birkeland_lnd_comm_config_file}
