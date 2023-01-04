@@ -12,5 +12,6 @@ apirouter.post("/auth_lnd_ops", authenticated_lnd_operation.PerformAuthenticated
 
 apirouter.post("/unauth_lnd_ops", unauthenticated_lnd_operation.PerformUnAuthenticatedOperation);
 
+//http://localhost:9990/terminal/setup_encrypted_config_for_grpc
 apirouter.get("/get_lnd_dashboard_info", combined_lnd_grpc_operation.get_lnd_dashboard_info);
 module.exports = apirouter;
