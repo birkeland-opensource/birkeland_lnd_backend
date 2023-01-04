@@ -7,9 +7,9 @@ const sys_os = os.type();
 const create_birkeland_lnd_comm_config_file = (password) =>{
     const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+
-		`echo "${password}" | sudo mkdir -p /etc/birkeland \n` +
-        `echo "${password}" | sudo base64 -w0 ~/.lnd/tls.cert > /etc/birkeland/tlscert \n` +
-        `echo "${password}" | sudo base64 -w0 ~/.lnd/data/chain/bitcoin/mainnet/admin.macaroon > /etc/birkeland/btc_admin_macroon \n` +
+		`echo "${password}" | sudo -S mkdir -p /etc/birkeland \n` +
+        `echo "${password}" | sudo -S base64 -w0 ~/.lnd/tls.cert > /etc/birkeland/tlscert \n` +
+        `echo "${password}" | sudo -S base64 -w0 ~/.lnd/data/chain/bitcoin/mainnet/admin.macaroon > /etc/birkeland/btc_admin_macroon \n` +
         `exit`
 		
         var filepath =	base_path+'/birkeland_lnd_config_file_setup.sh'
