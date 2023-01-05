@@ -8,3 +8,4 @@
     chmod +x get-docker.sh
     sh get-docker.sh
     rm get-docker.sh
+fi
