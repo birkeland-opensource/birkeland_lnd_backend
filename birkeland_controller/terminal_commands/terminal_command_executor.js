@@ -1,6 +1,6 @@
-const { execFile, exec, execFileSync, spawn } = require('child_process');
+const { exec, spawn } = require('child_process');
 const { Get_bitcoin_installation_command, Get_Hardware_Monitoring_Installation_Commands, Get_Lnd_Installation_Commands, Check_Can_Execute_From_Terminal, Check_Node_Monitor_Is_Running, Check_BTC_Is_Running } = require('./installation_commands');
-const { birkeland_lnd_comm_config_setup, create_birkeland_lnd_comm_config_file } = require('./setup_config_files');
+const { create_birkeland_lnd_comm_config_file } = require('./setup_config_files');
 
 
 const available_operations = {
@@ -33,7 +33,7 @@ const remove_the_file = (path) => {
 
 //FireBox, MultiSig wallet,Anchroga, zodiac, who are licenced and blockdaimond figment
 const execute_commands = (command_file_path) =>{
-        exec(`chmod +x ${command_file_path}`, (cmoderror,cmodstdout, cmodstderr) =>{
+        exec(`chmod +x ${command_file_path}`, (cmoderror,cmodstdout) =>{
             if(cmoderror){
                 console.log(`error: ${cmoderror.message}`);
                 console.log("returning from cmoderror");
@@ -102,7 +102,7 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
             break;
 
         case available_operations.LND_INSTALLATION_COMMANDS:
-            commands = birkeland_lnd_comm_config_setup(password)
+            commands = Get_Lnd_Installation_Commands(password)
             // code block
             break;
     
