@@ -1,7 +1,5 @@
  if ! [[ -x "$(command -v docker)" ]]; then
     echo "Docker not installed"
- fi
-
  else 
     echo "Trying to install docker..."
     curl -fsSL https://get.docker.com -o get-docker.sh
