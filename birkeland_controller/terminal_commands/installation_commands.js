@@ -11,6 +11,7 @@ console.log("OS " +sys_os );
 exports.get_lnbits_installation_commands = (password) => {
 	
 	const cmds = `#!/bin/bash \n\n` +
+				`set +x \n`+
 				`echo "Installing LNBits" \n`+
 				`pwd \n`+
 				`sudo -v \n`+
