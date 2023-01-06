@@ -1,5 +1,6 @@
 #!/bin/bash 
 
+set +x 
 echo "Installing LNBits" 
 pwd 
 sudo -v 
