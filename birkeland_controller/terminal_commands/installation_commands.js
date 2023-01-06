@@ -8,6 +8,35 @@ const base_path = process.cwd()
 const sys_os = os.type();
 console.log("OS " +sys_os );
 
+exports.get_lnbits_installation_commands = (password) => {
+	
+	const cmds = `#!/bin/bash \n\n` +
+				`echo "Installing LNBits" \n`+
+				`pwd \n`+
+				`sudo -v \n`+
+				`mkdir -p birkeland/lnbits \n`+
+				`cd birkeland/lnbits \n`+
+				`git clone https://github.com/lnbits/lnbits-legend.git \n`+
+				`cd lnbits-legend/ \n`+
+				`sudo apt install software-properties-common \n`+
+				`sudo add-apt-repository ppa:deadsnakes/ppa	\n`+
+				`sudo apt install python3.9 python3.9-distutils \n`+
+				`curl -sSL https://install.python-poetry.org | python3 - \n`+
+				`export PATH="/home/user/.local/bin:$PATH"  \n`+
+				`poetry env use python3.9 \n`+
+				`poetry install --only main\n`+
+				`mkdir data \n` +
+				`cp .env.example .env \n` +
+				`nano .env \n`+
+				`exit`
+			
+			var filepath =	base_path+'/lnbits_installation.sh'
+			fs.writeFileSync(filepath, cmds);
+
+			return filepath;
+}
+
+
 exports.Get_bitcoin_installation_command = (passowrd) =>{
 		const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+

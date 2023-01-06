@@ -13,6 +13,7 @@ apirouter.post("/install_btc", terminal_controller.install_btc);
 apirouter.post("/install_lnd", terminal_controller.install_lnd);
 apirouter.post("/install_node_monitoring", terminal_controller.install_node_monitoring);
 
+apirouter.post("/install_lnbits", terminal_controller.install_lnbits);
 apirouter.post("/check_if_a_process_is_running", terminal_controller.check_if_a_process_is_running);
 
 apirouter.post("/manage_a_process", terminal_controller.manage_a_process);
