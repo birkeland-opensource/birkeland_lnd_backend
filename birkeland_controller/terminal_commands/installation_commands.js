@@ -14,6 +14,7 @@ exports.get_lnbits_installation_commands = (password) => {
 				`echo "Installing LNBits" \n`+
 				`pwd \n`+
 				`sudo -v \n`+
+				`cd ~ \n`+
 				`mkdir -p birkeland/lnbits \n`+
 				`cd birkeland/lnbits \n`+
 				`git clone https://github.com/lnbits/lnbits-legend.git \n`+

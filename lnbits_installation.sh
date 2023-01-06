@@ -3,6 +3,7 @@
 echo "Installing LNBits" 
 pwd 
 sudo -v 
+cd ~ 
 mkdir -p birkeland/lnbits 
 cd birkeland/lnbits 
 git clone https://github.com/lnbits/lnbits-legend.git 
