@@ -20,6 +20,7 @@ exports.get_lnbits_installation_commands = (password) => {
 				`cd birkeland/lnbits \n`+
 				`git clone https://github.com/lnbits/lnbits-legend.git \n`+
 				`cd lnbits-legend/ \n`+
+				`sudo apt update \n` +
 				`sudo apt install software-properties-common \n`+
 				`sudo add-apt-repository ppa:deadsnakes/ppa	\n`+
 				`sudo apt install python3.9 python3.9-distutils \n`+
