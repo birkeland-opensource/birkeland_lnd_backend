@@ -6,6 +6,11 @@ const birkeland_wallet_schema = new mongoose.Schema({
     required: true,
     unique: false,
   },
+  wallet_name : {
+    type: String,
+    required: true,
+    unique: false,
+  },
   user_id: {
     type: String,
     required: true,

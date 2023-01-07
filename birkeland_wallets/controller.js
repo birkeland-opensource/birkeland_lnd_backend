@@ -4,9 +4,10 @@ const { v4: uuidv4 } = require("uuid");
 exports.create_a_wallet = async (req, res) => {
   try {
     // Later get mainwallet public key from the LND 
-    let { user_id,main_wallet_public_key } = req.body;
+    let { user_id,main_wallet_public_key,wallet_name } = req.body;
     var object = {
       main_wallet_public_key : main_wallet_public_key,
+      wallet_name : wallet_name,
       user_id: user_id,
       wallet_id: uuidv4(),
       admin_key: uuidv4(),
