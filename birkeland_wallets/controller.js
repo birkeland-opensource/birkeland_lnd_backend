@@ -1,6 +1,5 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const { v4: uuidv4 } = require("uuid");
-const short = require("short-uuid");
 
 exports.create_a_wallet = async (req, res) => {
   try {
