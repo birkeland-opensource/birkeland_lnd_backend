@@ -11,13 +11,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cors()); 
 
-
+require('./config/db');
 
 var terminal_operation_router = require("./birkeland_router/terminal_operation_router/terminal_operation_router");
 app.use('/terminal',terminal_operation_router);
 
 var lnd_operation_router = require("./birkeland_router/lnd_operation_router");
 app.use('/lnd',lnd_operation_router);
+
+var birkeland_wallet_router = require("./birkeland_wallets/birkeland_wallet_router");
+app.use('/wallets',birkeland_wallet_router);
 
 app.get("/",(req,res)=>{
 
