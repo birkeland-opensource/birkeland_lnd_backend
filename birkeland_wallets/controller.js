@@ -25,8 +25,19 @@ exports.create_a_wallet = async (req, res) => {
 
 exports.get_all_wallets = async (req, res) => {
   try {
+   
+    // var returnObject = {};
+    var result = await birkeland_wallet_item.find({});
+    return res.status(200).send({ success: true, message: result });
+  } catch (e) {
+    return res.status(400).send({ success: false });
+  }
+};
+
+exports.get_all_wallet = async (req, res) => {
+  try {
     var filter = {
-      main_wallet_public_key: req.query.main_wallet_public_key,
+      wallet_id: req.query.wallet_id,
     };
     // var returnObject = {};
     var result = await birkeland_wallet_item.find({filter});
