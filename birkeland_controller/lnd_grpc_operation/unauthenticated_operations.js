@@ -1,4 +1,4 @@
-const { unauthenticatedLndGrpc, getWalletStatus, unlockWallet } = require("lightning")
+const { unauthenticatedLndGrpc, getWalletStatus, unlockWallet, createWallet, createSeed } = require("lightning")
 const fs = require("fs")
 
 const tls_cert = fs.readFileSync('/etc/birkeland/tlscert',{encoding:'utf8', flag:'r'});
@@ -12,7 +12,8 @@ const {lnd} = unauthenticatedLndGrpc({
 
 const LND_GRPC_OPERATION = {
     GET_WALLET_STATUS : "get_wallet_status", //9
-    UNLOCK_WALLET : "un_lock_wallet"
+    UNLOCK_WALLET : "un_lock_wallet",
+    CREATE_WALLET : "create_wallet",
 }
 exports.PerformUnAuthenticatedOperation =async (req,res) =>{
     let {operation} = req.body;
@@ -23,6 +24,9 @@ exports.PerformUnAuthenticatedOperation =async (req,res) =>{
             break;
         case LND_GRPC_OPERATION.UNLOCK_WALLET: //2
             await unlock_wallet(req.body,res);
+            break;
+        case LND_GRPC_OPERATION.CREATE_WALLET: //3
+            await create_wallet(req.body,res);
             break;
         default:
             return res.status(500).send({success : false,message :"Invalid operation"});
@@ -57,6 +61,24 @@ const unlock_wallet = async(body,res)=>{
         console.log("unlock_wallet");
         let {password} = body;
         let resp = await unlockWallet({lnd:lnd, password :password});
+        return res.status(200).send({success : true,message:resp});
+    }
+    catch(err){
+        return res.status(500).send({success : false,message :JSON.stringify(err)});
+    }
+}
+
+//2
+const create_wallet = async(body,res)=>{
+    try{
+        // {
+        //     lnd: <Unauthenticated LND gRPC API Object>
+        //     password: <Wallet Password String>
+        // }
+        console.log("create_wallet");
+        let {password} = body;
+        const {seed} = await createSeed({lnd});
+        let resp = await createWallet({lnd:lnd,seed, password :password});
         return res.status(200).send({success : true,message:resp});
     }
     catch(err){
