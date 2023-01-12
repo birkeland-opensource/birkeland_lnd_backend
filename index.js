@@ -20,7 +20,7 @@ var lnd_operation_router = require("./birkeland_router/lnd_operation_router");
 app.use('/lnd',lnd_operation_router);
 
 var birkeland_wallet_router = require("./birkeland_wallets/birkeland_wallet_router");
-app.use('/wallets',birkeland_wallet_router);
+app.use('/v1/wallets',birkeland_wallet_router);
 
 app.get("/",(req,res)=>{
 

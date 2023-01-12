@@ -37,6 +37,7 @@ exports.get_all_wallets = async (req, res) => {
 exports.get_all_wallet = async (req, res) => {
   try {
     var filter = {
+      user_id : req.query.user_id,
       wallet_id: req.query.wallet_id,
     };
     // var returnObject = {};
