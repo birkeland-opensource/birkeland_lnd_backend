@@ -36,12 +36,13 @@ exports.get_all_wallets = async (req, res) => {
   }
 };
 
-exports.get_all_wallet = async (req, res) => {
+exports.get_one_wallet = async (req, res) => {
   try {
     var filter = {
       user_id : req.query.user_id,
       wallet_id: req.query.wallet_id,
     };
+    console.log(filter)
     // var returnObject = {};
     var result = await birkeland_wallet_item.findOne({filter});
     return res.status(200).send({ success: true, message: result });
