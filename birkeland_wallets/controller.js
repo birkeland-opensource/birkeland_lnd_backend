@@ -27,6 +27,7 @@ exports.get_all_wallets = async (req, res) => {
   try {
    
     // var returnObject = {};
+    console.log("get_all_wallets")
     var result = await birkeland_wallet_item.find({});
     return res.status(200).send({ success: true, message: result });
   } catch (e) {

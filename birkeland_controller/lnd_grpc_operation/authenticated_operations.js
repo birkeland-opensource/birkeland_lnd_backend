@@ -45,6 +45,7 @@ const { lnd } = authenticatedLndGrpc({
   cert: tls_cert,
   macaroon: base_sixtyfoir_macroon,
   socket: "127.0.0.1:10009",
+ // socket: "10.2.209.103:10009",
 });
 
 const LND_GRPC_OPERATION = {
@@ -77,92 +78,131 @@ const LND_GRPC_OPERATION = {
   GET_CLOSED_CHANNELS : "get_closed_channels", //27
   GET_INVOICE : "get_invoice", //21
 };
+
+const respond_to_request = (ops_res, res) =>{
+
+  if(ops_res?.success){
+    return res.status(200).send({ success: true, message: ops_res?.message });
+  }
+  else{
+    return res.status(500).send({ success: false, message: ops_res?.message });
+  }
+}
+
 exports.PerformAuthenticatedOperation = async (req, res) => {
   let { operation } = req.body;
   switch (operation) {
     case LND_GRPC_OPERATION.GET_U_TXOS:
-      await get_u_txos(res);
+      let get_u_txos_resp = await get_u_txos();
+      respond_to_request(get_u_txos_resp,res);
       break;
     case LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS:
-      await create_chain_address(res);
+      let create_chain_address_resp = await create_chain_address();
+      respond_to_request(create_chain_address_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
-      await get_chain_balance(res);
+      let get_chain_balance_resp = await get_chain_balance();
+      respond_to_request(get_chain_balance_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL:
-      await get_channel(req.body, res);
+      let get_channel_resp =  await get_channel(req.body);
+      respond_to_request(get_channel_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNEL_BALANCE:
-      await get_channel_balance(res);
+      let get_channel_balance_resp =  await get_channel_balance();
+      respond_to_request(get_channel_balance_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_CHANNELS:
-      await get_channels(req.body, res);
+      let get_channels_resp =  await get_channels();
+      respond_to_request(get_channels_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_METHODS:
-      await get_methods( res);
+      let get_methods_resp = await get_methods();
+      respond_to_request(get_methods_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_NODE:
-      await get_node(req.body, res);
+      let get_node_resp = await get_node(req.body);
+      respond_to_request(get_node_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_NETWORK_INFO:
-      await get_network_info(req.body, res);
+      let get_network_info_resp = await get_network_info();
+      respond_to_request(get_network_info_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_PEERS:
-       await get_peers(res);
+       let get_peers_resp = await get_peers();
+       respond_to_request(get_peers_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_VERSION:
-       await get_wallet_version(res);
+       let get_wallet_version_resp = await get_wallet_version();
+       respond_to_request(get_wallet_version_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_WALLET_INFO:
-      await get_wallet_info(res);
+      let get_wallet_info_resp =  await get_wallet_info();
+      respond_to_request(get_wallet_info_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_PUBLIC_KEY:
-      await get_public_key(res);
+      let get_public_key_resp = await get_public_key();
+      respond_to_request(get_public_key_resp,res);
       break;
     case LND_GRPC_OPERATION.OPEN_CHANNEL:
-      await open_channel(req.body, res);
+      let open_channel_resp = await open_channel(req.body);
+      respond_to_request(open_channel_resp,res);
       break;
     case LND_GRPC_OPERATION.ADD_PEER:
-      await add_peer(req.body, res);
+      let add_peer_resp = await add_peer(req.body);
+      respond_to_request(add_peer_resp,res);
       break;
     case LND_GRPC_OPERATION.PAY:
-      await make_payment(req.body, res);
+      let make_payment_resp = await make_payment(req.body);
+      respond_to_request(make_payment_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_BACKUP:
-      await get_backup(res);
+      let get_backup_resp = await get_backup();
+      respond_to_request(get_backup_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_BACKUPS:
-      await get_backups(res);
+      let get_backups_resp = await get_backups();
+      respond_to_request(get_backups_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_PENDING_CHANNELS:
-      await get_pending_channels(res);
+      let get_pending_channels_resp = await get_pending_channels();
+      respond_to_request(get_pending_channels_resp,res);
       break;
     case LND_GRPC_OPERATION.CREATE_INVOICE:
-      await create_invoice(req.body,res);
+      let create_invoice_resp = await create_invoice(req.body);
+      respond_to_request(create_invoice_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_INVOICES:
-      await get_invoices(res);
+      let get_invoices_resp = await get_invoices();
+      respond_to_request(get_invoices_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_IDENTITY:
-      await get_identity(res);
+      let get_identity_resp = await get_identity();
+      respond_to_request(get_identity_resp,res);
       break;
     case LND_GRPC_OPERATION.CANCEL_HODL_INVOICE:
-      await cancel_hodl_invoices(req.body,res);
+      let cancel_hodl_invoices_resp = await cancel_hodl_invoices(req.body);
+      respond_to_request(cancel_hodl_invoices_resp,res);
       break;
     case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
-      await pay_via_payment_details(req.body,res);
+      let pay_via_payment_details_resp = await pay_via_payment_details(req.body);
+      respond_to_request(pay_via_payment_details_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_PAYMENTS:
-      await get_payments(res);
+      let get_payments_resp = await get_payments();
+      respond_to_request(get_payments_resp,res);
       break;
     case LND_GRPC_OPERATION.CLOSE_A_CHANNEL:
-      await close_a_channel(req.body,res);
+      let close_a_channel_resp = close_a_channel(req.body);
+      respond_to_request(close_a_channel_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_CLOSED_CHANNELS:
-      await get_closed_channels(res);
+      let get_closed_channels_resp = await get_closed_channels();
+      respond_to_request(get_closed_channels_resp,res);
       break;
     case LND_GRPC_OPERATION.GET_INVOICE:
-      await get_invoice(req.body,res);
+      let get_invoice_resp = await get_invoice(req.body);
+      respond_to_request(get_invoice_resp,res);
       break;
 
       
@@ -174,90 +214,90 @@ exports.PerformAuthenticatedOperation = async (req, res) => {
 };
 
 
-const get_closed_channels = async(res) =>{
+const get_closed_channels = async() =>{
   try{
     console.log("get_closed_channels");
     const resp = await getClosedChannels({lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   }
   catch(err){
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 }
 
-const close_a_channel = async(body,res) =>{
+const close_a_channel = async(body) =>{
   try {
     console.log("close_a_channel")
     let {channel_id} = body;
     let id = channel_id;
     console.log({lnd,id })
     const resp = await closeChannel({lnd,id });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 }
 
-const pay_via_payment_details = async(body,res) =>{
+const pay_via_payment_details = async(body) =>{
   try {
     console.log("pay_via_payment_details")
     let {request_id,destination,token} = body;
     let request_id_object = {id:request_id};
     console.log({request_id_object,destination,token });
     const resp = await payViaPaymentDetails({request_id_object,destination,token, lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 
-const cancel_hodl_invoices = async(body,res) =>{
+const cancel_hodl_invoices = async(body) =>{
   try {
     console.log("cancel_hodl_invoices")
     let {request_id} = body;
     let request_id_object = {id:request_id}
     const resp = await cancelHodlInvoice({request_id_object, lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const get_identity = async(res) =>{
+const get_identity = async() =>{
   try {
     const resp = await getIdentity({ lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return  {success: false, message: err };
   }
 };
 
-const get_payments = async(res) =>{
+const get_payments = async() =>{
   try {
     const resp = await getPayments({ lnd });
     console.log(resp)
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 }
 
 
-const get_backups = async (res) => {
+const get_backups = async () => {
   try {
     const resp = await getBackups({ lnd });
 
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const get_backup = async (res) => {
+const get_backup = async () => {
   try {
     const [channel] = (await getChannels({ lnd })).channels;
     const resp = await getBackup({
@@ -266,13 +306,13 @@ const get_backup = async (res) => {
       transaction_vout: channel.transaction_vout,
     });
 
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const make_payment = async (body, res) => {
+const make_payment = async (body) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -283,14 +323,14 @@ const make_payment = async (body, res) => {
     console.log(request)
     let resp = await pay({ lnd: lnd, request: request });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const add_peer = async (body, res) => {
+const add_peer = async (body) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -304,14 +344,14 @@ const add_peer = async (body, res) => {
       socket: socket,
     });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const get_u_txos = async (res) => {
+const get_u_txos = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -319,13 +359,13 @@ const get_u_txos = async (res) => {
     console.log("get_u_txos");
     let resp = await getUtxos({ lnd: lnd });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const create_chain_address = async (res) => {
+const create_chain_address = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -334,13 +374,13 @@ const create_chain_address = async (res) => {
     console.log("create_chain_address");
     let resp = await createChainAddress({ lnd: lnd, format: "p2wpkh" });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const open_channel = async (body, res) => {
+const open_channel = async (body) => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -353,14 +393,14 @@ const open_channel = async (body, res) => {
       lnd: lnd,
     });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //1
-const get_chain_balance = async (res) => {
+const get_chain_balance = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -368,14 +408,14 @@ const get_chain_balance = async (res) => {
     console.log("get_chain_balance");
     let resp = await getChainBalance({ lnd: lnd });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //2
-const get_channel = async (body, res) => {
+const get_channel = async (body) => {
   try {
     // {
     //     id: <Standard Format Channel Id String>
@@ -385,27 +425,27 @@ const get_channel = async (body, res) => {
     let { channel_id } = body;
     let resp = await getChannel({ id: channel_id, lnd: lnd });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //3
-const get_channel_balance = async (res) => {
+const get_channel_balance = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_channel_balance");
     let resp = await getChannelBalance({ lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 //4
-const get_channels = async (req, res) => {
+const get_channels = async () => {
   try {
     // {
     //     [is_active]: <Limit Results To Only Active Channels Bool> // false
@@ -417,15 +457,15 @@ const get_channels = async (req, res) => {
     //  }
     console.log("get_channels");
     let resp = await getChannels({lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
 
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //5
-const get_methods = async (res) => {
+const get_methods = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -433,14 +473,14 @@ const get_methods = async (res) => {
     console.log("get_methods");
     let resp = await getMethods({ lnd: lnd });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //6
-const get_node = async (body, res) => {
+const get_node = async (body) => {
   try {
     // {
     //     [is_omitting_channels]: <Omit Channels from Node Bool>
@@ -450,28 +490,28 @@ const get_node = async (body, res) => {
     let { public_key } = body;
     console.log("get_node");
     let resp = await getNode({ lnd: lnd, public_key: public_key });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //7
-const get_network_info = async (req, res) => {
+const get_network_info = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_network_info");
     let resp = await getNetworkInfo({ lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //8
-const get_peers = async (res) => {
+const get_peers = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
@@ -479,70 +519,70 @@ const get_peers = async (res) => {
     console.log("get_peers");
     let resp = await getPeers({ lnd: lnd });
     console.log(resp)
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
     console.log(err)
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //9
-const get_wallet_version = async (res) => {
+const get_wallet_version = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_wallet_version");
     let resp = await getWalletVersion({ lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //10
-const get_wallet_info = async (res) => {
+const get_wallet_info = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_wallet_info");
     let resp = await getWalletInfo({ lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //10
-const get_pending_channels = async (res) => {
+const get_pending_channels = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_pending_channels");
     let resp = await getPendingChannels({ lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
 //11
-const get_public_key = async (res) => {
+const get_public_key = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>
     // }
     console.log("get_public_key");
     let resp = await getPublicKey({ family: 1, index: 1, lnd: lnd });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const create_invoice = async(body,res) =>{
+const create_invoice = async(body) =>{
   try {
     // {
     //     [is_omitting_channels]: <Omit Channels from Node Bool>
@@ -553,14 +593,14 @@ const create_invoice = async(body,res) =>{
     console.log("create_invoice");
     console.log(mtokens)
     let resp = await createInvoice({ lnd: lnd, mtokens: mtokens });
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 }
 
 
-const get_invoices = async (res) => {
+const get_invoices = async () => {
   try {
     // {
     //     lnd: <Authenticated LND API Object>,
@@ -568,23 +608,26 @@ const get_invoices = async (res) => {
     console.log("get_invoices");
     let resp = await getInvoices({ lnd: lnd });
     console.log(resp);
-    return res.status(200).send({ success: true, message: resp });
+    return { success: true, message: resp };
   } catch (err) {
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 };
 
-const get_invoice = async (body,res) => {
+const get_invoice = async (body) => {
   try {
   let {invoice_id} = body;
   let id = invoice_id;
   console.log("get_invoice");
   let resp = await getInvoice({id, lnd: lnd });
   console.log(resp);
-  return res.status(200).send({ success: true, message: resp });
+  return { success: true, message: resp }
+  ;
   }
   catch(err){
-    return res.status(500).send({ success: false, message: err });
+    return { success: false, message: err };
   }
 
 }
+
+
