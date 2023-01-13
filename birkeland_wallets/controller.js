@@ -44,7 +44,7 @@ exports.get_one_wallet = async (req, res) => {
     };
     console.log(filter)
     // var returnObject = {};
-    var result = await birkeland_wallet_item.findOne({filter});
+    var result = await birkeland_wallet_item.findOne(filter);
     return res.status(200).send({ success: true, message: result });
   } catch (e) {
     return res.status(400).send({ success: false });
