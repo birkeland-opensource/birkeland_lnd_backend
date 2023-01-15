@@ -5,10 +5,10 @@ exports.auth_lnd_ops = async(req,res) =>{
         let {operation} = req.body;
         var ops_res = test_birkeland_lnd.PerformAuthenticatedOperation({operation : operation});
         if(ops_res.success){
-            return res.status(200).send({ success: true, message: ops_resp?.message });
+            return res.status(200).send({ success: true, message: ops_res?.message });
         }
         else{
-            return res.status(500).send({ success: false, message: ops_resp?.message });
+            return res.status(500).send({ success: false, message: ops_res?.message });
         }
     }
     catch(err){
