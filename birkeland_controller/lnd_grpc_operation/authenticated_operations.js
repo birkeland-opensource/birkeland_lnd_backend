@@ -27,265 +27,237 @@ const {
   getPayments,
   closeChannel,
   getClosedChannels,
-  getInvoice
+  getInvoice,
 } = require("lightning");
 
 const fs = require("fs");
+const { LND_GRPC_OPERATION } = require("../../support_functions/constants");
 const tls_cert = fs.readFileSync("/etc/birkeland/tlscert", {
   encoding: "utf8",
   flag: "r",
 });
 
-const base_sixtyfoir_macroon = fs.readFileSync("/etc/birkeland/btc_admin_macroon", {
-  encoding: "utf8",
-  flag: "r",
-});
+const base_sixtyfoir_macroon = fs.readFileSync(
+  "/etc/birkeland/btc_admin_macroon",
+  {
+    encoding: "utf8",
+    flag: "r",
+  }
+);
 
 const { lnd } = authenticatedLndGrpc({
   cert: tls_cert,
   macaroon: base_sixtyfoir_macroon,
   socket: "127.0.0.1:10009",
- // socket: "10.2.209.103:10009",
+  // socket: "10.2.209.103:10009",
 });
 
-const LND_GRPC_OPERATION = {
-  GET_CHAIN_BALANCE: "get_chain_balance", //1
-  GET_CHANNEL: "get_channel", //2
-  GET_CHANNEL_BALANCE: "get_channel_balance", //3
-  GET_CHANNELS: "get_channels", //4
-  GET_METHODS: "get_methods", //5
-  GET_NODE: "get_node", //6
-  GET_NETWORK_INFO: "get_network_info", //7
-  GET_PEERS: "get_peers", //8
-  GET_WALLET_VERSION: "get_wallet_version", //9
-  GET_WALLET_INFO: "get_wallet_info", //10
-  GET_PUBLIC_KEY: "get_public_key", //11
-  OPEN_CHANNEL: "open_channel", //12
-  GET_U_TXOS: "get_u_txos", //13
-  CREATE_CHAIN_ADDRESS: "create_chain_address", //14
-  ADD_PEER: "add_peer", //15
-  PAY: "pay", //16
-  GET_BACKUP: "get_backup", //17
-  GET_BACKUPS: "get_backups", //18
-  GET_PENDING_CHANNELS : "get_pending_channels", //19
-  CREATE_INVOICE : "create_invoice", //20
-  GET_INVOICES : "get_invoices", //21
-  GET_IDENTITY : "get_identity", //22    
-  CANCEL_HODL_INVOICE : "cancel_hodl_invoices", //23
-  PAY_VIA_PAYMENT_DETAILS : "pay_via_payment_details", //24
-  GET_PAYMENTS : "get_payments", //25
-  CLOSE_A_CHANNEL :"close_a_channel", //26 
-  GET_CLOSED_CHANNELS : "get_closed_channels", //27
-  GET_INVOICE : "get_invoice", //21
+
+const perform_authenticated_operation_api = async (req, res) => {
+  let ops_resp = await PerformAuthenticatedOperation(req.body);
+  if (ops_resp?.success) {
+    return res.status(200).send({ success: true, message: ops_resp?.message });
+  } else {
+    return res.status(500).send({ success: false, message: ops_resp?.message });
+  }
 };
 
-const respond_to_request = (ops_res, res) =>{
-
-  if(ops_res?.success){
-    return res.status(200).send({ success: true, message: ops_res?.message });
-  }
-  else{
-    return res.status(500).send({ success: false, message: ops_res?.message });
-  }
-}
-
-exports.PerformAuthenticatedOperation = async (req, res) => {
-  let { operation } = req.body;
+const PerformAuthenticatedOperation = async (params) => {
+  let { operation } = params;
   switch (operation) {
     case LND_GRPC_OPERATION.GET_U_TXOS:
       let get_u_txos_resp = await get_u_txos();
-      respond_to_request(get_u_txos_resp,res);
-      break;
+      return get_u_txos_resp;
+
     case LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS:
       let create_chain_address_resp = await create_chain_address();
-      respond_to_request(create_chain_address_resp,res);
-      break;
+      return create_chain_address_resp;
+
     case LND_GRPC_OPERATION.GET_CHAIN_BALANCE:
       let get_chain_balance_resp = await get_chain_balance();
-      respond_to_request(get_chain_balance_resp,res);
-      break;
+      return get_chain_balance_resp;
+
     case LND_GRPC_OPERATION.GET_CHANNEL:
-      let get_channel_resp =  await get_channel(req.body);
-      respond_to_request(get_channel_resp,res);
-      break;
+      let get_channel_resp = await get_channel(req.body);
+      return get_channel_resp;
+
     case LND_GRPC_OPERATION.GET_CHANNEL_BALANCE:
-      let get_channel_balance_resp =  await get_channel_balance();
-      respond_to_request(get_channel_balance_resp,res);
-      break;
+      let get_channel_balance_resp = await get_channel_balance();
+      return get_channel_balance_resp;
+
     case LND_GRPC_OPERATION.GET_CHANNELS:
-      let get_channels_resp =  await get_channels();
-      respond_to_request(get_channels_resp,res);
-      break;
+      let get_channels_resp = await get_channels();
+      return get_channels_resp;
+
     case LND_GRPC_OPERATION.GET_METHODS:
       let get_methods_resp = await get_methods();
-      respond_to_request(get_methods_resp,res);
-      break;
+      return get_methods_resp;
+
     case LND_GRPC_OPERATION.GET_NODE:
       let get_node_resp = await get_node(req.body);
-      respond_to_request(get_node_resp,res);
-      break;
+      return get_node_resp;
+
     case LND_GRPC_OPERATION.GET_NETWORK_INFO:
       let get_network_info_resp = await get_network_info();
-      respond_to_request(get_network_info_resp,res);
-      break;
+      return get_network_info_resp;
+
     case LND_GRPC_OPERATION.GET_PEERS:
-       let get_peers_resp = await get_peers();
-       respond_to_request(get_peers_resp,res);
-      break;
+      let get_peers_resp = await get_peers();
+      return get_peers_resp;
+
     case LND_GRPC_OPERATION.GET_WALLET_VERSION:
-       let get_wallet_version_resp = await get_wallet_version();
-       respond_to_request(get_wallet_version_resp,res);
-      break;
+      let get_wallet_version_resp = await get_wallet_version();
+      return get_wallet_version_resp;
+
     case LND_GRPC_OPERATION.GET_WALLET_INFO:
-      let get_wallet_info_resp =  await get_wallet_info();
-      respond_to_request(get_wallet_info_resp,res);
-      break;
+      let get_wallet_info_resp = await get_wallet_info();
+      return get_wallet_info_resp;
+
     case LND_GRPC_OPERATION.GET_PUBLIC_KEY:
       let get_public_key_resp = await get_public_key();
-      respond_to_request(get_public_key_resp,res);
-      break;
+      return get_public_key_resp;
+
     case LND_GRPC_OPERATION.OPEN_CHANNEL:
       let open_channel_resp = await open_channel(req.body);
-      respond_to_request(open_channel_resp,res);
-      break;
+      return open_channel_resp;
+
     case LND_GRPC_OPERATION.ADD_PEER:
       let add_peer_resp = await add_peer(req.body);
-      respond_to_request(add_peer_resp,res);
-      break;
+      return add_peer_resp;
+
     case LND_GRPC_OPERATION.PAY:
       let make_payment_resp = await make_payment(req.body);
-      respond_to_request(make_payment_resp,res);
-      break;
+      return make_payment_resp;
+
     case LND_GRPC_OPERATION.GET_BACKUP:
       let get_backup_resp = await get_backup();
-      respond_to_request(get_backup_resp,res);
-      break;
+      return get_backup_resp;
+
     case LND_GRPC_OPERATION.GET_BACKUPS:
       let get_backups_resp = await get_backups();
-      respond_to_request(get_backups_resp,res);
-      break;
+      return get_backups_resp;
+
     case LND_GRPC_OPERATION.GET_PENDING_CHANNELS:
       let get_pending_channels_resp = await get_pending_channels();
-      respond_to_request(get_pending_channels_resp,res);
-      break;
+      return get_pending_channels_resp;
+
     case LND_GRPC_OPERATION.CREATE_INVOICE:
       let create_invoice_resp = await create_invoice(req.body);
-      respond_to_request(create_invoice_resp,res);
-      break;
+      return create_invoice_resp;
+
     case LND_GRPC_OPERATION.GET_INVOICES:
       let get_invoices_resp = await get_invoices();
-      respond_to_request(get_invoices_resp,res);
-      break;
+      return get_invoices_resp;
+
     case LND_GRPC_OPERATION.GET_IDENTITY:
       let get_identity_resp = await get_identity();
-      respond_to_request(get_identity_resp,res);
-      break;
+      return get_identity_resp;
+
     case LND_GRPC_OPERATION.CANCEL_HODL_INVOICE:
       let cancel_hodl_invoices_resp = await cancel_hodl_invoices(req.body);
-      respond_to_request(cancel_hodl_invoices_resp,res);
-      break;
+      return cancel_hodl_invoices_resp;
+
     case LND_GRPC_OPERATION.PAY_VIA_PAYMENT_DETAILS:
-      let pay_via_payment_details_resp = await pay_via_payment_details(req.body);
-      respond_to_request(pay_via_payment_details_resp,res);
-      break;
+      let pay_via_payment_details_resp = await pay_via_payment_details(
+        req.body
+      );
+      return pay_via_payment_details_resp;
+
     case LND_GRPC_OPERATION.GET_PAYMENTS:
       let get_payments_resp = await get_payments();
-      respond_to_request(get_payments_resp,res);
-      break;
+      return get_payments_resp;
+
     case LND_GRPC_OPERATION.CLOSE_A_CHANNEL:
       let close_a_channel_resp = close_a_channel(req.body);
-      respond_to_request(close_a_channel_resp,res);
-      break;
+      return close_a_channel_resp;
+
     case LND_GRPC_OPERATION.GET_CLOSED_CHANNELS:
       let get_closed_channels_resp = await get_closed_channels();
-      respond_to_request(get_closed_channels_resp,res);
-      break;
+      return get_closed_channels_resp;
+
     case LND_GRPC_OPERATION.GET_INVOICE:
       let get_invoice_resp = await get_invoice(req.body);
-      respond_to_request(get_invoice_resp,res);
-      break;
+      return get_invoice_resp;
 
-      
     default:
-      return res
-        .status(500)
-        .send({ success: false, message: "Invalid operation" });
+      return { success: false, message: "Invalid operation" };
   }
 };
 
-
-const get_closed_channels = async() =>{
-  try{
+const get_closed_channels = async () => {
+  try {
     console.log("get_closed_channels");
-    const resp = await getClosedChannels({lnd });
+    const resp = await getClosedChannels({ lnd });
     return { success: true, message: resp };
-  }
-  catch(err){
+  } catch (err) {
     return { success: false, message: err };
   }
-}
+};
 
-const close_a_channel = async(body) =>{
+const close_a_channel = async (body) => {
   try {
-    console.log("close_a_channel")
-    let {channel_id} = body;
+    console.log("close_a_channel");
+    let { channel_id } = body;
     let id = channel_id;
-    console.log({lnd,id })
-    const resp = await closeChannel({lnd,id });
+    console.log({ lnd, id });
+    const resp = await closeChannel({ lnd, id });
     return { success: true, message: resp };
   } catch (err) {
-    console.log(err)
-    return { success: false, message: err };
-  }
-}
-
-const pay_via_payment_details = async(body) =>{
-  try {
-    console.log("pay_via_payment_details")
-    let {request_id,destination,token} = body;
-    let request_id_object = {id:request_id};
-    console.log({request_id_object,destination,token });
-    const resp = await payViaPaymentDetails({request_id_object,destination,token, lnd });
-    return { success: true, message: resp };
-  } catch (err) {
-    console.log(err)
+    console.log(err);
     return { success: false, message: err };
   }
 };
 
-
-const cancel_hodl_invoices = async(body) =>{
+const pay_via_payment_details = async (body) => {
   try {
-    console.log("cancel_hodl_invoices")
-    let {request_id} = body;
-    let request_id_object = {id:request_id}
-    const resp = await cancelHodlInvoice({request_id_object, lnd });
+    console.log("pay_via_payment_details");
+    let { request_id, destination, token } = body;
+    let request_id_object = { id: request_id };
+    console.log({ request_id_object, destination, token });
+    const resp = await payViaPaymentDetails({
+      request_id_object,
+      destination,
+      token,
+      lnd,
+    });
     return { success: true, message: resp };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return { success: false, message: err };
   }
 };
 
-const get_identity = async() =>{
+const cancel_hodl_invoices = async (body) => {
+  try {
+    console.log("cancel_hodl_invoices");
+    let { request_id } = body;
+    let request_id_object = { id: request_id };
+    const resp = await cancelHodlInvoice({ request_id_object, lnd });
+    return { success: true, message: resp };
+  } catch (err) {
+    console.log(err);
+    return { success: false, message: err };
+  }
+};
+
+const get_identity = async () => {
   try {
     const resp = await getIdentity({ lnd });
     return { success: true, message: resp };
   } catch (err) {
-    return  {success: false, message: err };
+    return { success: false, message: err };
   }
 };
 
-const get_payments = async() =>{
+const get_payments = async () => {
   try {
     const resp = await getPayments({ lnd });
-    console.log(resp)
+    console.log(resp);
     return { success: true, message: resp };
   } catch (err) {
     return { success: false, message: err };
   }
-}
-
+};
 
 const get_backups = async () => {
   try {
@@ -320,12 +292,12 @@ const make_payment = async (body) => {
     // },
     console.log("make_payment");
     let { request } = body;
-    console.log(request)
+    console.log(request);
     let resp = await pay({ lnd: lnd, request: request });
     console.log(resp);
     return { success: true, message: resp };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return { success: false, message: err };
   }
 };
@@ -337,7 +309,7 @@ const add_peer = async (body) => {
     // },
     console.log("add_peer");
     let { socket, public_key } = body;
-    console.log(body)
+    console.log(body);
     let resp = await addPeer({
       lnd: lnd,
       public_key: public_key,
@@ -346,7 +318,7 @@ const add_peer = async (body) => {
     console.log(resp);
     return { success: true, message: resp };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return { success: false, message: err };
   }
 };
@@ -456,9 +428,8 @@ const get_channels = async () => {
     //     [partner_public_key]: <Only Channels With Public Key Hex String>
     //  }
     console.log("get_channels");
-    let resp = await getChannels({lnd: lnd });
+    let resp = await getChannels({ lnd: lnd });
     return { success: true, message: resp };
-
   } catch (err) {
     return { success: false, message: err };
   }
@@ -518,10 +489,10 @@ const get_peers = async () => {
     // }
     console.log("get_peers");
     let resp = await getPeers({ lnd: lnd });
-    console.log(resp)
+    console.log(resp);
     return { success: true, message: resp };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return { success: false, message: err };
   }
 };
@@ -582,7 +553,7 @@ const get_public_key = async () => {
   }
 };
 
-const create_invoice = async(body) =>{
+const create_invoice = async (body) => {
   try {
     // {
     //     [is_omitting_channels]: <Omit Channels from Node Bool>
@@ -591,14 +562,13 @@ const create_invoice = async(body) =>{
     // }
     let { mtokens } = body;
     console.log("create_invoice");
-    console.log(mtokens)
+    console.log(mtokens);
     let resp = await createInvoice({ lnd: lnd, mtokens: mtokens });
     return { success: true, message: resp };
   } catch (err) {
     return { success: false, message: err };
   }
-}
-
+};
 
 const get_invoices = async () => {
   try {
@@ -616,18 +586,49 @@ const get_invoices = async () => {
 
 const get_invoice = async (body) => {
   try {
-  let {invoice_id} = body;
-  let id = invoice_id;
-  console.log("get_invoice");
-  let resp = await getInvoice({id, lnd: lnd });
-  console.log(resp);
-  return { success: true, message: resp }
-  ;
-  }
-  catch(err){
+    let { invoice_id } = body;
+    let id = invoice_id;
+    console.log("get_invoice");
+    let resp = await getInvoice({ id, lnd: lnd });
+    console.log(resp);
+    return { success: true, message: resp };
+  } catch (err) {
     return { success: false, message: err };
   }
+};
 
-}
-
-
+module.exports = {
+  PerformAuthenticatedOperation,
+  perform_authenticated_operation_api,
+  get_closed_channels,
+  close_a_channel,
+  pay_via_payment_details,
+  cancel_hodl_invoices,
+  get_identity,
+  get_payments,
+  get_backups,
+  get_backup,
+  make_payment,
+  add_peer,
+  get_u_txos,
+  create_chain_address,
+  open_channel,
+  get_chain_balance,
+  get_channel,
+  get_channel_balance,
+  get_channels,
+  get_methods,
+  get_node,
+  get_network_info,
+  get_peers,
+  get_wallet_version,
+  get_wallet_info,
+  get_pending_channels,
+  get_public_key,
+  create_invoice,
+  get_invoices,
+  get_invoice,
+  create_invoice,
+  get_invoices,
+  get_invoice,
+};

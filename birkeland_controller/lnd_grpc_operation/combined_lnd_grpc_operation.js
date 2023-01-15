@@ -23,8 +23,7 @@ exports.get_lnd_dashboard_info = async (req, res) => {
     const { lnd } = authenticatedLndGrpc({
         cert: tls_cert,
         macaroon: base_sixtyfoir_macroon,
-        socket: "127.0.0.1:10009",
-        //socket: "10.2.209.103:10009",
+        socket: "127.0.0.1:10009"
       });
       let chain_balance = await getChainBalance({ lnd: lnd });
       let channel_balance = await getChannelBalance({ lnd: lnd });
