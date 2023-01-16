@@ -1,24 +1,5 @@
-const {
-  getWalletInfo,
-  authenticatedLndGrpc,
-  getChainBalance,
-  getChannelBalance,
-  getWalletVersion,
-} = require("lightning");
 
 const test_birkeland_lnd = require('test_birkeland_lnd')
-
-const fs = require("fs");
-const tls_cert = fs.readFileSync("/etc/birkeland/tlscert", {
-    encoding: "utf8",
-    flag: "r",
-  });
-
-const base_sixtyfoir_macroon = fs.readFileSync("/etc/birkeland/btc_admin_macroon", {
-    encoding: "utf8",
-    flag: "r",
-  });
-
 
 exports.get_dashboard_info_from_birkeland_lnd = async(req,res) =>{
 
