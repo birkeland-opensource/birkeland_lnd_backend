@@ -9,7 +9,10 @@ var combined_lnd_grpc_operation = require("./../birkeland_controller/lnd_grpc_op
 const { auth_lnd_ops } = require("../birkeland_controller/test_birkeland_lnd_controller");
 
 
-apirouter.post("/auth_lnd_ops", authenticated_lnd_operation.perform_authenticated_operation_api);
+//apirouter.post("/auth_lnd_ops", authenticated_lnd_operation.perform_authenticated_operation_api);
+
+apirouter.post("/auth_lnd_ops", auth_lnd_ops);
+
 
 apirouter.post("/test_birkeland_auth_lnd_ops", auth_lnd_ops);
 
