@@ -2,8 +2,8 @@ var express = require("express");
 var apirouter = express.Router();
 
 var unauthenticated_lnd_operation = require("./../birkeland_controller/lnd_grpc_operation/unauthenticated_operations");
-
 var combined_lnd_grpc_operation = require("./../birkeland_controller/lnd_grpc_operation/combined_lnd_grpc_operation");
+
 const { auth_lnd_ops } = require("../birkeland_controller/birkeland_lnd_controller");
 
 apirouter.post("/auth_lnd_ops", auth_lnd_ops);
