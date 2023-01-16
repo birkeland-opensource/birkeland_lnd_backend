@@ -14,16 +14,20 @@ exports.topup_wallet = async(req,res) =>{
     let {public_key,wallet_id,user_id} = req.body;
     // 1. Create on chain address
     // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
-    let {address} = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS});
-    console.log(address)
-    let wallet_topup_model = {
-      chain_address : address,
-      public_key : public_key,
-      wallet_id : wallet_id,
-      user_id : user_id
+    let create_chain_address_resp = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS});
+    console.log(create_chain_address_resp["chain_address"]["success"])
+    if(create_chain_address_resp["chain_address"]["success"]){
+      let address_message= create_chain_address_resp["chain_address"]["message"]
+      let wallet_topup_model = {
+        chain_address : address_message["address"],
+        public_key : public_key,
+        wallet_id : wallet_id,
+        user_id : user_id
+      }
+      console.log(wallet_topup_model)
+      return res.status(200).send({ success: true });
     }
-    console.log(wallet_topup_model)
-    return res.status(200).send({ success: true });
+  
   }catch(err){
     console.log(err)
     return res.status(400).send({ success: false });
