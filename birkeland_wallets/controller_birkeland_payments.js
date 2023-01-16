@@ -19,9 +19,9 @@ exports.topup_wallet = async (req, res) => {
         operation: LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS,
       });
 
-    if (create_chain_address_resp["chain_address"]["success"]) {
+    if (create_chain_address_resp["success"]) {
       let address_message =
-        create_chain_address_resp["chain_address"]["message"];
+        create_chain_address_resp["message"];
       let wallet_topup_item = {
         chain_address: address_message["address"],
         public_key: public_key,
