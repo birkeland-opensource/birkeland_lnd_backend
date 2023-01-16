@@ -28,7 +28,7 @@ const LND_GRPC_OPERATION = {
     GET_PAYMENTS: "get_payments", //25
     CLOSE_A_CHANNEL: "close_a_channel", //26
     GET_CLOSED_CHANNELS: "get_closed_channels", //27
-    GET_INVOICE: "get_invoice", //21
+    GET_INVOICE: "get_invoice", //28
   };
 
 const BIRKELAND_WALLET_TRANSACTION_STATUS = {
