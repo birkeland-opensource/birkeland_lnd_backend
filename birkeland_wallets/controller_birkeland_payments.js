@@ -1,8 +1,39 @@
 const birkeland_payment_transaction_item = require("./birkeland_payment_transaction_item");
+const test_birkeland_lnd = require('test_birkeland_lnd')
+
 const { v4: uuidv4 } = require("uuid");
 const {
   BIRKELAND_WALLET_TRANSACTION_STATUS,
 } = require("../support_functions/constants");
+const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
+
+
+
+exports.topup_wallet = async(req,res) =>{
+  try{
+    let {public_key,wallet_id,user_id} = req.body;
+    // 1. Create on chain address
+    // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
+    let {address} = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS});
+    console.log(address)
+    let wallet_topup_model = {
+      chain_address : address,
+      public_key : public_key,
+      wallet_id : wallet_id,
+      user_id : user_id
+    }
+    console.log(wallet_topup_model)
+    return res.status(200).send({ success: true });
+  }catch(err){
+    console.log(err)
+    return res.status(400).send({ success: false });
+  }
+}
+
+
+
+
+
 exports.transactions = async (req, res) => {
   try {
     // Query the database with from_wallet_id to get alltransactions
