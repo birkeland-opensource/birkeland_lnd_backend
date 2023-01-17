@@ -13,6 +13,10 @@ app.use(cors());
 
 require('./config/db');
 
+cron.schedule('1 * * * * *', () => {
+  console.log('running a task every minute');
+});
+
 var terminal_operation_router = require("./birkeland_router/terminal_operation_router/terminal_operation_router");
 app.use('/terminal',terminal_operation_router);
 
