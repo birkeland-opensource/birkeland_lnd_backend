@@ -51,8 +51,8 @@ exports.get_wallet_topup_tx = async (req, res) => {
   try {
     let { public_key, wallet_id, user_id } = req.query;
     let filter = { public_key : public_key,wallet_id :wallet_id,user_id : user_id}
-    let result = await (await topup_birkeland_wallet_item.find(filter)).reverse().limit(1);
-    return res.status(200).send({ success: true, message: result });
+    let result = (await topup_birkeland_wallet_item.find(filter)).reverse();
+    return res.status(200).send({ success: true, message: result[0] });
   }
   catch(err){
     return res.status(400).send({ success: false });
