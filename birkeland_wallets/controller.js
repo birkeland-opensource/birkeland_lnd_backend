@@ -29,6 +29,7 @@ exports.get_all_wallets = async (req, res) => {
     // var returnObject = {};
     console.log("get_all_wallets")
     let {node_public_key} = req.query;
+    console.log(node_public_key)
     var result = await birkeland_wallet_item.find({main_wallet_public_key :node_public_key});
     return res.status(200).send({ success: true, message: result });
   } catch (e) {
