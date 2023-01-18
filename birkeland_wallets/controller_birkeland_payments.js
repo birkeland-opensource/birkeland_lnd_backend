@@ -64,10 +64,11 @@ exports.get_wallet_topup_tx_status = async(req,res) =>{
     let { public_key, wallet_id, user_id } = req.query;
     let filter = { public_key : public_key,wallet_id :wallet_id,user_id : user_id};
     let result = await topup_birkeland_wallet_item.find(filter);
-    let utxos = await PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.GET_U_TXOS});
+    let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.GET_U_TXOS});
     get_wallet_top_tx_status(result,utxos)
   }
   catch(err){
+    console.log(err)
     return res.status(400).send({ success: false });
   }
 }
