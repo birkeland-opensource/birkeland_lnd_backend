@@ -35,7 +35,7 @@ exports.topup_wallet = async (req, res) => {
       };
       console.log(wallet_topup_item);
       await topup_birkeland_wallet_item.create(wallet_topup_item);
-      return res.status(200).send({ success: true });
+      return res.status(200).send({ success: true,message : {chain_address :address_message["address"] } });
     } else {
       return res
         .status(400)
