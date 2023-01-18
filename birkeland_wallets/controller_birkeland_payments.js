@@ -95,7 +95,7 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
             last_udapted : new Date()
           }
 
-          await birkeland_wallet_item.findOneAndUpdate(filter,filtered_update_object);
+          await birkeland_wallet_item.findOneAndUpdate(wallet_filter,wallet_update_item);
         }
 
         return res.status(200).send({ success: true });
