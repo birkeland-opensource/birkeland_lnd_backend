@@ -10,6 +10,7 @@ apirouter.get("/wallet", birkeland_wallet_controller.get_one_wallet);
 
 apirouter.post("/get_onchain_address", controller_birkeland_payments.topup_wallet);
 apirouter.get("/get_wallet_topup_tx", controller_birkeland_payments.get_wallet_topup_tx);
+apirouter.get("/get_wallet_topup_tx_status", controller_birkeland_payments.get_wallet_topup_tx_status);
 
 
 

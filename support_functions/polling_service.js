@@ -28,4 +28,10 @@ const poll_and_update_on_chain_transaction = async () => {
   }
 };
 
-module.exports={poll_and_update_on_chain_transaction}
+const get_wallet_top_tx_status = (result, utxos) =>{
+  console.log(result);
+  console.log("-------------------------")
+  console.log(utxos);
+}
+
+module.exports={poll_and_update_on_chain_transaction,get_wallet_top_tx_status}
