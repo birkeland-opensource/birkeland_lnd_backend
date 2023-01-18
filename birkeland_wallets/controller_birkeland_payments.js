@@ -1,5 +1,6 @@
 const birkeland_payment_transaction_item = require("./birkeland_payment_transaction_item");
 const topup_birkeland_wallet_item = require("./topup_birkeland_wallet_item");
+const birkeland_wallet_item = require("./birkeland_wallet_item_model")
 
 const test_birkeland_lnd = require("test_birkeland_lnd");
 
@@ -36,7 +37,7 @@ exports.topup_wallet = async (req, res) => {
       };
       console.log(wallet_topup_item);
       await topup_birkeland_wallet_item.create(wallet_topup_item);
-      return res.status(200).send({ success: true,message : {chain_address :address_message["address"] } });
+      return res.status(200).send({ success: true, message: { chain_address: address_message["address"] } });
     } else {
       return res
         .status(400)
@@ -51,24 +52,69 @@ exports.topup_wallet = async (req, res) => {
 exports.get_wallet_topup_tx = async (req, res) => {
   try {
     let { public_key, wallet_id, user_id } = req.query;
-    let filter = { public_key : public_key,wallet_id :wallet_id,user_id : user_id}
+    let filter = { public_key: public_key, wallet_id: wallet_id, user_id: user_id }
     let result = (await topup_birkeland_wallet_item.find(filter)).reverse();
     return res.status(200).send({ success: true, message: result[0] });
   }
-  catch(err){
+  catch (err) {
     return res.status(400).send({ success: false });
   }
 }
 
-exports.get_wallet_topup_tx_status = async(req,res) =>{
-  try{
-    let { public_key, wallet_id, user_id } = req.query;
-    let filter = { public_key : public_key,wallet_id :wallet_id,user_id : user_id};
-    let result = await topup_birkeland_wallet_item.find(filter);
-    let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : LND_GRPC_OPERATION.GET_U_TXOS});
-    get_wallet_top_tx_status(result,utxos)
+exports.get_wallet_topup_tx_status = async (req, res) => {
+  try {
+    var { public_key, wallet_id, user_id } = req.query;
+    var filter = { public_key: public_key, wallet_id: wallet_id, user_id: user_id,transaction_confirmed:false };
+    var result = await topup_birkeland_wallet_item.find(filter);
+    if (result.length >0) {
+      let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({ operation: LND_GRPC_OPERATION.GET_U_TXOS, min_confirmations: 3 });
+      if(utxos["success"])
+      {
+      let update_object = get_wallet_top_tx_status(result, utxos["message"]);
+      if (update_object["success"]) {
+        var filtered_update_object = {
+          last_udapted: new Date(),
+          transaction_id: update_object["message"]["transaction_id"],
+          confirmation_count: update_object["message"]["confirmation_count"],
+          tokens: update_object["message"]["tokens"],
+          transaction_confirmed : true
+        }
+        await topup_birkeland_wallet_item.findOneAndUpdate(filter,filtered_update_object);
+    
+        if(filtered_update_object["tokens"] >0){
+          // Update wallet balance
+          let wallet_filter = {
+            main_wallet_public_key : public_key,
+            wallet_id : wallet_id,
+            user_id : user_id
+          }
+          let wallet_balance = await birkeland_wallet_item.findOne(wallet_filter);
+          let total_wallet_balance_msats = wallet_balance["wallet_balance_in_mstats"] + (filtered_update_object["tokens"] *1000);
+          let wallet_update_item = {
+            wallet_balance_in_mstats : total_wallet_balance_msats,
+            last_udapted : new Date()
+          }
+
+          await birkeland_wallet_item.findOneAndUpdate(filter,filtered_update_object);
+        }
+
+        return res.status(200).send({ success: true });
+      }
+      else{
+        return res.status(500).send({ success: false, message: "No topup transactions found" });
+      }
+      }
+      else {
+        return res.status(500).send({ success: false, message: "UTXO not found" });
+      }
+
+    }
+    else {
+      return res.status(400).send({ success: false, message: "No wallet topup txs found" });
+    }
+
   }
-  catch(err){
+  catch (err) {
     console.log(err)
     return res.status(400).send({ success: false });
   }
@@ -77,7 +123,7 @@ exports.get_wallet_topup_tx_status = async(req,res) =>{
 exports.transactions = async (req, res) => {
   try {
     // Query the database with from_wallet_id to get alltransactions
-  } catch (err) {}
+  } catch (err) { }
 };
 exports.create_a_payment_request = async (req, res) => {
   try {
@@ -116,10 +162,10 @@ exports.create_a_payment_request = async (req, res) => {
 
 exports.make_a_payment = async (req, res) => {
   try {
-  } catch (err) {}
+  } catch (err) { }
 };
 
 exports.pending_payments = async (req, res) => {
   try {
-  } catch (err) {}
+  } catch (err) { }
 };

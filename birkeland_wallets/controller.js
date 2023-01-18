@@ -14,7 +14,7 @@ exports.create_a_wallet = async (req, res) => {
       read_key: uuidv4(),
       date_created: new Date(),
       last_udapted: new Date(),
-      wallet_balance_in_mstats: 0,
+      wallet_balance_in_mstats: 0
     };
     await birkeland_wallet_item.create(object);
     return res.status(200).send({ success: true });
@@ -44,8 +44,9 @@ exports.get_one_wallet = async (req, res) => {
       wallet_id: req.query.wallet_id,
     };
     console.log(filter)
+
     // var returnObject = {};
-    var result = await birkeland_wallet_item.findOne(filter);
+    //var result = await birkeland_wallet_item.findOneAndUpdate(filter);
     return res.status(200).send({ success: true, message: result });
   } catch (e) {
     return res.status(400).send({ success: false });
