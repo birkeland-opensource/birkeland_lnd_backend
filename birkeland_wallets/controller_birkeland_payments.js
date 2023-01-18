@@ -8,6 +8,7 @@ const {
   BIRKELAND_WALLET_TRANSACTION_STATUS,
 } = require("../support_functions/constants");
 const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
+const { get_wallet_top_tx_status } = require("../support_functions/polling_service");
 
 exports.topup_wallet = async (req, res) => {
   try {
