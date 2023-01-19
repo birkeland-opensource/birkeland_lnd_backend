@@ -123,6 +123,16 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
 exports.transactions = async (req, res) => {
   try {
     // Query the database with from_wallet_id to get alltransactions
+    try {
+      let { public_key, wallet_id, user_id } = req.query;
+      let filter = { from_public_key: public_key, from_wallet_id: wallet_id, user_id: user_id }
+      console.log(filter)
+      let result = (await birkeland_payment_transaction_item.find(filter)).reverse();
+      return res.status(200).send({ success: true, message: result });
+    }
+    catch (err) {
+      return res.status(400).send({ success: false });
+    }
   } catch (err) { }
 };
 exports.create_invoice = async (req, res) => {
@@ -154,14 +164,18 @@ exports.create_invoice = async (req, res) => {
         description : "birkeland_wallet_transaction" }
 
       let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(create_invoice_params);
-      console.log(create_invoice_resp)
-      birkeland_payment_transaction_item_object["transaction_id"] = create_invoice_resp["message"]["id"];
-      birkeland_payment_transaction_item_object["payment_request_hash"] = create_invoice_resp["message"]["request"];
-      console.log(birkeland_payment_transaction_item_object);
-      let birkeland_payment_transaction_item_resp = await birkeland_payment_transaction_item.create(birkeland_payment_transaction_item_object);
-      console.log(birkeland_payment_transaction_item_object);
-      console.log("done")
-      return res.status(200).send({ success: true,message : create_invoice_resp});
+      if(create_invoice_resp["success"])
+      {
+        birkeland_payment_transaction_item_object["transaction_id"] = create_invoice_resp["message"]["id"];
+        birkeland_payment_transaction_item_object["payment_request_hash"] = create_invoice_resp["message"]["request"];
+        console.log(birkeland_payment_transaction_item_object);
+        await birkeland_payment_transaction_item.create(birkeland_payment_transaction_item_object);
+        return res.status(200).send({ success: true,message : create_invoice_resp});
+      }
+      else{
+        return res.status(500).send({ success: false,message : "Lightning node maynot be running"});
+      }
+     
     }
     else{
       return res.status(400).send({ success: false,message :"amount cannot be zero or less than zero" });
