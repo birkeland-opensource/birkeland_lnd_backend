@@ -19,6 +19,7 @@ exports.create_a_wallet = async (req, res) => {
     await birkeland_wallet_item.create(object);
     return res.status(200).send({ success: true });
   } catch (err) {
+    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
