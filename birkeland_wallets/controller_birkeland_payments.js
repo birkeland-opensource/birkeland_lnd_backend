@@ -1,7 +1,7 @@
 const birkeland_payment_transaction_item = require("./birkeland_payment_transaction_item");
 const topup_birkeland_wallet_item = require("./topup_birkeland_wallet_item");
 const birkeland_wallet_item = require("./birkeland_wallet_item_model")
-
+const invoice = require("@node-lightning/invoice");
 const test_birkeland_lnd = require("test_birkeland_lnd");
 
 const { v4: uuidv4 } = require("uuid");
@@ -196,3 +196,16 @@ exports.pending_payments = async (req, res) => {
   try {
   } catch (err) { }
 };
+
+exports.decode_lightning_invoice = async(req,res) =>{
+  try{
+    
+    let {payment_hash} = req.query;
+    console.log(payment_hash)
+    let result = invoice.decode(payment_hash);
+    return res.status(200).send({ success: true,message : result});
+  }
+  catch(err){
+    return res.status(400).send({ success: false });
+  }
+}

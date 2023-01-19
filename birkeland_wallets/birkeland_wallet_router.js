@@ -18,6 +18,7 @@ apirouter.get("/transactions", controller_birkeland_payments.transactions);
 apirouter.post("/create_invoice", controller_birkeland_payments.create_invoice);
 apirouter.post("/make_a_payment", controller_birkeland_payments.make_a_payment);
 apirouter.get("/pending_payments", controller_birkeland_payments.pending_payments);
+apirouter.get("/decode_lightning_invoice", controller_birkeland_payments.decode_lightning_invoice);
 
 
 module.exports = apirouter;
