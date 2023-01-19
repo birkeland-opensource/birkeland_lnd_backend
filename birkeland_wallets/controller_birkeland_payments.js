@@ -143,24 +143,23 @@ exports.create_invoice = async (req, res) => {
       from_wallet_id : from_wallet_id,
       payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
     };
-    if(birkeland_payment_transaction_item_object[amount_in_msats] >0)
+
+    if(birkeland_payment_transaction_item_object["amount_in_msats"] >0)
     {
       let create_invoice_params = {
         operation : "create_invoice",
-        mtokens :birkeland_payment_transaction_item_object[amount_in_msats],
+        mtokens :birkeland_payment_transaction_item_object["amount_in_msats"],
         description : "birkeland_wallet_transaction" }
 
       let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(create_invoice_params);
-      console.log(create_invoice_resp);
       return res.status(200).send({ success: true,message : create_invoice_resp});
     }
     else{
       return res.status(400).send({ success: false,message :"amount cannot be zero or less than zero" });
     }
     
-
-    return res.status(200).send({ success: true });
   } catch (err) {
+
     return res.status(400).send({ success: false });
   }
 };
