@@ -125,31 +125,24 @@ exports.transactions = async (req, res) => {
     // Query the database with from_wallet_id to get alltransactions
   } catch (err) { }
 };
-exports.create_a_payment_request = async (req, res) => {
+exports.create_invoice = async (req, res) => {
   try {
     var {
+      memo,
       from_wallet_id,
-      to_wallet_id,
+      user_id,
+      sats,
       from_public_key,
-      to_public_key,
-      fiat_currency,
-      amount_in_fiat_currency,
-      amount_in_msats,
-      payment_request_hash,
-      description,
     } = req.body;
     let birkeland_payment_transaction_item_object = {
       transaction_id: uuidv4(),
+      memo : memo,
+      user_id : user_id,
+      amount_in_msats : sats *1000,
+      from_public_key : from_public_key,
+      from_wallet_id : from_wallet_id,
       payment_request_hash: payment_request_hash,
-      from_wallet_id: from_wallet_id,
-      to_wallet_id: to_wallet_id,
-      fiat_currency: fiat_currency,
-      amount_in_fiat_currency: amount_in_fiat_currency,
-      amount_in_msats: amount_in_msats,
-      from_public_key: from_public_key,
-      to_public_key: to_public_key,
       payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
-      description: description,
     };
 
     console.log(birkeland_payment_transaction_item_object);

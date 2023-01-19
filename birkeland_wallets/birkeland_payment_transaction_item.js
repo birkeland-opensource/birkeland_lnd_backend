@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
-const birkeland_payment_transaction_schema = new mongoose.Schema({
+const birkeland_wallet_transaction_schema = new mongoose.Schema({
 
     transaction_id : {
         type: String,
         required: true,
         unique: true,
     },
-    lnd_transaction_id : {
+    memo : {
         type: String,
         required: false,
         unique: false,
@@ -21,18 +21,8 @@ const birkeland_payment_transaction_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
-    to_wallet_id : {
+    user_id : {
         type: String,
-        required: false,
-        unique: false,  
-    },
-    fiat_currency :{
-        type: String,
-        required: true,
-        unique: false,
-    },
-    amount_in_fiat_currency :{
-        type: Number,
         required: true,
         unique: false,
     },
@@ -44,11 +34,6 @@ const birkeland_payment_transaction_schema = new mongoose.Schema({
     from_public_key : {
         type: String,
         required: true,
-        unique: false, 
-    },
-    to_public_key :{
-        type: String,
-        required: false,
         unique: false, 
     },
     date_created :{
@@ -66,16 +51,11 @@ const birkeland_payment_transaction_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
-    description :{
-        type: String,
-        required: false,
-        unique: false,
-    },
 });
 
-const birkeland_payment_transaction_item = mongoose.model(
-  "birkeland_payment_transaction_item",
-  birkeland_payment_transaction_schema
+const birkeland_wallet_transaction_item = mongoose.model(
+  "birkeland_wallet_transaction_item",
+  birkeland_wallet_transaction_schema
 );
 
-module.exports = birkeland_payment_transaction_item;
+module.exports = birkeland_wallet_transaction_item;

@@ -15,7 +15,7 @@ apirouter.get("/get_wallet_topup_tx_status", controller_birkeland_payments.get_w
 
 
 apirouter.get("/transactions", controller_birkeland_payments.transactions);
-apirouter.post("/create_a_payment_request", controller_birkeland_payments.create_a_payment_request);
+apirouter.post("/create_invoice", controller_birkeland_payments.create_invoice);
 apirouter.post("/make_a_payment", controller_birkeland_payments.make_a_payment);
 apirouter.get("/pending_payments", controller_birkeland_payments.pending_payments);
 
