@@ -154,10 +154,13 @@ exports.create_invoice = async (req, res) => {
         description : "birkeland_wallet_transaction" }
 
       let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(create_invoice_params);
-      birkeland_payment_transaction_item_object["transaction_id"] = create_invoice_resp["id"];
-      birkeland_payment_transaction_item_object["payment_request_hash"] = create_invoice_resp["request"];
+      console.log(create_invoice_resp)
+      birkeland_payment_transaction_item_object["transaction_id"] = create_invoice_resp["message"]["id"];
+      birkeland_payment_transaction_item_object["payment_request_hash"] = create_invoice_resp["message"]["request"];
+      console.log(birkeland_payment_transaction_item_object);
       let birkeland_payment_transaction_item_resp = await birkeland_payment_transaction_item.create(birkeland_payment_transaction_item_object);
-      console.log(birkeland_payment_transaction_item_resp)
+      console.log(birkeland_payment_transaction_item_object);
+      console.log("done")
       return res.status(200).send({ success: true,message : create_invoice_resp});
     }
     else{
@@ -165,7 +168,7 @@ exports.create_invoice = async (req, res) => {
     }
     
   } catch (err) {
-
+    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
