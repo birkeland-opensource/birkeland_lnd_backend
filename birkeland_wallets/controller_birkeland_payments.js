@@ -203,9 +203,22 @@ exports.decode_lightning_invoice = async(req,res) =>{
     let {payment_hash} = req.query;
     console.log(payment_hash)
     let result = invoice.decode(payment_hash);
-    return res.status(200).send({ success: true,message : result});
+    
+    let decoded_invoice = {
+      value_in_sat : result?.valueSat,
+      pubkey : result?.pubkey,
+      inv_payment_hash : result?.paymentHash,
+      expiry : result?.expiry,
+      payee_node : result?.payeeNode,
+      description : result?.desc,
+      description : result?.shortDesc
+
+    }
+    console.log(decoded_invoice);
+    return res.status(200).send({ success: true,message : decoded_invoice});
   }
   catch(err){
+    //console.log(err);
     return res.status(400).send({ success: false });
   }
 }
