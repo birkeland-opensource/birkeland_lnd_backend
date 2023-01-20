@@ -234,6 +234,13 @@ exports.make_a_payment = async (req, res) => {
           await birkeland_payment_transaction_item.create(birkeland_payment_transaction_item_object);
           let updated_walled_balance_sender = user_wallet_info[0]["wallet_balance_in_mstats"] - decoded_request_hash?.valueMsat;
           await birkeland_wallet_item.findOneAndUpdate(wallet_filter,{wallet_balance_in_mstats : updated_walled_balance_sender})
+          let receiver_wallet_filter = {
+            user_id : user_wallet_info["user_id"],
+            wallet_id : user_wallet_info["wallet_id"]
+          }
+          let receiver_wallet_current_satus = await birkeland_wallet_item.find(receiver_wallet_filter);
+          let updated_balance = decoded_request_hash?.valueMsat + receiver_wallet_current_satus["wallet_balance_in_mstats"]
+          console.log(updated_balance)
           console.log("Updates made");
         }
 
