@@ -200,6 +200,11 @@ exports.make_a_payment = async (req, res) => {
     console.log(make_payment_object)
     if(node_public_key === from_node_public_key){
       console.log("here we just update DB values")
+      let filter = {
+        payment_request_hash : request_hash
+      }
+      let transact_object = await birkeland_payment_transaction_item.find(filter);
+      console.log(transact_object);
       return res.status(200).send({ success: true,message : "here we update db value"});
     }
     else{
