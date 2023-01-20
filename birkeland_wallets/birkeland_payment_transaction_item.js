@@ -16,7 +16,7 @@ const birkeland_wallet_transaction_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
-    from_wallet_id : {
+    wallet_id : {
         type: String,
         required: true,
         unique: false,
@@ -31,7 +31,7 @@ const birkeland_wallet_transaction_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
-    from_public_key : {
+    public_key : {
         type: String,
         required: true,
         unique: false, 
