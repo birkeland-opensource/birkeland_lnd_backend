@@ -161,7 +161,7 @@ exports.create_invoice = async (req, res) => {
       let create_invoice_params = {
         operation : "create_invoice",
         mtokens :birkeland_payment_transaction_item_object["amount_in_msats"],
-        description : "birkeland_wallet_transaction" }
+        description : from_public_key }
 
       let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(create_invoice_params);
       if(create_invoice_resp["success"])
