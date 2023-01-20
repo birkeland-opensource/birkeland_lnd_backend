@@ -44,7 +44,6 @@ exports.topup_wallet = async (req, res) => {
         .send({ success: false, message: "LND may not be running" });
     }
   } catch (err) {
-    console.log(err);
     return res.status(400).send({ success: false, message: err });
   }
 };
@@ -114,7 +113,6 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
 
   }
   catch (err) {
-    console.log(err)
     return res.status(400).send({ success: false });
   }
 }
@@ -125,9 +123,7 @@ exports.transactions = async (req, res) => {
     try {
       let { public_key, wallet_id, user_id } = req.query;
       let filter = { public_key:public_key, wallet_id: wallet_id, user_id: user_id }
-      console.log(filter)
       let result = await birkeland_payment_transaction_item.find(filter);
-    //  console.log(result);
       return res.status(200).send({ success: true, message: result });
     }
     catch (err) {
@@ -168,7 +164,6 @@ exports.create_invoice = async (req, res) => {
       if (create_invoice_resp["success"]) {
         birkeland_payment_transaction_item_object["transaction_id"] = create_invoice_resp["message"]["id"];
         birkeland_payment_transaction_item_object["payment_request_hash"] = create_invoice_resp["message"]["request"];
-        console.log(birkeland_payment_transaction_item_object);
         await birkeland_payment_transaction_item.create(birkeland_payment_transaction_item_object);
         return res.status(200).send({ success: true, message: create_invoice_resp });
       }
@@ -182,7 +177,6 @@ exports.create_invoice = async (req, res) => {
     }
 
   } catch (err) {
-    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
@@ -196,14 +190,12 @@ exports.make_a_payment = async (req, res) => {
       node_public_key: node_public_key,
       from_node_public_key: from_node_public_key
     };
-    console.log(make_payment_object)
+
     if (node_public_key === from_node_public_key) {
-      console.log("here we just update DB values")
       var transaction_filter = {
         payment_request_hash: request_hash
       }
       var transact_object = await birkeland_payment_transaction_item.find(transaction_filter);
-      console.log(transact_object);
       var decoded_request_hash = invoice.decode(request_hash);
       if (transact_object.length == 1) {
         //1. check if there is sufficient balance in the payment sender account
@@ -215,7 +207,6 @@ exports.make_a_payment = async (req, res) => {
         var user_wallet_balance = (user_wallet_info[0]["wallet_balance_in_mstats"] / 1000)
         if (user_wallet_info[0]["wallet_balance_in_mstats"] > decoded_request_hash?.valueMsat) {
           //2. if so upadte the satus of the invoice creator
-          console.log(user_wallet_balance)
           //3. insert the transaction satus in the sender
           let birkeland_payment_transaction_item_object = {
             payment_request_hash : request_hash,
@@ -235,13 +226,13 @@ exports.make_a_payment = async (req, res) => {
           let updated_walled_balance_sender = user_wallet_info[0]["wallet_balance_in_mstats"] - decoded_request_hash?.valueMsat;
           await birkeland_wallet_item.findOneAndUpdate(wallet_filter,{wallet_balance_in_mstats : updated_walled_balance_sender})
           let receiver_wallet_filter = {
-            user_id : user_wallet_info["user_id"],
-            wallet_id : user_wallet_info["wallet_id"]
+            user_id : transact_object[0]["user_id"],
+            wallet_id : transact_object[0]["wallet_id"]
           }
           let receiver_wallet_current_satus = await birkeland_wallet_item.find(receiver_wallet_filter);
-          let updated_balance = decoded_request_hash?.valueMsat + receiver_wallet_current_satus["wallet_balance_in_mstats"]
-          console.log(updated_balance)
-          console.log("Updates made");
+          let updated_balance = parseInt(decoded_request_hash?.valueMsat) + parseInt(receiver_wallet_current_satus[0]["wallet_balance_in_mstats"])
+          await birkeland_wallet_item.findOneAndUpdate(receiver_wallet_filter,{wallet_balance_in_mstats : updated_balance, last_udapted : new Date()});
+     
         }
 
       }
@@ -252,11 +243,9 @@ exports.make_a_payment = async (req, res) => {
       return res.status(200).send({ success: true, message: "here we update db value" });
     }
     else {
-      console.log("Here we do actual lightning node transfer");
       return res.status(400).send({ success: false, message: "Sending across lightining node currently not supported" });
     }
   } catch (err) {
-    console.log(err)
     return res.status(400).send({ success: false });
   }
 };
@@ -270,7 +259,6 @@ exports.decode_lightning_invoice = async (req, res) => {
   try {
 
     let { payment_hash } = req.query;
-    console.log(payment_hash)
     let result = invoice.decode(payment_hash);
 
     let decoded_invoice = {
@@ -283,11 +271,9 @@ exports.decode_lightning_invoice = async (req, res) => {
       description: result?.shortDesc
 
     }
-    console.log(decoded_invoice);
     return res.status(200).send({ success: true, message: decoded_invoice });
   }
   catch (err) {
-    //console.log(err);
     return res.status(400).send({ success: false });
   }
 }
