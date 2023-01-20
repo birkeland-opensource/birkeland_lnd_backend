@@ -6,7 +6,7 @@ const test_birkeland_lnd = require("test_birkeland_lnd");
 
 const { v4: uuidv4 } = require("uuid");
 const {
-  BIRKELAND_WALLET_TRANSACTION_STATUS,
+  BIRKELAND_WALLET_TRANSACTION_STATUS, BIRKELAND_WALLET_TRANSACTION_INTENT,
 } = require("../support_functions/constants");
 const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
 const { get_wallet_top_tx_status } = require("../support_functions/polling_service");
@@ -144,8 +144,8 @@ exports.create_invoice = async (req, res) => {
       sats,
       from_public_key,
     } = req.body;
+    
     let birkeland_payment_transaction_item_object = {
-
       memo : memo,
       user_id : user_id,
       amount_in_msats : sats *1000,
@@ -153,7 +153,8 @@ exports.create_invoice = async (req, res) => {
       from_wallet_id : from_wallet_id,
       date_created : new Date(),
       date_updated : new Date(),
-      payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED
+      payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
+      intent : BIRKELAND_WALLET_TRANSACTION_INTENT.RECEIVE
     };
 
     if(birkeland_payment_transaction_item_object["amount_in_msats"] >0)
@@ -205,14 +206,6 @@ exports.make_a_payment = async (req, res) => {
       console.log("Here we do actual lightning node transfer");
       return res.status(400).send({ success: false,message: "Sending across lightining node currently not supported" });
     }
-    //var
-    // let make_payment_params = {
-    //   operation : LND_GRPC_OPERATION.PAY,
-    //   request : request_hash
-    // }
-
-    // let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(make_payment_params);
-    return res.status(200).send({ success: true,message : "create_invoice_resp"});
   } catch (err) {
     return res.status(400).send({ success: false });
    }

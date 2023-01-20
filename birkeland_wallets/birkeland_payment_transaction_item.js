@@ -14,7 +14,7 @@ const birkeland_wallet_transaction_schema = new mongoose.Schema({
     payment_request_hash : {
         type: String,
         required: true,
-        unique: true,
+        unique: false,
     },
     from_wallet_id : {
         type: String,
@@ -38,6 +38,11 @@ const birkeland_wallet_transaction_schema = new mongoose.Schema({
     },
     date_created :{
         type: Date,
+        required: true,
+        unique: false,
+    },
+    intent :{
+        type: String,
         required: true,
         unique: false,
     },
