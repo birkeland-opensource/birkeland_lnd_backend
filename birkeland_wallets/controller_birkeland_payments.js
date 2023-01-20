@@ -189,7 +189,25 @@ exports.create_invoice = async (req, res) => {
 
 exports.make_a_payment = async (req, res) => {
   try {
-  } catch (err) { }
+    var {amount_in_sats,request_hash,decoded_object, node_public_key,from_node_public_key} = req.body;
+    let make_payment_object = {
+      amount_in_sats: amount_in_sats,
+      request_hash: request_hash,
+      node_public_key: node_public_key,
+      from_node_public_key : from_node_public_key
+    };
+    console.log(make_payment_object)
+    //var
+    // let make_payment_params = {
+    //   operation : LND_GRPC_OPERATION.PAY,
+    //   request : request_hash
+    // }
+
+    // let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(make_payment_params);
+    return res.status(200).send({ success: true,message : "create_invoice_resp"});
+  } catch (err) {
+    return res.status(400).send({ success: false });
+   }
 };
 
 exports.pending_payments = async (req, res) => {
