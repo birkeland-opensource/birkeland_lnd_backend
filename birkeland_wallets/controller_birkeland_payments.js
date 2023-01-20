@@ -197,6 +197,14 @@ exports.make_a_payment = async (req, res) => {
       from_node_public_key : from_node_public_key
     };
     console.log(make_payment_object)
+    if(node_public_key === from_node_public_key){
+      console.log("here we just update DB values")
+      return res.status(200).send({ success: true,message : "here we update db value"});
+    }
+    else{
+      console.log("Here we do actual lightning node transfer");
+      return res.status(400).send({ success: false,message: "Sending across lightining node currently not supported" });
+    }
     //var
     // let make_payment_params = {
     //   operation : LND_GRPC_OPERATION.PAY,
