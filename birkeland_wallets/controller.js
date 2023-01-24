@@ -53,3 +53,12 @@ exports.get_one_wallet = async (req, res) => {
     return res.status(400).send({ success: false });
   }
 };
+
+exports.check_endpoint_is_authenticated = async(req, res) => {
+  try{
+      return res.status(200).send({ success: true, message:"authenticated" });
+  }
+  catch(err){
+
+  }
+}
