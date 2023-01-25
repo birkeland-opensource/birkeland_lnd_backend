@@ -11,7 +11,7 @@ const { decode_node_auth_jwt_token } = require("../support_functions/utils");
 apirouter.post("/auth_lnd_ops", auth_lnd_ops);
 apirouter.post("/unauth_lnd_ops", unauth_lnd_ops);
 
-apirouter.post("/get_node_auth_token", get_node_auth_token);
+apirouter.get("/get_node_auth_token", get_node_auth_token);
 
 apirouter.post("/check_endpoint_is_authenticated",decode_node_auth_jwt_token, check_endpoint_is_authenticated);
 
