@@ -1,12 +1,12 @@
 var express = require("express");
-const { auth_birkeland_wallet_access } = require("../support_functions/utils");
+const { auth_birkeland_wallet_access, decode_node_auth_jwt_token } = require("../support_functions/utils");
 var apirouter = express.Router();
 
 var birkeland_wallet_controller = require("./controller");
 var controller_birkeland_payments = require("./controller_birkeland_payments");
 
 apirouter.post("/wallet", birkeland_wallet_controller.create_a_wallet);
-apirouter.get("/wallets", birkeland_wallet_controller.get_all_wallets);
+apirouter.get("/wallets",decode_node_auth_jwt_token, birkeland_wallet_controller.get_all_wallets);
 apirouter.get("/wallet", birkeland_wallet_controller.get_one_wallet);
 
 apirouter.post("/get_onchain_address", controller_birkeland_payments.topup_wallet);
