@@ -36,11 +36,14 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
     jwt.verify(token, "partOfTheJourneyIsTheEnd", (err, decoded) => {
       if (err) {
         return res
-          .status(500)
+          .status(401)
           .send({ auth: false, message: "Failed to authenticate token." });
       }
-      req.userId = decoded.id;
-      next();
+      else{
+         next();
+         return;
+      }
+     
     });
   } catch (e) {
     return res.status(401).send({ message: "node auth failed" });
@@ -50,6 +53,7 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
 exports.auth_birkeland_wallet_access = async (req, res, next) => {
   try {
     const token = req.headers["access-token"];
+    const wallet_id = req.headers["wallet_id"];
     if (!token) {
       return res
         .status(401)
@@ -57,19 +61,21 @@ exports.auth_birkeland_wallet_access = async (req, res, next) => {
     }
     let resp = await birkeland_wallet_item.findOne({ read_key: token });
     if (resp) {
-      let wallet_id = req.headers["wallet_id"];
+     
       if (wallet_id == wallet_id) {
         next();
+        return;
+
       } else {
         return res
-          .status(500)
+          .status(401)
           .send({ auth: false, message: "Failed to authenticate token." });
       }
     }
     return res
-      .status(500)
+      .status(401)
       .send({ auth: false, message: "Failed to authenticate token." });
   } catch (err) {
-    return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+    return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
   }
 };
