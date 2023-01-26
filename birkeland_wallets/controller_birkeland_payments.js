@@ -238,7 +238,8 @@ exports.make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id, request_hash } = req.body;
 
-    var public_key_resp = get_node_public_key(res);
+    var public_key_resp = await get_node_public_key(res);
+    console.log(public_key_resp)
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
       console.log(global.node_public_key);
@@ -340,6 +341,7 @@ exports.make_a_payment = async (req, res) => {
       }
     }
   } catch (err) {
+    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
