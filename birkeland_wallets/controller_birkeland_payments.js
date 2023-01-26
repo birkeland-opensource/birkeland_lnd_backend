@@ -172,7 +172,10 @@ exports.transactions = async (req, res) => {
 exports.create_invoice = async (req, res) => {
   try {
     var { memo, from_wallet_id, user_id, sats } = req.body;
-
+    var public_key_resp = await get_node_public_key(res);
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
+      console.log(global.node_public_key);
     if (global.node_public_key) {
       let birkeland_payment_transaction_item_object = {
         memo: memo,
@@ -229,7 +232,7 @@ exports.create_invoice = async (req, res) => {
         .status(500)
         .send({ success: false, message: "Lightning node maynot be running" });
     }
-  } catch (err) {
+  }} catch (err) {
     return res.status(400).send({ success: false });
   }
 };
@@ -237,9 +240,7 @@ exports.create_invoice = async (req, res) => {
 exports.make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id, request_hash } = req.body;
-
     var public_key_resp = await get_node_public_key(res);
-    console.log(public_key_resp)
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
       console.log(global.node_public_key);
