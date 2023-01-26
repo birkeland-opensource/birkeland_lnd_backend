@@ -7,8 +7,6 @@ const cron = require('node-cron');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
- const {poll_and_update_on_chain_transaction} = require("./support_functions/polling_service")
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cors()); 
