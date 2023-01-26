@@ -141,6 +141,8 @@ exports.create_invoice = async (req, res) => {
       from_public_key,
     } = req.body;
 
+    console.log(global.node_public_key)
+
     let birkeland_payment_transaction_item_object = {
       memo: memo,
       user_id: user_id,
