@@ -19,7 +19,6 @@ exports.create_a_wallet = async (req, res) => {
     await birkeland_wallet_item.create(object);
     return res.status(200).send({ success: true });
   } catch (err) {
-    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
@@ -27,10 +26,7 @@ exports.create_a_wallet = async (req, res) => {
 exports.get_all_wallets = async (req, res) => {
   try {
    
-    // var returnObject = {};
-    console.log("get_all_wallets")
     let {node_public_key} = req.query;
-    console.log(node_public_key)
     var result = await birkeland_wallet_item.find({main_wallet_public_key :node_public_key});
     return res.status(200).send({ success: true, message: result });
   } catch (e) {
@@ -44,7 +40,6 @@ exports.get_one_wallet = async (req, res) => {
       user_id : req.query.user_id,
       wallet_id: req.query.wallet_id,
     };
-    console.log(filter)
 
     // var returnObject = {};
     var result = await birkeland_wallet_item.findOne(filter);

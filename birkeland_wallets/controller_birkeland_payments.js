@@ -196,6 +196,7 @@ exports.create_invoice = async (req, res) => {
 exports.make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id, request_hash } = req.body;
+    console.log(global.node_public_key);
     if(global.node_public_key)
     {
     var decoded_request_hash = invoice.decode(request_hash);
@@ -253,7 +254,7 @@ exports.make_a_payment = async (req, res) => {
       return res.status(200).send({ success: true, message: "here we update db value" });
     }
     else {
-      return res.status(400).send({ success: false, message: "Sending across lightining node currently not supported" });
+      return res.status(400).send({ success: false, message: "Public key not availabe" });
     }
   } catch (err) {
     return res.status(400).send({ success: false });

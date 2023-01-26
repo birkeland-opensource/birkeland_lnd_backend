@@ -5,7 +5,6 @@ exports.auth_lnd_ops = async (req, res) => {
         var ops_res = await test_birkeland_lnd.PerformAuthenticatedOperation(req.body);
         if (ops_res.success) {
             if (req.body?.operation == 'get_identity') {
-                console.log(ops_res);
                 global.node_public_key = ops_res?.message?.public_key;
             }
             return res.status(200).send({ success: true, message: ops_res?.message });
@@ -15,7 +14,6 @@ exports.auth_lnd_ops = async (req, res) => {
         }
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send({ success: false, message: err });
     }
 }
