@@ -13,9 +13,11 @@ const { get_wallet_top_tx_status } = require("../support_functions/polling_servi
 
 exports.topup_wallet = async (req, res) => {
   try {
-    let { public_key, wallet_id, user_id } = req.body;
+    let { wallet_id, user_id } = req.body;
     // 1. Create on chain address
     // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
+    if(global.node_public_key)
+    {
     let create_chain_address_resp =
       await test_birkeland_lnd.PerformAuthenticatedOperation({
         operation: LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS,
@@ -26,7 +28,7 @@ exports.topup_wallet = async (req, res) => {
         create_chain_address_resp["message"];
       let wallet_topup_item = {
         chain_address: address_message["address"],
-        public_key: public_key,
+        public_key: global.node_public_key,
         wallet_id: wallet_id,
         date_created: new Date(),
         last_udapted: new Date(),
@@ -43,7 +45,13 @@ exports.topup_wallet = async (req, res) => {
         .status(400)
         .send({ success: false, message: "LND may not be running" });
     }
-  } catch (err) {
+    
+  } else{
+    return res
+        .status(500)
+        .send({ success: false, message: "LND may not be running" });
+  }
+}catch (err) {
     return res.status(400).send({ success: false, message: err });
   }
 };
@@ -137,8 +145,7 @@ exports.create_invoice = async (req, res) => {
       memo,
       from_wallet_id,
       user_id,
-      sats,
-      from_public_key,
+      sats
     } = req.body;
 
     if(global.node_public_key)
@@ -188,20 +195,18 @@ exports.create_invoice = async (req, res) => {
 
 exports.make_a_payment = async (req, res) => {
   try {
-    var { user_id, wallet_id, amount_in_sats, request_hash, decoded_object, node_public_key, from_node_public_key } = req.body;
-    let make_payment_object = {
-      amount_in_sats: amount_in_sats,
-      request_hash: request_hash,
-      node_public_key: node_public_key,
-      from_node_public_key: from_node_public_key
-    };
-
+    var { user_id, wallet_id, request_hash } = req.body;
+    if(global.node_public_key)
+    {
+    var decoded_request_hash = invoice.decode(request_hash);
+    var from_node_public_key =  decoded_request_hash?.pubkey;
+    const node_public_key = global.node_public_key;
     if (node_public_key === from_node_public_key) {
       var transaction_filter = {
         payment_request_hash: request_hash
       }
       var transact_object = await birkeland_payment_transaction_item.find(transaction_filter);
-      var decoded_request_hash = invoice.decode(request_hash);
+     
       if (transact_object.length == 1) {
         //1. check if there is sufficient balance in the payment sender account
         var wallet_filter = {
@@ -209,7 +214,6 @@ exports.make_a_payment = async (req, res) => {
           user_id: user_id
         }
         var user_wallet_info = await birkeland_wallet_item.find(wallet_filter);
-        var user_wallet_balance = (user_wallet_info[0]["wallet_balance_in_mstats"] / 1000)
         if (user_wallet_info[0]["wallet_balance_in_mstats"] > decoded_request_hash?.valueMsat) {
           //2. if so upadte the satus of the invoice creator
           //3. insert the transaction satus in the sender
@@ -237,14 +241,15 @@ exports.make_a_payment = async (req, res) => {
           let receiver_wallet_current_satus = await birkeland_wallet_item.find(receiver_wallet_filter);
           let updated_balance = parseInt(decoded_request_hash?.valueMsat) + parseInt(receiver_wallet_current_satus[0]["wallet_balance_in_mstats"])
           await birkeland_wallet_item.findOneAndUpdate(receiver_wallet_filter,{wallet_balance_in_mstats : updated_balance, last_udapted : new Date()});
-     
         }
-
       }
       else {
         return res.status(400).send({ success: false, message: "Error processing this create new payment request" });
 
       }
+    }else{
+      return res.status(400).send({ success: false, message: "Error processing this create new payment request" });
+    }
       return res.status(200).send({ success: true, message: "here we update db value" });
     }
     else {
@@ -255,10 +260,6 @@ exports.make_a_payment = async (req, res) => {
   }
 };
 
-exports.pending_payments = async (req, res) => {
-  try {
-  } catch (err) { }
-};
 
 exports.decode_lightning_invoice = async (req, res) => {
   try {

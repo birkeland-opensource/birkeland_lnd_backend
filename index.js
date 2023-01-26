@@ -15,8 +15,6 @@ app.use(cors());
 
 require('./config/db');
 
-global.node_public_key = "test"
-
 //cron.schedule('1 * * * * *', poll_and_update_on_chain_transaction);
 
 var terminal_operation_router = require("./birkeland_router/terminal_operation_router/terminal_operation_router");
