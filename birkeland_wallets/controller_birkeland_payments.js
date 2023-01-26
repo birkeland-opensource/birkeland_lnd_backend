@@ -246,7 +246,7 @@ exports.make_a_payment = async (req, res) => {
       console.log(global.node_public_key);
       if (global.node_public_key) {
         var decoded_request_hash = invoice.decode(request_hash);
-        var from_node_public_key = decoded_request_hash?.pubkey;
+        var from_node_public_key = decoded_request_hash?.desc;
         const node_public_key = global.node_public_key;
         if (node_public_key === from_node_public_key) {
           var transaction_filter = {
