@@ -141,13 +141,13 @@ exports.create_invoice = async (req, res) => {
       from_public_key,
     } = req.body;
 
-    console.log(global.node_public_key)
-
+    if(global.node_public_key)
+    {
     let birkeland_payment_transaction_item_object = {
       memo: memo,
       user_id: user_id,
       amount_in_msats: sats * 1000,
-      public_key: from_public_key,
+      public_key: global.node_public_key,
       wallet_id: from_wallet_id,
       date_created: new Date(),
       date_updated: new Date(),
@@ -159,7 +159,7 @@ exports.create_invoice = async (req, res) => {
       let create_invoice_params = {
         operation: "create_invoice",
         mtokens: birkeland_payment_transaction_item_object["amount_in_msats"],
-        description: from_public_key
+        description: global.node_public_key
       }
 
       let create_invoice_resp = await test_birkeland_lnd.PerformAuthenticatedOperation(create_invoice_params);
@@ -177,6 +177,9 @@ exports.create_invoice = async (req, res) => {
     else {
       return res.status(400).send({ success: false, message: "amount cannot be zero or less than zero" });
     }
+  }else{
+    return res.status(500).send({ success: false, message: "Lightning node maynot be running" });
+  }
 
   } catch (err) {
     return res.status(400).send({ success: false });
