@@ -17,7 +17,7 @@ const { get_node_public_key } = require("../support_functions/utils");
 
 exports.topup_wallet = async (req, res) => {
   try {
-    let { wallet_id, user_id } = req.body;
+    let { wallet_id, user_id } = req.query;
     // 1. Create on chain address
     // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
     var public_key_resp = await get_node_public_key(res);
