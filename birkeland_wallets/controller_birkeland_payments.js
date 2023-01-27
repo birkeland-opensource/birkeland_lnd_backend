@@ -171,7 +171,7 @@ exports.transactions = async (req, res) => {
 };
 exports.create_invoice = async (req, res) => {
   try {
-    var { memo, from_wallet_id, user_id, sats } = req.body;
+    var { memo, wallet_id, user_id, sats } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -182,7 +182,7 @@ exports.create_invoice = async (req, res) => {
         user_id: user_id,
         amount_in_msats: sats * 1000,
         public_key: global.node_public_key,
-        wallet_id: from_wallet_id,
+        wallet_id: wallet_id,
         date_created: new Date(),
         date_updated: new Date(),
         payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
