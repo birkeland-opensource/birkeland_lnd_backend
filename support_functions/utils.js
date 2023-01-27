@@ -64,7 +64,7 @@ exports.auth_birkeland_wallet_access = async (req, res, next) => {
     let resp = await birkeland_wallet_item.findOne({ read_key: token });
     if (resp) {
      
-      if (wallet_id == wallet_id) {
+      if (resp["wallet_id"] == wallet_id) {
         next();
         return;
 
