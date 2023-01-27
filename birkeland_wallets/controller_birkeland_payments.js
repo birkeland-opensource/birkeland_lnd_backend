@@ -372,7 +372,7 @@ exports.make_a_payment = async (req, res) => {
         }
         return res
           .status(200)
-          .send({ success: true, message: "here we update db value" });
+          .send({ success: true, message: "Payment Success" });
       } else {
         return res
           .status(400)
