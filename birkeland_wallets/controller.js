@@ -1,12 +1,16 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const { v4: uuidv4 } = require("uuid");
+const { get_node_public_key } = require("../support_functions/utils");
 
 exports.create_a_wallet = async (req, res) => {
   try {
     // Later get mainwallet public key from the LND 
-    let { user_id,main_wallet_public_key,wallet_name } = req.body;
+    let { user_id,wallet_name } = req.body;
+    var public_key_resp = await get_node_public_key(res);
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
     var object = {
-      main_wallet_public_key : main_wallet_public_key,
+      main_wallet_public_key : global.node_public_key ,
       wallet_name : wallet_name,
       user_id: user_id,
       wallet_id: uuidv4(),
@@ -18,7 +22,7 @@ exports.create_a_wallet = async (req, res) => {
     };
     await birkeland_wallet_item.create(object);
     return res.status(200).send({ success: true });
-  } catch (err) {
+ } } catch (err) {
     return res.status(400).send({ success: false });
   }
 };
