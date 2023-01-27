@@ -25,10 +25,12 @@ exports.create_a_wallet = async (req, res) => {
 
 exports.get_all_wallets = async (req, res) => {
   try {
-   
-    let {node_public_key} = req.query;
-    var result = await birkeland_wallet_item.find({main_wallet_public_key :node_public_key});
+    var public_key_resp = await get_node_public_key(res);
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
+    var result = await birkeland_wallet_item.find({main_wallet_public_key : global.node_public_key });
     return res.status(200).send({ success: true, message: result });
+    }
   } catch (e) {
     return res.status(400).send({ success: false });
   }
