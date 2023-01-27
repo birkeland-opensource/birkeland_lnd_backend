@@ -29,18 +29,19 @@ const poll_and_update_on_chain_transaction = async () => {
 };
 
 const get_wallet_top_tx_status = (result, utxos) =>{
-  var chain_address = result[0]["chain_address"]
   var lnd_utxos = utxos["utxos"];
-
+  for (var i = 0; i < result.length; i++) {
+    var chain_address = result[i]["chain_address"];
   for(var count = 0; count < lnd_utxos.length; count++){
     console.log(`${chain_address} === ${lnd_utxos[count]["address"]}`)
     if(chain_address === lnd_utxos[count]["address"])
     {
       let update_object = lnd_utxos[count]
-      update_object["_id"] = result[0]?._id;
+      update_object["_id"] = result[i]?._id;
       return {success : true,message : update_object}
     }
   }
+}
   return {success : false}
 }
 

@@ -77,7 +77,7 @@ exports.get_wallet_topup_tx = async (req, res) => {
           user_id: user_id,
         };
         let result = (await topup_birkeland_wallet_item.find(filter)).reverse();
-        return res.status(200).send({ success: true, message: result[0] });
+        return res.status(200).send({ success: true, message: result });
       } else {
         return res.status(500).send({
           success: false,
@@ -123,8 +123,11 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
                 tokens: update_object["message"]["tokens"],
                 transaction_confirmed: true,
               };
+              let update_filter = filter;
+              update_filter["chain_address"] = update_object["message"]["address"];
+            
               await topup_birkeland_wallet_item.findOneAndUpdate(
-                filter,
+                update_filter,
                 filtered_update_object
               );
 
