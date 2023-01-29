@@ -15,6 +15,34 @@ const {
 } = require("../support_functions/polling_service");
 const { get_node_public_key } = require("../support_functions/utils");
 
+exports.withdraw_from_wallet = async (req, res) => {
+  try {
+    let { wallet_id, user_id } = req.query;
+      var public_key_resp = await get_node_public_key(res);
+      if (public_key_resp?.success) {
+        global.node_public_key = public_key_resp?.public_key;
+        if (global.node_public_key) {
+          let send_to_chain_address_resp =
+          await test_birkeland_lnd.PerformAuthenticatedOperation({
+            operation: LND_GRPC_OPERATION.SEND_TO_CHAIN_ADDRESS,
+          });
+          if (send_to_chain_address_resp["success"]) {
+            let address_message = send_to_chain_address_resp["message"];
+          }
+        }
+        else {
+        return res
+          .status(500)
+          .send({ success: false, message: "LND may not be running" });
+      }
+      }
+
+  }
+  catch(err){
+
+  }
+}
+
 exports.topup_wallet = async (req, res) => {
   try {
     let { wallet_id, user_id } = req.query;
