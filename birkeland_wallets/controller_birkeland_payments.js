@@ -242,7 +242,8 @@ exports.transactions = async (req, res) => {
 };
 exports.create_invoice = async (req, res) => {
   try {
-    var { memo, wallet_id, user_id, sats } = req.body;
+    var {wallet_id, user_id} = req.query;
+    var { memo, sats } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -309,7 +310,8 @@ exports.create_invoice = async (req, res) => {
 
 exports.make_a_payment = async (req, res) => {
   try {
-    var { user_id, wallet_id, request_hash } = req.body;
+    var {user_id, wallet_id,} = req.query;
+    var {  request_hash } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;

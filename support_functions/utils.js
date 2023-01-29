@@ -12,7 +12,6 @@ exports.decodeAndAuthTokenJwtToken = async (req, res, next) => {
   //we receive objectId of the sessionid and retirve the object id from db and verify it.
 
   try {
-    console.log("Hello " + req.query.jwtToken);
     jwt.verify(req.query.jwtToken, "partOfTheJourneyIsTheEnd");
     next();
   } catch (e) {
@@ -55,7 +54,7 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
 exports.auth_birkeland_wallet_access = async (req, res, next) => {
   try {
     const token = req.headers["access-token"];
-    const wallet_id = req.headers["wallet_id"];
+    const {wallet_id} = req.query;
     if (!token) {
       return res
         .status(401)
