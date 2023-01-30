@@ -126,14 +126,15 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                 var withdraw_transaction_object = {
                   transaction_id : on_chain_withdraw_repsonse["message"]["id"],
                   memo: `Withdraw to chain address ${address}`,
+                  payment_request_hash : uuidv4(),
+                  wallet_id: wallet_id,
                   user_id: user_id,
                   amount_in_msats: tokens_int * 1000,
                   public_key: global.node_public_key,
-                  wallet_id: wallet_id,
                   date_created: new Date(),
+                  intent: BIRKELAND_WALLET_TRANSACTION_INTENT.WITHDRAW,
                   date_updated: new Date(),
                   payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
-                  intent: BIRKELAND_WALLET_TRANSACTION_INTENT.WITHDRAW,
                 };
                 console.log(withdraw_transaction_object);
                 
