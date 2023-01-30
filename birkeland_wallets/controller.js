@@ -93,9 +93,14 @@ exports.withdraw_to_onchain_address = async(req,res) => {
           address :address
         }
         let on_chain_withdraw_repsonse = await test_birkeland_lnd.PerformAuthenticatedOperation(on_chain_withdraw_params);
-        console.log(on_chain_withdraw_repsonse)
-        //2. if the request is success detuct from the wallet
-        return res.status(200).send({ success: true, message: on_chain_withdraw_repsonse });
+        console.log(on_chain_withdraw_repsonse["success"])
+        if(on_chain_withdraw_repsonse["success"]){
+            //2. if the request is success detuct from the wallet
+            return res.status(200).send({ success: true, message: on_chain_withdraw_repsonse });
+        }
+        else{
+          return res.status(500).send({ success: false,message : on_chain_withdraw_repsonse["message"] });
+        }
       }
       else{
         return res.status(500).send({ success: false,message : "Minimum Sats to withdraw is 3$ or more" });
