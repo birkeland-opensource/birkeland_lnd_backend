@@ -96,6 +96,12 @@ exports.withdraw_to_onchain_address = async(req,res) => {
         console.log(on_chain_withdraw_repsonse["success"])
         if(on_chain_withdraw_repsonse["success"]){
             //2. if the request is success detuct from the wallet
+            var updated_balance = wallet_balance - tokens_int;
+            let updatd_object = {
+              last_udapted : new Date(),
+              wallet_balance_in_mstats : updated_balance *1000
+            };
+            await birkeland_wallet_item.findOneAndUpdate(filter,updatd_object);
             return res.status(200).send({ success: true, message: on_chain_withdraw_repsonse });
         }
         else{
