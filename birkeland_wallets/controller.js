@@ -1,6 +1,7 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
+const {satoshisToFiat} = require("bitcoin-conversion");
 
 exports.create_a_wallet = async (req, res) => {
   try {
@@ -66,14 +67,37 @@ exports.check_endpoint_is_authenticated = async(req, res) => {
 
 exports.withdraw_to_onchain_address = async(req,res) => {
   try{
+    var {user_id,wallet_id} = req.query;
+    var {tokens,address} = req.body;
     var filter = {
-      user_id : req.query.user_id,
-      wallet_id: req.query.wallet_id,
+      user_id : user_id,
+      wallet_id: wallet_id,
     };
-
-    var result = await birkeland_wallet_item.find(filter);
-    console.log(result)
-    return res.status(200).send({ success: true, message: result });
+    var tokens_int = parseInt(tokens);
+    if((tokens_int > 1) && (address.length >3)){
+    var birkeland_wallet_info = await birkeland_wallet_item.findOne(filter);
+    //console.log(result)
+    var wallet_balance = birkeland_wallet_info["wallet_balance_in_mstats"] /1000;
+    console.log(`${tokens_int} < ${wallet_balance}`);
+    if(tokens_int < wallet_balance)
+    {
+      var withdraw_amount_in_usd = await satoshisToFiat(tokens_int,'USD');
+      console.log(withdraw_amount_in_usd);
+      if(withdraw_amount_in_usd > 2.2){
+        //1. make request to lnd
+        //2. if the request is success detuct from the wallet
+        return res.status(200).send({ success: true, message: wallet_balance });
+      }
+      else{
+        return res.status(500).send({ success: false,message : "Minimum Sats to withdraw is 3$ or more" });
+      }
+    
+    }
+    else{
+      return res.status(500).send({ success: false,message : "Insufficient balance" });
+    }
+  
+    }
   }
   catch(err){
     console.log(err)
