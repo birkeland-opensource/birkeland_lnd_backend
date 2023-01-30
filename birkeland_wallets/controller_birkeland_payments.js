@@ -14,6 +14,7 @@ const {
   get_wallet_top_tx_status,
 } = require("../support_functions/polling_service");
 const { get_node_public_key } = require("../support_functions/utils");
+const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
 
 exports.withdraw_from_wallet = async (req, res) => {
   try {
@@ -432,5 +433,111 @@ exports.decode_lightning_invoice = async (req, res) => {
     return res.status(200).send({ success: true, message: decoded_invoice });
   } catch (err) {
     return res.status(400).send({ success: false });
+  }
+};
+
+
+exports.withdraw_to_onchain_address = async (req, res) => {
+  try {
+    var public_key_resp = await get_node_public_key(res);
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
+      if (global.node_public_key) {
+        var { user_id, wallet_id } = req.query;
+        var { tokens, address } = req.body;
+        var filter = {
+          user_id: user_id,
+          wallet_id: wallet_id,
+        };
+        var tokens_int = parseInt(tokens);
+        if (tokens_int > 1 && address.length > 3) {
+          var birkeland_wallet_info = await birkeland_wallet_item.findOne(
+            filter
+          );
+          //console.log(result)
+          var wallet_balance =
+            birkeland_wallet_info["wallet_balance_in_mstats"] / 1000;
+          console.log(`${tokens_int} < ${wallet_balance}`);
+          if (tokens_int < wallet_balance) {
+            var withdraw_amount_in_usd = await satoshisToFiat(
+              tokens_int,
+              "USD"
+            );
+            console.log(withdraw_amount_in_usd);
+            if (withdraw_amount_in_usd > 2.2) {
+              //1. make request to lnd
+              let on_chain_withdraw_params = {
+                operation: "send_to_chain_address",
+                tokens: tokens_int,
+                address: address,
+              };
+              let on_chain_withdraw_repsonse =
+                await test_birkeland_lnd.PerformAuthenticatedOperation(
+                  on_chain_withdraw_params
+                );
+              if (on_chain_withdraw_repsonse["success"]) {
+                //2. if the request is success subsctract from the wallet
+                var updated_balance = wallet_balance - tokens_int;
+                let updatd_object = {
+                  last_udapted: new Date(),
+                  wallet_balance_in_mstats: updated_balance * 1000,
+                };
+                
+                await birkeland_wallet_item.findOneAndUpdate(
+                  filter,
+                  updatd_object
+                );
+                console.log(on_chain_withdraw_repsonse["message"]);
+                var withdraw_transaction_object = {
+                  transaction_id : on_chain_withdraw_repsonse["message"]["id"],
+                  memo: `Withdraw to chain address ${address}`,
+                  payment_request_hash : uuidv4(),
+                  wallet_id: wallet_id,
+                  user_id: user_id,
+                  amount_in_msats: tokens_int * 1000,
+                  public_key: global.node_public_key,
+                  date_created: new Date(),
+                  intent: BIRKELAND_WALLET_TRANSACTION_INTENT.WITHDRAW,
+                  date_updated: new Date(),
+                  payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
+                };
+                
+                await birkeland_wallet_transaction_item.create(
+                  withdraw_transaction_object
+                );
+                return res
+                  .status(200)
+                  .send({ success: true, message: on_chain_withdraw_repsonse });
+              } else {
+                return res
+                  .status(500)
+                  .send({
+                    success: false,
+                    message: on_chain_withdraw_repsonse["message"],
+                  });
+              }
+            } else {
+              return res
+                .status(500)
+                .send({
+                  success: false,
+                  message: "Minimum Sats to withdraw is 3$ or more",
+                });
+            }
+          } else {
+            return res
+              .status(500)
+              .send({ success: false, message: "Insufficient balance" });
+          }
+        }
+      } else{
+        return res
+            .status(500)
+            .send({ success: false, message: "Node may not be running" });
+      }
+    } 
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ success: false, message : err });
   }
 };
