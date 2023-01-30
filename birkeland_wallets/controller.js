@@ -1,14 +1,8 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
-const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
 
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
-const { satoshisToFiat } = require("bitcoin-conversion");
-const test_birkeland_lnd = require("test_birkeland_lnd");
-const {
-  BIRKELAND_WALLET_TRANSACTION_STATUS,
-  BIRKELAND_WALLET_TRANSACTION_INTENT,
-} = require("../support_functions/constants");
+
 
 exports.create_a_wallet = async (req, res) => {
   try {

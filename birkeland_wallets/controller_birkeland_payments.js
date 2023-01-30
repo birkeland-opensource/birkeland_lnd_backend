@@ -3,6 +3,7 @@ const topup_birkeland_wallet_item = require("./topup_birkeland_wallet_item");
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const invoice = require("@node-lightning/invoice");
 const test_birkeland_lnd = require("test_birkeland_lnd");
+const { satoshisToFiat } = require("bitcoin-conversion");
 
 const { v4: uuidv4 } = require("uuid");
 const {
