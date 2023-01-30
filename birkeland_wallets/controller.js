@@ -2,6 +2,8 @@ const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
 const {satoshisToFiat} = require("bitcoin-conversion");
+const test_birkeland_lnd = require('test_birkeland_lnd')
+
 
 exports.create_a_wallet = async (req, res) => {
   try {
@@ -85,8 +87,15 @@ exports.withdraw_to_onchain_address = async(req,res) => {
       console.log(withdraw_amount_in_usd);
       if(withdraw_amount_in_usd > 2.2){
         //1. make request to lnd
+        let on_chain_withdraw_params = {
+          operation : "send_to_chain_address",
+          tokens : tokens_int,
+          address :address
+        }
+        let on_chain_withdraw_repsonse = await test_birkeland_lnd.PerformAuthenticatedOperation(on_chain_withdraw_params);
+        console.log(on_chain_withdraw_repsonse)
         //2. if the request is success detuct from the wallet
-        return res.status(200).send({ success: true, message: wallet_balance });
+        return res.status(200).send({ success: true, message: on_chain_withdraw_repsonse });
       }
       else{
         return res.status(500).send({ success: false,message : "Minimum Sats to withdraw is 3$ or more" });
