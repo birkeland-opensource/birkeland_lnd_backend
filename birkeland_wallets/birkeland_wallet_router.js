@@ -23,6 +23,8 @@ apirouter.get("/decode_lightning_invoice", controller_birkeland_payments.decode_
 
 apirouter.post("/check_endpoint_is_authenticated",auth_birkeland_wallet_access, birkeland_wallet_controller.check_endpoint_is_authenticated);
 
+apirouter.post("/withdraw_to_onchain_address",auth_birkeland_wallet_access, birkeland_wallet_controller.withdraw_to_onchain_address);
+
 
 
 module.exports = apirouter;

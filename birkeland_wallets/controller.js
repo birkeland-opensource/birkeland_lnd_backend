@@ -63,3 +63,19 @@ exports.check_endpoint_is_authenticated = async(req, res) => {
 
   }
 }
+
+exports.withdraw_to_onchain_address = async(req,res) => {
+  try{
+    var filter = {
+      user_id : req.query.user_id,
+      wallet_id: req.query.wallet_id,
+    };
+
+    var result = await birkeland_wallet_item.find(filter);
+    console.log(result)
+    return res.status(200).send({ success: true, message: result });
+  }
+  catch(err){
+    console.log(err)
+  }
+}
