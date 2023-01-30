@@ -1,4 +1,6 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
+const birkeland_payment_transaction_item = require("./birkeland_payment_transaction_item");
+
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
 const { satoshisToFiat } = require("bitcoin-conversion");
@@ -124,7 +126,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                 var withdraw_transaction_object = {
                   memo: `Withdraw to chain address ${address}`,
                   user_id: user_id,
-                  amount_in_msats: updatd_object["wallet_balance_in_mstats"],
+                  amount_in_msats: tokens_int * 1000,
                   public_key: global.node_public_key,
                   wallet_id: wallet_id,
                   date_created: new Date(),
@@ -134,6 +136,9 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                 };
                 console.log(withdraw_transaction_object);
                 
+                await birkeland_payment_transaction_item.create(
+                  withdraw_transaction_object
+                );
                 return res
                   .status(200)
                   .send({ success: true, message: on_chain_withdraw_repsonse });
