@@ -1,5 +1,5 @@
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
-const birkeland_payment_transaction_item = require("./birkeland_payment_transaction_item");
+const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
 
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
@@ -122,8 +122,9 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                   filter,
                   updatd_object
                 );
-
+                console.log(on_chain_withdraw_repsonse["message"]);
                 var withdraw_transaction_object = {
+                  transaction_id : on_chain_withdraw_repsonse["message"]["id"],
                   memo: `Withdraw to chain address ${address}`,
                   user_id: user_id,
                   amount_in_msats: tokens_int * 1000,
@@ -136,7 +137,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                 };
                 console.log(withdraw_transaction_object);
                 
-                await birkeland_payment_transaction_item.create(
+                await birkeland_wallet_transaction_item.create(
                   withdraw_transaction_object
                 );
                 return res
@@ -171,6 +172,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
       }
     } 
   } catch (err) {
+    console.log(err);
     return res.status(500).send({ success: false, message : err });
   }
 };
