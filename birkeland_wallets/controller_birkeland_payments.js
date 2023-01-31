@@ -247,14 +247,12 @@ exports.all_transactions = async (req, res) => {
   try {
     // Query the database with from_wallet_id to get alltransactions
     try {
-      let {  user_id } = req.query;
       var public_key_resp = await get_node_public_key(res);
       if (public_key_resp?.success) {
         global.node_public_key = public_key_resp?.public_key;
         if (global.node_public_key) {
           let filter = {
-            public_key: global.node_public_key,
-            user_id: user_id,
+            public_key: global.node_public_key
           };
           let result = await birkeland_payment_transaction_item.countDocuments(filter);
           return res.status(200).send({ success: true, message: result });
