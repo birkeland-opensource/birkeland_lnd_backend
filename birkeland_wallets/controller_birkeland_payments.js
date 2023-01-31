@@ -415,6 +415,15 @@ exports.make_a_payment = async (req, res) => {
                   last_udapted: new Date(),
                 }
               );
+
+              return res
+              .status(200)
+              .send({ success: true, message: "Payment Success" });
+            }else{
+              return res.status(500).send({
+                success: false,
+                message: "Insufficient balance",
+              });
             }
           } else {
             return res.status(400).send({
@@ -428,9 +437,6 @@ exports.make_a_payment = async (req, res) => {
             message: "Error processing this create new payment request",
           });
         }
-        return res
-          .status(200)
-          .send({ success: true, message: "Payment Success" });
       } else {
         return res
           .status(400)

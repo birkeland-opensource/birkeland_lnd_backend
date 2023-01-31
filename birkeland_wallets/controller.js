@@ -7,7 +7,8 @@ const { get_node_public_key } = require("../support_functions/utils");
 exports.create_a_wallet = async (req, res) => {
   try {
     // Later get mainwallet public key from the LND
-    let { user_id, wallet_name } = req.body;
+    let {user_id} = req.query;
+    let { wallet_name } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
