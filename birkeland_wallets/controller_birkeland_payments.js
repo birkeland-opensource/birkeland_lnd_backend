@@ -228,7 +228,7 @@ exports.transactions = async (req, res) => {
             wallet_id: wallet_id,
             user_id: user_id,
           };
-          let result = await birkeland_payment_transaction_item.find(filter);
+          let result = (await birkeland_payment_transaction_item.find(filter)).reverse();
           return res.status(200).send({ success: true, message: result });
         } else {
           return res.status(500).send({
