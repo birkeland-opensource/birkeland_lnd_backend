@@ -5,7 +5,7 @@ let should = chai.should();
 
 chai.use(chaiHttp);
 
-var access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjVmZjQ1MjctODcyZi00NjkyLThhOWEtNzU5NzU4MDQ4NDEzIiwiZW1haWxfaWQiOiJiaXJrZWxhbmRAZ21haWwuY29tIiwiaWF0IjoxNjc1MTQ5NDE5LCJleHAiOjE2NzUyMzU4MTl9.o0m7Vvngj1YGGzhDNilLCbbS3KQc3tmbsNJ-H7PiiDU"
+var access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjVmZjQ1MjctODcyZi00NjkyLThhOWEtNzU5NzU4MDQ4NDEzIiwiZW1haWxfaWQiOiJiaXJrZWxhbmRAZ21haWwuY29tIiwiaWF0IjoxNjc1MjM4MzUxLCJleHAiOjE2NzUzMjQ3NTF9.tWYHcMWPpdnPm3ymDx3Ll5B2S8tX0peQAP73WKy2x1E"
 var fake_access_token = "fake_access_token";
 var test_user_id = "test_user_id"
 var date = new Date();
