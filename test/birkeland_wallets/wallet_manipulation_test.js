@@ -6,19 +6,102 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 var access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjVmZjQ1MjctODcyZi00NjkyLThhOWEtNzU5NzU4MDQ4NDEzIiwiZW1haWxfaWQiOiJiaXJrZWxhbmRAZ21haWwuY29tIiwiaWF0IjoxNjc1MTQ5NDE5LCJleHAiOjE2NzUyMzU4MTl9.o0m7Vvngj1YGGzhDNilLCbbS3KQc3tmbsNJ-H7PiiDU"
+var fake_access_token = "fake_access_token";
+var test_user_id = "test_user_id"
+var date = new Date();
 
-describe("birkeland_wallet_manipulation_test", () =>{
+describe("create_wallet", ()=>{
 
-    it("get_wallets",(done) =>{
+    it("When_create_wallet_is_called_with_proper_auth_then_success",(done) =>{
         chai.request(server)
-        .get('/v1/wallets/wallets').set("x-access-token", access_token)
-        .query({})
+        .post('/v1/wallets/wallet').set("x-access-token", access_token)
+        .query({user_id : test_user_id})
+        .send({wallet_name : `${date}-test_wallet`})
         .end((err,res) =>{
-            console.log(res.body)
             res.should.have.status(200);
             res.body.should.have.property('success').eql(true);
             done();
         });
-    }).timeout(4000);
+    }).timeout(10000);
 
 });
+
+
+describe("create_wallet", ()=>{
+
+    it("When_create_wallet_is_called_with_fake_auth_then_return_401_and_auth_false",(done) =>{
+        chai.request(server)
+        .post('/v1/wallets/wallet').set("x-access-token", fake_access_token)
+        .query({user_id : test_user_id})
+        .send({wallet_name : `${date}-test_wallet`})
+        .end((err,res) =>{
+            res.should.have.status(401);
+            res.body.should.have.property('auth').eql(false);
+            done();
+        });
+    }).timeout(10000);
+
+});
+
+describe("create_wallet", ()=>{
+
+    it("When_create_wallet_is_called_with_no_auth_then_return_401_and_auth_false",(done) =>{
+        chai.request(server)
+        .post('/v1/wallets/wallet')
+        .query({user_id : ""})
+        .send({wallet_name : `${date}-test_wallet`})
+        .end((err,res) =>{
+            res.should.have.status(401);
+            res.body.should.have.property('auth').eql(false);
+            done();
+        });
+    }).timeout(10000);
+
+});
+
+describe("get_wallets", () =>{
+
+    it("when_get_all_wallets_is_called_with_proper_auth_then_success",(done) =>{
+        chai.request(server)
+        .get('/v1/wallets/wallets').set("x-access-token", access_token)
+        .query({})
+        .end((err,res) =>{
+            res.should.have.status(200);
+            res.body.should.have.property('success').eql(true);
+            done();
+        });
+    }).timeout(10000);
+
+});
+
+describe("get_wallets", () =>{
+
+    it("when_get_all_wallets_is_called_with_wrong_auth_then_return_401_and_auth_false",(done) =>{
+        chai.request(server)
+        .get('/v1/wallets/wallets')
+        .set("x-access-token", fake_access_token)
+        .query({})
+        .end((err,res) =>{
+            res.should.have.status(401);
+            res.body.should.have.property('auth').eql(false);
+            done();
+        });
+    }).timeout(10000);
+
+});
+
+describe("get_wallets", () =>{
+
+    it("when_get_all_wallets_is_called_with_no_auth_then_return_401_and_auth_false",(done) =>{
+        chai.request(server)
+        .get('/v1/wallets/wallets')
+        .query({})
+        .end((err,res) =>{
+            res.should.have.status(401);
+            res.body.should.have.property('auth').eql(false);
+            done();
+        });
+    }).timeout(10000);
+
+});
+
