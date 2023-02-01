@@ -7,7 +7,7 @@ const { get_node_public_key } = require("../support_functions/utils");
 exports.create_a_wallet = async (req, res) => {
   try {
     // Later get mainwallet public key from the LND
-    let {user_id} = req.query;
+    let { user_id } = req.query;
     let { wallet_name } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
@@ -48,14 +48,22 @@ exports.get_all_wallets = async (req, res) => {
 
 exports.get_one_wallet = async (req, res) => {
   try {
-    var filter = {
-      user_id: req.query.user_id,
-      wallet_id: req.query.wallet_id,
-    };
 
-    // var returnObject = {};
-    var result = await birkeland_wallet_item.findOne(filter);
-    return res.status(200).send({ success: true, message: result });
+    var { user_id, wallet_id } = req.query;
+    if (user_id && wallet_id) {
+      var filter = {
+        user_id: user_id,
+        wallet_id: wallet_id
+      };
+      console.log(filter);
+
+      // var returnObject = {};
+      var result = await birkeland_wallet_item.findOne(filter);
+      return res.status(200).send({ success: true, message: result });
+    }
+    else{
+      return res.status(400).send({ success: false });
+    }
   } catch (e) {
     return res.status(400).send({ success: false });
   }
@@ -64,5 +72,5 @@ exports.get_one_wallet = async (req, res) => {
 exports.check_endpoint_is_authenticated = async (req, res) => {
   try {
     return res.status(200).send({ success: true, message: "authenticated" });
-  } catch (err) {}
+  } catch (err) { }
 };

@@ -10,98 +10,137 @@ var fake_access_token = "fake_access_token";
 var test_user_id = "test_user_id"
 var date = new Date();
 
-describe("create_wallet", ()=>{
+describe("create_wallet", () => {
 
-    it("When_create_wallet_is_called_with_proper_auth_then_success",(done) =>{
+    it("When_create_wallet_is_called_with_proper_auth_then_success", (done) => {
         chai.request(server)
-        .post('/v1/wallets/wallet').set("x-access-token", access_token)
-        .query({user_id : test_user_id})
-        .send({wallet_name : `${date}-test_wallet`})
-        .end((err,res) =>{
-            res.should.have.status(200);
-            res.body.should.have.property('success').eql(true);
-            done();
-        });
+            .post('/v1/wallets/wallet').set("x-access-token", access_token)
+            .query({ user_id: test_user_id })
+            .send({ wallet_name: `${date}-test_wallet` })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('success').eql(true);
+                done();
+            });
     }).timeout(10000);
+
+    it("When_create_wallet_is_called_with_fake_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .post('/v1/wallets/wallet').set("x-access-token", fake_access_token)
+            .query({ user_id: test_user_id })
+            .send({ wallet_name: `${date}-test_wallet` })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
+    it("When_create_wallet_is_called_with_no_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .post('/v1/wallets/wallet')
+            .query({ user_id: "" })
+            .send({ wallet_name: `${date}-test_wallet` })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
+
+});
+
+describe("get_all_wallets", () => {
+
+    it("when_get_all_wallets_is_called_with_proper_auth_then_success", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallets').set("x-access-token", access_token)
+            .query({})
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('success').eql(true);
+                done();
+            });
+    }).timeout(10000);
+
+    it("when_get_all_wallets_is_called_with_wrong_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallets')
+            .set("x-access-token", fake_access_token)
+            .query({})
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
+    it("when_get_all_wallets_is_called_with_no_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallets')
+            .query({})
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
 
 });
 
 
-describe("create_wallet", ()=>{
+describe("get_one_wallet", () => {
 
-    it("When_create_wallet_is_called_with_fake_auth_then_return_401_and_auth_false",(done) =>{
+
+    it("when_get_one_wallet_is_called_with_right_auth_then_return_200_and_success_true", (done) => {
         chai.request(server)
-        .post('/v1/wallets/wallet').set("x-access-token", fake_access_token)
-        .query({user_id : test_user_id})
-        .send({wallet_name : `${date}-test_wallet`})
-        .end((err,res) =>{
-            res.should.have.status(401);
-            res.body.should.have.property('auth').eql(false);
-            done();
-        });
+            .get('/v1/wallets/wallet')
+            .set("x-access-token", access_token)
+            .query({ user_id: "user_id", wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('success').eql(true);
+                done();
+            });
+    }).timeout(10000);
+
+    it("when_get_one_wallet_is_called_with_no_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallet')
+            .query({ user_id: "user_id", wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
+    it("when_get_one_wallet_is_called_with_wrong_auth_then_return_401_and_auth_false", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallet')
+            .set("x-access-token", fake_access_token)
+            .query({ user_id: "user_id", wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            });
+    }).timeout(10000);
+
+    it("when_get_one_wallet_is_called_with_insufficient_params_then_return_400_and_success_false", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/wallet')
+            .set("x-access-token", access_token)
+            .query({ wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.have.property('success').eql(false);
+                done();
+            });
     }).timeout(10000);
 
 });
 
-describe("create_wallet", ()=>{
-
-    it("When_create_wallet_is_called_with_no_auth_then_return_401_and_auth_false",(done) =>{
-        chai.request(server)
-        .post('/v1/wallets/wallet')
-        .query({user_id : ""})
-        .send({wallet_name : `${date}-test_wallet`})
-        .end((err,res) =>{
-            res.should.have.status(401);
-            res.body.should.have.property('auth').eql(false);
-            done();
-        });
-    }).timeout(10000);
-
-});
-
-describe("get_wallets", () =>{
-
-    it("when_get_all_wallets_is_called_with_proper_auth_then_success",(done) =>{
-        chai.request(server)
-        .get('/v1/wallets/wallets').set("x-access-token", access_token)
-        .query({})
-        .end((err,res) =>{
-            res.should.have.status(200);
-            res.body.should.have.property('success').eql(true);
-            done();
-        });
-    }).timeout(10000);
-
-});
-
-describe("get_wallets", () =>{
-
-    it("when_get_all_wallets_is_called_with_wrong_auth_then_return_401_and_auth_false",(done) =>{
-        chai.request(server)
-        .get('/v1/wallets/wallets')
-        .set("x-access-token", fake_access_token)
-        .query({})
-        .end((err,res) =>{
-            res.should.have.status(401);
-            res.body.should.have.property('auth').eql(false);
-            done();
-        });
-    }).timeout(10000);
-
-});
-
-describe("get_wallets", () =>{
-
-    it("when_get_all_wallets_is_called_with_no_auth_then_return_401_and_auth_false",(done) =>{
-        chai.request(server)
-        .get('/v1/wallets/wallets')
-        .query({})
-        .end((err,res) =>{
-            res.should.have.status(401);
-            res.body.should.have.property('auth').eql(false);
-            done();
-        });
-    }).timeout(10000);
-
-});
 
