@@ -219,6 +219,7 @@ exports.transactions = async (req, res) => {
     // Query the database with from_wallet_id to get alltransactions
     try {
       let { wallet_id, user_id } = req.query;
+      if(wallet_id && user_id){
       var public_key_resp = await get_node_public_key(res);
       if (public_key_resp?.success) {
         global.node_public_key = public_key_resp?.public_key;
@@ -237,7 +238,11 @@ exports.transactions = async (req, res) => {
           });
         }
       }
-    } catch (err) {
+    } else{
+      return res.status(400).send({ success: false });
+    } 
+  }
+    catch (err) {
       return res.status(400).send({ success: false });
     }
   } catch (err) {}
