@@ -50,6 +50,7 @@ exports.topup_wallet = async (req, res) => {
     let { wallet_id, user_id } = req.query;
     // 1. Create on chain address
     // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
+    if(wallet_id && user_id ){
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -89,7 +90,9 @@ exports.topup_wallet = async (req, res) => {
           .send({ success: false, message: "LND may not be running" });
       }
     }
-  } catch (err) {
+  }else{
+    return res.status(400).send({ success: false, message: err });
+  }} catch (err) {
     return res.status(400).send({ success: false, message: err });
   }
 };
