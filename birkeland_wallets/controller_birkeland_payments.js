@@ -358,6 +358,7 @@ exports.make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { request_hash } = req.body;
+    if(user_id &&wallet_id &&request_hash ){
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -461,6 +462,11 @@ exports.make_a_payment = async (req, res) => {
           .send({ success: false, message: "Public key not availabe" });
       }
     }
+  }else{
+    return res
+          .status(400)
+          .send({ success: false, message: "Insufficient params" });
+  }
   } catch (err) {
     console.log(err);
     return res.status(400).send({ success: false });

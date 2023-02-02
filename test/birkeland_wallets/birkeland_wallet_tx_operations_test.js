@@ -4,6 +4,8 @@ let chaiHttp = require("chai-http");
 const server = "http://10.2.210.218:9990";
 const expect = chai.expect;
 
+var payment_request = ""
+
 chai.use(chaiHttp);
 
 const access_token =
@@ -146,14 +148,119 @@ describe("create_invoice", () => {
 
     it("when_create_invoice_is_called_with_right_params_then_return_success_true", (done) => {
         chai.request(server)
-        .get('/v1/wallets/get_wallet_topup_tx').set("access-token", read_key)
+        .post('/v1/wallets/create_invoice').set("access-token", read_key)
         .query({ user_id: user_id, wallet_id: wallet_id })
+        .send({memo : `test memo ${date}`, "sats" : 1000})
         .end((err, res) => {
+        let resp = res.body.message;
+        payment_request = resp["message"]["request"]
         expect(err).to.be.null;
         expect(res).to.have.status(200);
         expect(res.body).to.have.property('success').to.equal(true);
         done();
         })       
 }).timeout(1000);
+
+it("when_create_invoice_is_called_with_wrong_read_key_then_return_auth_fail", (done) => {
+    chai.request(server)
+    .post('/v1/wallets/create_invoice').set("access-token", "read_key")
+    .query({ user_id: user_id, wallet_id: wallet_id })
+    .send({memo : `test memo ${date}`, "sats" : 1000})
+    .end((err, res) => {
+    expect(err).to.be.null;
+    expect(res).to.have.status(401);
+    expect(res.body).to.have.property('auth').to.equal(false);
+    done();
+    })       
+}).timeout(1000);
+
+it("when_create_invoice_is_called_with_missing_param_then_return_success_false", (done) => {
+    chai.request(server)
+    .post('/v1/wallets/create_invoice').set("access-token", read_key)
+    .query({ wallet_id: wallet_id })
+    .send({memo : `test memo ${date}`, "sats" : 1000})
+    .end((err, res) => {
+    expect(err).to.be.null;
+    expect(res).to.have.status(400);
+    expect(res.body).to.have.property('success').to.equal(false);
+    done();
+    })       
+}).timeout(1000);
+
+it("when_create_invoice_is_called_with_missing_body_param_then_return_success_false", (done) => {
+    chai.request(server)
+    .post('/v1/wallets/create_invoice').set("access-token", read_key)
+    .query({ wallet_id: wallet_id,wallet_id: wallet_id })
+    .send({"sats" : 1000})
+    .end((err, res) => {
+    expect(err).to.be.null;
+    expect(res).to.have.status(400);
+    expect(res.body).to.have.property('success').to.equal(false);
+    done();
+    })       
+}).timeout(1000);
+
+
+
+});
+
+
+
+describe("post_make_a_payment", () => {
+
+    it("when_make_payment_is_called_with_wrong_read_key_then_return_auth_fail", (done) => {
+        chai.request(server)
+        .post('/v1/wallets/make_a_payment').set("access-token", "read_key")
+        .query({ user_id: user_id, wallet_id: wallet_id })
+        .send({memo : `test memo ${date}`, "sats" : 1000})
+        .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.have.status(401);
+        expect(res.body).to.have.property('auth').to.equal(false);
+        done();
+        })       
+}).timeout(1000);
+
+    it("when_make_payment_is_called_with_right_params_then_return_success_true", (done) => {
+        chai.request(server)
+        .post('/v1/wallets/make_a_payment').set("access-token", read_key)
+        .query({ user_id: user_id, wallet_id: wallet_id })
+        .send({memo : `test memo ${date}`, "sats" : 1000})
+        .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.property('success').to.equal(false);
+        done();
+        })       
+}).timeout(1000);
+
+it("when_make_payment_is_called_with_wrong_request_hash_then_return_success_false", (done) => {
+    chai.request(server)
+    .post('/v1/wallets/make_a_payment').set("access-token", read_key)
+    .query({ user_id: user_id, wallet_id: wallet_id })
+    .send({request_hash : "request_hash"})
+    .end((err, res) => {
+    expect(err).to.be.null;
+    expect(res).to.have.status(400);
+    expect(res.body).to.have.property('success').to.equal(false);
+    done();
+    })       
+}).timeout(1000);
+
+
+it("when_make_payment_is_called_with_right_params_then_return_success_true", (done) => {
+    chai.request(server)
+    .post('/v1/wallets/make_a_payment').set("access-token", read_key)
+    .query({ user_id: user_id, wallet_id: wallet_id })
+    .send({request_hash : payment_request})
+    .end((err, res) => {
+    expect(err).to.be.null;
+    expect(res).to.have.status(200);
+    expect(res.body).to.have.property('success').to.equal(true);
+    done();
+    })       
+}).timeout(1000);
+
+
 
 });
