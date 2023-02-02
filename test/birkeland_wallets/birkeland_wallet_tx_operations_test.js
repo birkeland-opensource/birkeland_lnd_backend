@@ -264,3 +264,33 @@ it("when_make_payment_is_called_with_right_params_then_return_success_true", (do
 
 
 });
+
+
+describe("get_decode_lightning_invoice", () => {
+  it("when_decode_lightning_invoice_is_called_without_payment_hash_then_return fail", (done) => {
+    chai
+      .request(server)
+      .get("/v1/wallets/decode_lightning_invoice")
+      .query({ payment_hash: "payment_hash"})
+      .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.have.status(400);
+        expect(res.body.success).to.equal(false);
+        done();
+      });
+  }).timeout(1000);
+
+
+    it("when_decode_lightning_invoice_is_called_without_payment_hash_then_return fail", (done) => {
+      chai
+        .request(server)
+        .get("/v1/wallets/decode_lightning_invoice")
+        .query({ payment_hash: payment_request})
+        .end((err, res) => {
+          expect(err).to.be.null;
+          expect(res).to.have.status(200);
+          expect(res.body.success).to.equal(true);
+          done();
+        });
+    }).timeout(1000);
+});

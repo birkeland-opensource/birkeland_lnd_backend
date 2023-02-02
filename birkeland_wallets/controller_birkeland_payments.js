@@ -476,6 +476,7 @@ exports.make_a_payment = async (req, res) => {
 exports.decode_lightning_invoice = async (req, res) => {
   try {
     let { payment_hash } = req.query;
+    if(payment_hash){
     let result = invoice.decode(payment_hash);
 
     let decoded_invoice = {
@@ -488,6 +489,11 @@ exports.decode_lightning_invoice = async (req, res) => {
       description: result?.shortDesc,
     };
     return res.status(200).send({ success: true, message: decoded_invoice });
+  }else{
+    return res
+    .status(400)
+    .send({ success: false, message: "Insufficient params" });
+  }
   } catch (err) {
     return res.status(400).send({ success: false });
   }
@@ -495,12 +501,14 @@ exports.decode_lightning_invoice = async (req, res) => {
 
 exports.withdraw_to_onchain_address = async (req, res) => {
   try {
+    var { user_id, wallet_id } = req.query;
+    var { tokens, address } = req.body;
+    if(user_id && wallet_id &&tokens &&address)
+    {
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
       if (global.node_public_key) {
-        var { user_id, wallet_id } = req.query;
-        var { tokens, address } = req.body;
         var filter = {
           user_id: user_id,
           wallet_id: wallet_id,
@@ -588,7 +596,12 @@ exports.withdraw_to_onchain_address = async (req, res) => {
           .send({ success: false, message: "Node may not be running" });
       }
     }
-  } catch (err) {
+  }else{
+    return res
+    .status(400)
+    .send({ success: false, message: "Insufficient params" });
+  
+  }} catch (err) {
     console.log(err);
     return res.status(500).send({ success: false, message: err });
   }
