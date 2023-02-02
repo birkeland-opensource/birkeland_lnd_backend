@@ -21,7 +21,7 @@ exports.decodeAndAuthTokenJwtToken = async (req, res, next) => {
 
 exports.create_node_auth_jwt_token = (payload) => {
   return jwt.sign(payload, "partOfTheJourneyIsTheEnd", {
-    expiresIn: "1 day",
+    expiresIn: "10 day",
   });
 };
 
