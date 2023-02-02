@@ -20,69 +20,16 @@ const birkeland_wallet_transaction_item = require("./birkeland_payment_transacti
 exports.withdraw_from_wallet = async (req, res) => {
   try {
     let { wallet_id, user_id } = req.query;
-      var public_key_resp = await get_node_public_key(res);
-      if (public_key_resp?.success) {
-        global.node_public_key = public_key_resp?.public_key;
-        if (global.node_public_key) {
-          let send_to_chain_address_resp =
-          await test_birkeland_lnd.PerformAuthenticatedOperation({
-            operation: LND_GRPC_OPERATION.SEND_TO_CHAIN_ADDRESS,
-          });
-          if (send_to_chain_address_resp["success"]) {
-            let address_message = send_to_chain_address_resp["message"];
-          }
-        }
-        else {
-        return res
-          .status(500)
-          .send({ success: false, message: "LND may not be running" });
-      }
-      }
-
-  }
-  catch(err){
-
-  }
-}
-
-exports.topup_wallet = async (req, res) => {
-  try {
-    let { wallet_id, user_id } = req.query;
-    // 1. Create on chain address
-    // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
-    if(wallet_id && user_id ){
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
       if (global.node_public_key) {
-        let create_chain_address_resp =
+        let send_to_chain_address_resp =
           await test_birkeland_lnd.PerformAuthenticatedOperation({
-            operation: LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS,
+            operation: LND_GRPC_OPERATION.SEND_TO_CHAIN_ADDRESS,
           });
-
-        if (create_chain_address_resp["success"]) {
-          let address_message = create_chain_address_resp["message"];
-          let wallet_topup_item = {
-            chain_address: address_message["address"],
-            public_key: global.node_public_key,
-            wallet_id: wallet_id,
-            date_created: new Date(),
-            last_udapted: new Date(),
-            tokens: 0,
-            transaction_confirmed: false,
-            confirmation_count: 0,
-            user_id: user_id,
-          };
-
-          await topup_birkeland_wallet_item.create(wallet_topup_item);
-          return res.status(200).send({
-            success: true,
-            message: { chain_address: address_message["address"] },
-          });
-        } else {
-          return res
-            .status(400)
-            .send({ success: false, message: "LND may not be running" });
+        if (send_to_chain_address_resp["success"]) {
+          let address_message = send_to_chain_address_resp["message"];
         }
       } else {
         return res
@@ -90,16 +37,65 @@ exports.topup_wallet = async (req, res) => {
           .send({ success: false, message: "LND may not be running" });
       }
     }
-  }else{
-    return res.status(400).send({ success: false, message: err });
-  }} catch (err) {
+  } catch (err) {}
+};
+
+exports.topup_wallet = async (req, res) => {
+  try {
+    let { wallet_id, user_id } = req.query;
+    // 1. Create on chain address
+    // 2. get the chain_address,public_key,wallet_id,date_created,last_udapted,tokens,transaction_confirmed,confirmation_count
+    if (wallet_id && user_id) {
+      var public_key_resp = await get_node_public_key(res);
+      if (public_key_resp?.success) {
+        global.node_public_key = public_key_resp?.public_key;
+        if (global.node_public_key) {
+          let create_chain_address_resp =
+            await test_birkeland_lnd.PerformAuthenticatedOperation({
+              operation: LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS,
+            });
+
+          if (create_chain_address_resp["success"]) {
+            let address_message = create_chain_address_resp["message"];
+            let wallet_topup_item = {
+              chain_address: address_message["address"],
+              public_key: global.node_public_key,
+              wallet_id: wallet_id,
+              date_created: new Date(),
+              last_udapted: new Date(),
+              tokens: 0,
+              transaction_confirmed: false,
+              confirmation_count: 0,
+              user_id: user_id,
+            };
+
+            await topup_birkeland_wallet_item.create(wallet_topup_item);
+            return res.status(200).send({
+              success: true,
+              message: { chain_address: address_message["address"] },
+            });
+          } else {
+            return res
+              .status(400)
+              .send({ success: false, message: "LND may not be running" });
+          }
+        } else {
+          return res
+            .status(500)
+            .send({ success: false, message: "LND may not be running" });
+        }
+      }
+    } else {
+      return res.status(400).send({ success: false, message: err });
+    }
+  } catch (err) {
     return res.status(400).send({ success: false, message: err });
   }
 };
 
 exports.get_wallet_topup_tx = async (req, res) => {
   try {
-    let {  wallet_id, user_id } = req.query;
+    let { wallet_id, user_id } = req.query;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -157,8 +153,9 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
                 transaction_confirmed: true,
               };
               let update_filter = filter;
-              update_filter["chain_address"] = update_object["message"]["address"];
-            
+              update_filter["chain_address"] =
+                update_object["message"]["address"];
+
               await topup_birkeland_wallet_item.findOneAndUpdate(
                 update_filter,
                 filtered_update_object
@@ -222,30 +219,31 @@ exports.transactions = async (req, res) => {
     // Query the database with from_wallet_id to get alltransactions
     try {
       let { wallet_id, user_id } = req.query;
-      if(wallet_id && user_id){
-      var public_key_resp = await get_node_public_key(res);
-      if (public_key_resp?.success) {
-        global.node_public_key = public_key_resp?.public_key;
-        if (global.node_public_key) {
-          let filter = {
-            public_key: global.node_public_key,
-            wallet_id: wallet_id,
-            user_id: user_id,
-          };
-          let result = (await birkeland_payment_transaction_item.find(filter)).reverse();
-          return res.status(200).send({ success: true, message: result });
-        } else {
-          return res.status(500).send({
-            success: false,
-            message: "Lightning node maynot be running",
-          });
+      if (wallet_id && user_id) {
+        var public_key_resp = await get_node_public_key(res);
+        if (public_key_resp?.success) {
+          global.node_public_key = public_key_resp?.public_key;
+          if (global.node_public_key) {
+            let filter = {
+              public_key: global.node_public_key,
+              wallet_id: wallet_id,
+              user_id: user_id,
+            };
+            let result = (
+              await birkeland_payment_transaction_item.find(filter)
+            ).reverse();
+            return res.status(200).send({ success: true, message: result });
+          } else {
+            return res.status(500).send({
+              success: false,
+              message: "Lightning node maynot be running",
+            });
+          }
         }
+      } else {
+        return res.status(400).send({ success: false });
       }
-    } else{
-      return res.status(400).send({ success: false });
-    } 
-  }
-    catch (err) {
+    } catch (err) {
       return res.status(400).send({ success: false });
     }
   } catch (err) {}
@@ -260,9 +258,11 @@ exports.all_transactions = async (req, res) => {
         global.node_public_key = public_key_resp?.public_key;
         if (global.node_public_key) {
           let filter = {
-            public_key: global.node_public_key
+            public_key: global.node_public_key,
           };
-          let result = await birkeland_payment_transaction_item.countDocuments(filter);
+          let result = await birkeland_payment_transaction_item.countDocuments(
+            filter
+          );
           return res.status(200).send({ success: true, message: result });
         } else {
           return res.status(500).send({
@@ -278,65 +278,75 @@ exports.all_transactions = async (req, res) => {
 };
 exports.create_invoice = async (req, res) => {
   try {
-    var {wallet_id, user_id} = req.query;
+    var { wallet_id, user_id } = req.query;
     var { memo, sats } = req.body;
-    var public_key_resp = await get_node_public_key(res);
-    if (public_key_resp?.success) {
-      global.node_public_key = public_key_resp?.public_key;
-      if (global.node_public_key) {
-        let birkeland_payment_transaction_item_object = {
-          memo: memo,
-          user_id: user_id,
-          amount_in_msats: sats * 1000,
-          public_key: global.node_public_key,
-          wallet_id: wallet_id,
-          date_created: new Date(),
-          date_updated: new Date(),
-          payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
-          intent: BIRKELAND_WALLET_TRANSACTION_INTENT.RECEIVE,
-        };
-
-        if (birkeland_payment_transaction_item_object["amount_in_msats"] > 0) {
-          let create_invoice_params = {
-            operation: "create_invoice",
-            mtokens:
-              birkeland_payment_transaction_item_object["amount_in_msats"],
-            description: global.node_public_key,
+    if (wallet_id && user_id && memo && sats) {
+      var public_key_resp = await get_node_public_key(res);
+      if (public_key_resp?.success) {
+        global.node_public_key = public_key_resp?.public_key;
+        if (global.node_public_key) {
+          let birkeland_payment_transaction_item_object = {
+            memo: memo,
+            user_id: user_id,
+            amount_in_msats: sats * 1000,
+            public_key: global.node_public_key,
+            wallet_id: wallet_id,
+            date_created: new Date(),
+            date_updated: new Date(),
+            payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.CREATED,
+            intent: BIRKELAND_WALLET_TRANSACTION_INTENT.RECEIVE,
           };
 
-          let create_invoice_resp =
-            await test_birkeland_lnd.PerformAuthenticatedOperation(
-              create_invoice_params
-            );
-          if (create_invoice_resp["success"]) {
-            birkeland_payment_transaction_item_object["transaction_id"] =
-              create_invoice_resp["message"]["id"];
-            birkeland_payment_transaction_item_object["payment_request_hash"] =
-              create_invoice_resp["message"]["request"];
-            await birkeland_payment_transaction_item.create(
-              birkeland_payment_transaction_item_object
-            );
-            return res
-              .status(200)
-              .send({ success: true, message: create_invoice_resp });
+          if (
+            birkeland_payment_transaction_item_object["amount_in_msats"] > 0
+          ) {
+            let create_invoice_params = {
+              operation: "create_invoice",
+              mtokens:
+                birkeland_payment_transaction_item_object["amount_in_msats"],
+              description: global.node_public_key,
+            };
+
+            let create_invoice_resp =
+              await test_birkeland_lnd.PerformAuthenticatedOperation(
+                create_invoice_params
+              );
+            if (create_invoice_resp["success"]) {
+              birkeland_payment_transaction_item_object["transaction_id"] =
+                create_invoice_resp["message"]["id"];
+              birkeland_payment_transaction_item_object[
+                "payment_request_hash"
+              ] = create_invoice_resp["message"]["request"];
+              await birkeland_payment_transaction_item.create(
+                birkeland_payment_transaction_item_object
+              );
+              return res
+                .status(200)
+                .send({ success: true, message: create_invoice_resp });
+            } else {
+              return res.status(500).send({
+                success: false,
+                message: "Lightning node maynot be running",
+              });
+            }
           } else {
-            return res.status(500).send({
+            return res.status(400).send({
               success: false,
-              message: "Lightning node maynot be running",
+              message: "amount cannot be zero or less than zero",
             });
           }
         } else {
-          return res.status(400).send({
+          return res.status(500).send({
             success: false,
-            message: "amount cannot be zero or less than zero",
+            message: "Lightning node maynot be running",
           });
         }
-      } else {
-        return res.status(500).send({
-          success: false,
-          message: "Lightning node maynot be running",
-        });
       }
+    } else {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid Params",
+      });
     }
   } catch (err) {
     console.log(err);
@@ -346,8 +356,8 @@ exports.create_invoice = async (req, res) => {
 
 exports.make_a_payment = async (req, res) => {
   try {
-    var {user_id, wallet_id,} = req.query;
-    var {  request_hash } = req.body;
+    var { user_id, wallet_id } = req.query;
+    var { request_hash } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
       global.node_public_key = public_key_resp?.public_key;
@@ -425,9 +435,9 @@ exports.make_a_payment = async (req, res) => {
               );
 
               return res
-              .status(200)
-              .send({ success: true, message: "Payment Success" });
-            }else{
+                .status(200)
+                .send({ success: true, message: "Payment Success" });
+            } else {
               return res.status(500).send({
                 success: false,
                 message: "Insufficient balance",
@@ -477,7 +487,6 @@ exports.decode_lightning_invoice = async (req, res) => {
   }
 };
 
-
 exports.withdraw_to_onchain_address = async (req, res) => {
   try {
     var public_key_resp = await get_node_public_key(res);
@@ -523,16 +532,16 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                   last_udapted: new Date(),
                   wallet_balance_in_mstats: updated_balance * 1000,
                 };
-                
+
                 await birkeland_wallet_item.findOneAndUpdate(
                   filter,
                   updatd_object
                 );
                 console.log(on_chain_withdraw_repsonse["message"]);
                 var withdraw_transaction_object = {
-                  transaction_id : on_chain_withdraw_repsonse["message"]["id"],
+                  transaction_id: on_chain_withdraw_repsonse["message"]["id"],
                   memo: `Withdraw to chain address ${address}`,
-                  payment_request_hash : uuidv4(),
+                  payment_request_hash: uuidv4(),
                   wallet_id: wallet_id,
                   user_id: user_id,
                   amount_in_msats: tokens_int * 1000,
@@ -542,7 +551,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                   date_updated: new Date(),
                   payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
                 };
-                
+
                 await birkeland_wallet_transaction_item.create(
                   withdraw_transaction_object
                 );
@@ -550,20 +559,16 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                   .status(200)
                   .send({ success: true, message: on_chain_withdraw_repsonse });
               } else {
-                return res
-                  .status(500)
-                  .send({
-                    success: false,
-                    message: on_chain_withdraw_repsonse["message"],
-                  });
+                return res.status(500).send({
+                  success: false,
+                  message: on_chain_withdraw_repsonse["message"],
+                });
               }
             } else {
-              return res
-                .status(500)
-                .send({
-                  success: false,
-                  message: "Minimum Sats to withdraw is 3$ or more",
-                });
+              return res.status(500).send({
+                success: false,
+                message: "Minimum Sats to withdraw is 3$ or more",
+              });
             }
           } else {
             return res
@@ -571,14 +576,14 @@ exports.withdraw_to_onchain_address = async (req, res) => {
               .send({ success: false, message: "Insufficient balance" });
           }
         }
-      } else{
+      } else {
         return res
-            .status(500)
-            .send({ success: false, message: "Node may not be running" });
+          .status(500)
+          .send({ success: false, message: "Node may not be running" });
       }
-    } 
+    }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({ success: false, message : err });
+    return res.status(500).send({ success: false, message: err });
   }
 };
