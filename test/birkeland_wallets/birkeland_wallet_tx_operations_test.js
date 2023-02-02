@@ -8,6 +8,10 @@ const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjVmZ
 const fake_access_token = "fake_access_token";
 const date = new Date();
 
+var read_key = "f9746d02-e919-449e-8b86-286ccf55a95a";
+var user_id = "b4670bfb-7199-43ce-92dc-a15d6a74311d";
+var wallet_id = "317d7e9b-fc4c-4049-be90-ecda48b264c3";
+
 describe("get_all_transactions", () => {
 
     it("When_all_transactions_is_called_with_proper_auth_then_return_success", (done) => {
@@ -66,4 +70,45 @@ describe("get_get_onchain_address", () => {
             })
 
     }).timeout(1000);
+});
+
+
+
+describe("get_get_wallet_topup_tx", () => {
+    it("when_get_wallet_topup_tx_is_called_with_right_params_then_return_success_true", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/get_wallet_topup_tx').set("access-token", read_key)
+            .query({ user_id: user_id, wallet_id: wallet_id })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('success').eql(true);
+                done();
+            })
+
+    }).timeout(1000);
+
+    it("when_get_wallet_topup_tx_is_called_with_right_wrong_wallet_id_then_return_401_and_auth_fail", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/get_wallet_topup_tx').set("access-token", read_key)
+            .query({ user_id: user_id, wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            })
+
+    }).timeout(1000);
+
+    it("when_get_wallet_topup_tx_is_called_with_right_wrong_read_key_then_return_401_and_auth_fail", (done) => {
+        chai.request(server)
+            .get('/v1/wallets/get_wallet_topup_tx').set("access-token", read_key)
+            .query({ user_id: user_id, wallet_id: "wallet_id" })
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.have.property('auth').eql(false);
+                done();
+            })
+
+    }).timeout(1000);
+
 });
