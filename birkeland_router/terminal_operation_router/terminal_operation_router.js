@@ -22,9 +22,4 @@ apirouter.post("/perform_lnd_operation", terminal_controller.perform_lnd_operati
 
 apirouter.post("/setup_encrypted_config_for_grpc",terminal_controller.execute_lnd_comm_config_command )
 
-
-
-
-
-
 module.exports = apirouter;

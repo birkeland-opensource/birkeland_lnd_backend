@@ -1,19 +1,7 @@
-const { create_node_auth_jwt_token } = require("../../support_functions/utils");
 const node_user_schema_item_model = require("./node_user_schema_item_model");
 const bcrypt = require("bcrypt");
-const { create_node_auth_jwt_token } = require("../../support_functions/utils");
-
-exports.get_node_auth_token = async(req,res) => {
-    try{
-        let {user_id, email_id} = req.query;
-        let payload = {user_id: user_id, email_id: email_id}
-        let node_auth_token = create_node_auth_jwt_token(payload);
-        return res.status(200).send({ success: true, message:{node_auth_token : node_auth_token}  });
-    }
-    catch(err){
-        return res.status(400).send({ success: false, message: err });
-    }
-}
+const { create_node_auth_jwt_token } = require("../support_functions/utils");
+const { v4: uuidv4 } = require("uuid");
 
 exports.check_endpoint_is_authenticated = async(req, res) => {
     try{
@@ -34,16 +22,25 @@ exports.create_node_auth_password = async (req, res) =>{
                 success: false,
             });
         }
-        const hashedPassword = await bcrypt.hash(req.body.password, 16);
+        const hashedPassword = await bcrypt.hash(req.body.password, 8);
         var userObject = {
             email : email,
             password :hashedPassword,
+            user_id : uuidv4(),
+            private_key : uuidv4(),
+            is_password_set  :true,
             date_created : new Date(),
             date_updated : new Date()
         }
         var result = await node_user_schema_item_model.create(userObject);
+        let payload = {
+            email : result["email"],
+            user_id : result["user_id"]
+        }
+        var auth_token = await create_node_auth_jwt_token(payload, result["private_key"])
+        console.log(result);
         return res.status(201).send({
-            message: "Account successfully created",
+            message: {"node_auth_key" : auth_token},
             success: true,
         });
     }
@@ -69,27 +66,19 @@ exports.get_node_auth_token = async (req, res) =>{
                 success: false,
             })
         }
+
         let isMatch = await bcrypt.compare(password, user.password);
         if(isMatch) {
-            let payload = {
-                user_id: user._id,
-                email: user.email,
-                name: user.userName,
-            }
             
-            var token = await createJWT(payload);
+            let payload = {
+                email : user["email"],
+                user_id : user["user_id"]
+            }
 
-            let profile = {
-                email: user.email,
-                name: user.userName,
-            };
-            let result = {
-                user: profile,
-                token: token,
-            };
+            var token = await create_node_auth_jwt_token(payload,user["private_key"]);
+
             return res.status(200).json({
-                ...result,
-                message: "success",
+                message: {"node_auth_key" : token},
                 success: true
             });
         }

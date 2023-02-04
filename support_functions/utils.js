@@ -1,26 +1,11 @@
 const jwt = require("jsonwebtoken");
 const birkeland_wallet_item = require("./../birkeland_wallets/birkeland_wallet_item_model");
 const test_birkeland_lnd = require('test_birkeland_lnd')
+const jwt_decode = require('jwt-decode');
+const node_user_schema_item_model = require("../node_authentication/node_user_schema_item_model");
 
-exports.createJWT = (payload) => {
-  return jwt.sign(payload, "partOfTheJourneyIsTheEnd", {
-    expiresIn: "1 day",
-  });
-};
-
-exports.decodeAndAuthTokenJwtToken = async (req, res, next) => {
-  //we receive objectId of the sessionid and retirve the object id from db and verify it.
-
-  try {
-    jwt.verify(req.query.jwtToken, "partOfTheJourneyIsTheEnd");
-    next();
-  } catch (e) {
-    return res.status(401).send({ message: "Auth failed" });
-  }
-};
-
-exports.create_node_auth_jwt_token = (payload) => {
-  return jwt.sign(payload, "partOfTheJourneyIsTheEnd", {
+exports.create_node_auth_jwt_token = (payload, private_key) => {
+  return jwt.sign(payload, private_key, {
     expiresIn: "10 day",
   });
 };
@@ -33,8 +18,12 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
         .status(401)
         .send({ auth: false, message: "No token provided." });
     }
-    console.log("Hello " + token);
-    jwt.verify(token, "partOfTheJourneyIsTheEnd", (err, decoded) => {
+    let {email} = jwt_decode(token);
+    let filter = {"email" : email};
+    let return_object = {private_key: 1}
+    let result = await node_user_schema_item_model.findOne(filter,return_object);
+    if(result){
+    jwt.verify(token, result["private_key"], (err, decoded) => {
       if (err) {
         return res
           .status(401)
@@ -46,6 +35,9 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
       }
      
     });
+  }else{
+    return res.status(401).send({ message: "node auth failed" });
+  }
   } catch (e) {
     return res.status(401).send({ message: "node auth failed" });
   }

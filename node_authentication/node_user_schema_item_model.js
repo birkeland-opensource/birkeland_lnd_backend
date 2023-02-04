@@ -6,17 +6,25 @@ const node_user_schema = new mongoose.Schema({
         required :  true ,
         unique :  true 
         },
-    user_id :{
-        type :  String ,
-        required :  true ,
-        unique :  true 
-        },
-
     password :{
         type :  String ,
         required :  true ,
         unique :  false 
         },
+    user_id :{
+        type :  String ,
+        required :  true ,
+        unique :  true 
+        },  
+    private_key : {
+        type :  String ,
+        required :  true ,
+        unique :  true 
+    },
+    is_password_set  :{
+        type :  Boolean ,
+        required :  true ,
+    },
     date_created :{
         type :  Date ,
         required :  true ,
@@ -26,10 +34,6 @@ const node_user_schema = new mongoose.Schema({
         type :  Date ,
         required :  true ,
         unique :  false  
-    },
-    is_password_set  :{
-        type :  Boolean ,
-        required :  true ,
     }
 
 });
