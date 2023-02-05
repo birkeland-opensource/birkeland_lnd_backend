@@ -3,6 +3,7 @@ const test_birkeland_lnd = require('test_birkeland_lnd')
 exports.auth_lnd_ops = async (req, res) => {
     try {
         var ops_res = await test_birkeland_lnd.PerformAuthenticatedOperation(req.body);
+        console.log(ops_res);
         if (ops_res.success) {
             if (req.body?.operation == 'get_identity') {
                 global.node_public_key = ops_res?.message?.public_key;
