@@ -75,6 +75,7 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
     var commands = [];
     switch(operations) {
         case available_operations.BTC_INSTALLATION_COMMANDS:
+            console.log("BTC_INSTALLATION_COMMANDS")
             commands = Get_bitcoin_installation_command(password)
             console.log(commands)
           // code block
