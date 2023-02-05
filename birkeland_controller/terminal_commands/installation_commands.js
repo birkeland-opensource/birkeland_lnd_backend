@@ -59,8 +59,8 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		`cd ~/code/bitcoin && ./contrib/install_db4.sh pwd \n`+
 		`cd ~/code/bitcoin && git checkout tags/v0.23.0 \n`+
 		`cd ~/code/bitcoin && ./autogen.sh \n`+
-		`export BDB_PREFIX='/home/${USER}/code/bitcoin/db4' \n`+
-		`cd ~/code/bitcoin && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" \n`+
+		`export BDB_PREFIX='/home/\${USER}/code/bitcoin/db4' \n`+
+		`cd ~/code/bitcoin && ./configure BDB_LIBS="-L\${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I\${BDB_PREFIX}/include" \n`+
 		`cd ~/code/bitcoin && make \n` +
 		`echo "${passowrd}" | sudo make install \n` +
 		`bitcoin-qt & \n` +
