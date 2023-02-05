@@ -45,7 +45,7 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		console.log(passowrd)
 		const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+
-		`echo "${passowrd}" | sudo -S apt-get update \n`
+		`echo "${passowrd}" | sudo -S apt-get update \n`+
 		`echo "${passowrd}" | sudo -S apt-get install git \n`+
 		`mkdir -p ~/code && cd ~/code \n`+
 		`cd ~/code && git clone https://github.com/bitcoin/bitcoin.git \n`+
