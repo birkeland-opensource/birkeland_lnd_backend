@@ -145,7 +145,6 @@ exports.Get_Lnd_Installation_Commands =(password) =>{
 	const cmds = `#!/bin/bash \n\n`+
 		`pwd \n` +
 		`cd ~/ \n` +
-		`echo "${password}" | sudo -S sudo apt install golang -y \n`+
 		`mkdir -p birkeland && cd birkeland \n` +
 		`mkdir -p code && cd code \n`+
 		`echo "${password}" | sudo -S rm -rf lnd_code \n`+

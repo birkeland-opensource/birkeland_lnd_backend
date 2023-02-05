@@ -20,3 +20,22 @@ make --version
 mkdir -p birkeland 
 cd birkeland && git clone https://github.com/rubansundararaj/birkeland_lnd_grpc
 cd birkeland_lnd_grpc && npm i
+
+
+curl -sL https://go.dev/dl/go1.20.linux-amd64.tar.gz -o go1.20.linux-amd64.tar.gz 
+$ sudo tar -C /usr/local -xzf go1.20.linux-amd64.tar.gz 
+
+
+
+
+//////////////////////golang installtion////////////////////
+#!/bin/bash
+
+
+wget https://dl.google.com/go/go1.19.linux-amd64.tar.gz
+tar -xvf go1.19.linux-amd64.tar.gz
+sudo mv go /usr/local
+echo 'export GOPATH=$HOME/go' >> ~/.bashrc
+echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
