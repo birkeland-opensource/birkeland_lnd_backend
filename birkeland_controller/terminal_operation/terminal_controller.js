@@ -116,6 +116,7 @@ exports.install_btc = async(req,res) =>{
     try{
         let {password} = req.body;
         let cmds_to_exe = get_commands_with_password("username",password,"",available_operations.BTC_INSTALLATION_COMMANDS)
+        console.log(cmds_to_exe)
         let rsp = execute_commands(cmds_to_exe);
         return res.status(200).send({success : true, message : rsp});
     }
