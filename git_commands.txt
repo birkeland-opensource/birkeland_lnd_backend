@@ -3,3 +3,20 @@
 "git add ." => Stages existing changes
 "git commit -m "'comments on commit'" 
 "git push origin ft/docker"
+
+
+curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs -y
+sudo apt install build-essential -y
+
+# Add make to PATH
+echo 'export PATH="$PATH:/usr/bin"' >> ~/.bashrc
+source ~/.bashrc
+
+which make
+make --version
+
+mkdir -p birkeland 
+cd birkeland && git clone https://github.com/rubansundararaj/birkeland_lnd_grpc
+cd birkeland_lnd_grpc && npm i
