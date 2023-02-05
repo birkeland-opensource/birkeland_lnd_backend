@@ -42,6 +42,7 @@ exports.get_lnbits_installation_commands = (password) => {
 
 exports.Get_bitcoin_installation_command = (passowrd) =>{
 	try{
+		console.log(passowrd)
 		const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+
 		`echo "${passowrd}" | sudo -S apt-get update \n`
