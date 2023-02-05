@@ -49,7 +49,7 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		`echo "${passowrd}" | sudo -S apt-get install git \n`+
 		`mkdir -p ~/code && cd ~/code \n`+
 		`cd ~/code && git clone https://github.com/bitcoin/bitcoin.git \n`+
-		`cd ~/code/bitcoin && git checkout 24.x \n`+
+		`cd ~/code/bitcoin && git checkout 23.x \n`+
 		`echo "${passowrd}" | sudo -S apt-get install build-essential libtool autotools-dev automake -y pkg-config bsdmainutils python3 libevent-dev \n`+
 		`echo "${passowrd}" | sudo -S apt-get install libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev -y \n`+
 		`echo "${passowrd}" | sudo -S apt-get install libsqlite3-dev -y \n` +
