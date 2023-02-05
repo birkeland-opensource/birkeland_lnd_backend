@@ -41,6 +41,7 @@ exports.get_lnbits_installation_commands = (password) => {
 
 
 exports.Get_bitcoin_installation_command = (passowrd) =>{
+	try{
 		const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+
 		`echo "${passowrd}" | sudo -S apt-get update \n`
@@ -63,8 +64,10 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		`echo "${passowrd}" | sudo make install \n` +
 		`bitcoin-qt & \n` +
 		`exit`
-		var filepath =	base_path+'/btc_installation.sh'
 
+		console.log(cmds)
+		var filepath =	base_path+'/btc_installation.sh'
+		console.log(filepath)
 		if(sys_os == 'Darwin'){
 			console.log("It is Darwin")
 			fs.writeFileSync(filepath, cmds);
@@ -79,6 +82,10 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		}
 	
 		return filepath;
+	}
+	catch(err){
+		console.log(err);
+	}
 }
 
 exports.Get_Hardware_Monitoring_Installation_Commands = (password,key_id) =>{
