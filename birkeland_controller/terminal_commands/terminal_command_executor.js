@@ -71,6 +71,7 @@ const execute_commands = (command_file_path) =>{
 const get_commands_with_password = (username,password,key_id,operations) =>{
 
     console.log("function call  made");
+    console.log(operations)
     var commands = [];
     switch(operations) {
         case available_operations.BTC_INSTALLATION_COMMANDS:
