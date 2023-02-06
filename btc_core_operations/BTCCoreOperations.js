@@ -28,19 +28,31 @@ class BTCCoreOperations {
     }
   };
 
-  create_Wallet = (params) => {
+  //   create_Wallet = (params) => {
+  //     let { password } = params;
+  //     btc_client.createWallet("mywallet", { password : password }, function (err, result) {
+  //       if (err) {
+  //         console.error(err);
+  //         return { success: false, message: err };
+  //       } else {
+  //         console.log("Wallet created:", result);
+  //         return { success: false, message: result };
+  //       }
+  //     });
+  //   };
+  // }
+
+  create_wallet = async (params) => {
     let { password } = params;
-    btc_client.createWallet("mywallet", { password : password }, function (err, result) {
-      if (err) {
-        console.error(err);
-        return { success: false, message: err };
-      } else {
-        console.log("Wallet created:", result);
-        return { success: false, message: result };
-      }
-    });
+    try {
+      let result = await btc_client.createWallet("mywallet", { password });
+      console.log("Wallet created:", result);
+      return { success: true, message: result };
+    } catch (err) {
+      console.error(err);
+      return { success: false, message: err };
+    }
   };
 }
 
-
-module.exports={BTCCoreOperations}
+module.exports = { BTCCoreOperations };

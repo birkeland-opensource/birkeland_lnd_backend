@@ -9,7 +9,7 @@ const PerformBtcCoreOperations = async(params) =>{
 
     switch (operation) {
         case BTC_CORE_OPERATIONS.CREATE_BTC_WALLET:
-            let create_btc_Wallet = btcCoreOperations.create_Wallet(params);
+            let create_btc_Wallet = btcCoreOperations.create_wallet(params);
             return create_btc_Wallet;
         
         case BTC_CORE_OPERATIONS.GET_BLOCK_CHAIN_INFO:
