@@ -15,6 +15,18 @@ const PerformBtcCoreOperations = async(params) =>{
         case BTC_CORE_OPERATIONS.GET_BLOCK_CHAIN_INFO:
             let get_block_chain_info = await btcCoreOperations.get_block_chain_info();
             return get_block_chain_info;
+        
+        case BTC_CORE_OPERATIONS.LOAD_WALLET:
+            let load_wallet = await btcCoreOperations.load_wallet(params);
+            return load_wallet;
+        
+        case BTC_CORE_OPERATIONS.GET_WALLET_INFO:
+            let get_wallet_info = await btcCoreOperations.get_wallet_info();
+            return get_wallet_info;
+
+        case BTC_CORE_OPERATIONS.LIST_ALL_WALLETS:
+            let list_wallets = await btcCoreOperations.list_wallets();
+            return list_wallets;
     }
 
 }

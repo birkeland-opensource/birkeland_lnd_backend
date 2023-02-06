@@ -34,6 +34,11 @@ const LND_GRPC_OPERATION = {
   const BTC_CORE_OPERATIONS = {
     CREATE_BTC_WALLET : "create_btc_wallet",
     GET_BLOCK_CHAIN_INFO : "get_block_chain_info",
+    GET_WALLET_INFO : "get_wallet_info",
+    LIST_WALLET_DIR : "list_wallet_dir",
+    LIST_ALL_WALLETS : "list_all_wallets",
+    LOAD_WALLET : "load_wallet"
+
   }
 
 const BIRKELAND_WALLET_TRANSACTION_STATUS = {

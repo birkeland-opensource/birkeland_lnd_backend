@@ -28,20 +28,6 @@ class BTCCoreOperations {
     }
   };
 
-  //   create_Wallet = (params) => {
-  //     let { password } = params;
-  //     btc_client.createWallet("mywallet", { password : password }, function (err, result) {
-  //       if (err) {
-  //         console.error(err);
-  //         return { success: false, message: err };
-  //       } else {
-  //         console.log("Wallet created:", result);
-  //         return { success: false, message: result };
-  //       }
-  //     });
-  //   };
-  // }
-
   create_wallet = async (params) => {
     let { password, wallet_name } = params;
     try {
@@ -53,6 +39,41 @@ class BTCCoreOperations {
       return { success: false, message: err };
     }
   };
+
+  load_wallet = async (params) => {
+    let { filename, load_on_startup } = params;
+    try {
+      let result = await btc_client.loadWallet(filename, load_on_startup);
+      console.log(result);
+      return { success: true, message: result };
+    } catch (err) {
+      console.error(err);
+      return { success: false, message: err };
+    }
+  };
+
+
+get_wallet_info = async() =>{
+  try {
+    let result = await btc_client.getWalletInfo();
+    console.log(result);
+    return { success: true, message: result };
+  } catch (err) {
+    console.error(err);
+    return { success: false, message: err };
+  }
 }
 
+list_wallets = async() =>{
+  try {
+    let result = await btc_client.listWallets();
+    console.log(result);
+    return { success: true, message: result };
+  } catch (err) {
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
+}
 module.exports = { BTCCoreOperations };
