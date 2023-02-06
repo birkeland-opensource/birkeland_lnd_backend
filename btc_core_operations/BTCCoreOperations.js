@@ -30,7 +30,7 @@ class BTCCoreOperations {
 
   create_Wallet = (params) => {
     let { password } = params;
-    btc_client.createWallet("mywallet", { password }, function (err, result) {
+    btc_client.createWallet("mywallet", { password : password }, function (err, result) {
       if (err) {
         console.error(err);
         return { success: false, message: err };
