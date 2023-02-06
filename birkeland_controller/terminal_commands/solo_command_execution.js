@@ -12,10 +12,10 @@ const get_command_for_operation = (operation) =>{
     var command = "";
     switch(operation){
         case AVAILABLE_OPERATIONS.START_BTC:
-            command = "gnome-terminal -- bitcoind";
+            command = "bitcoind --daemon";
             break;
         case AVAILABLE_OPERATIONS.START_LND:
-            command = "gnome-terminal -- lnd";
+            command = "nohup lnd &";
             break;
         case AVAILABLE_OPERATIONS.STOP_BTC:
             command = "pkill bitcoind";
