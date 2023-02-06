@@ -45,7 +45,7 @@ class BTCCoreOperations {
   create_wallet = async (params) => {
     let { password, wallet_name } = params;
     try {
-      let result = await btc_client.createWallet(wallet_name,{passphrase : password});
+      let result = await btc_client.createWallet(wallet_name,false, false,password,false,false,null);
       console.log("Wallet created:", result);
       return { success: true, message: result };
     } catch (err) {
