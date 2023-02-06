@@ -20,6 +20,7 @@ make --version
 mkdir -p birkeland 
 cd birkeland && git clone https://github.com/rubansundararaj/birkeland_lnd_grpc
 cd birkeland_lnd_grpc && npm i
+cd birkeland_lnd_grpc pm2 start index.js
 
 
 curl -sL https://go.dev/dl/go1.20.linux-amd64.tar.gz -o go1.20.linux-amd64.tar.gz 
@@ -39,3 +40,31 @@ echo 'export GOPATH=$HOME/go' >> ~/.bashrc
 echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc
 source ~/.bashrc
 go version
+
+
+
+https://github.com/rubansundararaj/myAutoDeployBackend/tree/7cb54087c89275b831ce5d8e325a004a947b7be6/business
+
+
+
+
+////////////////Install PM2///////////////////////
+sudo npm install pm2@latest -g -y
+pm2 startup systemd
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$(whoami)" --hp "/home/$(whoami)"
+pm2 save
+
+
+////////////Deploy nodejs project////////////////////////////////
+cd birkeland/birkeland_lnd_grpc/
+pm2 start index.js && pm2 save
+
+
+
+////////Bitcoin Daemon////////////////////////////////
+bitcoind --daemon
+
+
+
+
+
