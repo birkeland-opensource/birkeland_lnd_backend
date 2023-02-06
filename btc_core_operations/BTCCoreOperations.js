@@ -75,5 +75,16 @@ list_wallets = async() =>{
   }
 }
 
+list_wallet_dir = async()=>{
+  try {
+    let result = await btc_client.listWalletDir();
+    console.log(result);
+    return { success: true, message: result };
+  } catch (err) {
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
 }
 module.exports = { BTCCoreOperations };

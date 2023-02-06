@@ -27,6 +27,10 @@ const PerformBtcCoreOperations = async(params) =>{
         case BTC_CORE_OPERATIONS.LIST_ALL_WALLETS:
             let list_wallets = await btcCoreOperations.list_wallets();
             return list_wallets;
+            
+        case BTC_CORE_OPERATIONS.LIST_WALLET_DIR:
+            let list_wallet_dir = await btcCoreOperations.list_wallet_dir();
+            return list_wallet_dir;
     }
 
 }
