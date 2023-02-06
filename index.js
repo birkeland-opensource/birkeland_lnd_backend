@@ -21,6 +21,11 @@ app.use('/terminal',terminal_operation_router);
 var lnd_operation_router = require("./birkeland_router/lnd_operation_router");
 app.use('/lnd',lnd_operation_router);
 
+var btc_core_router = require("./btc_core_controller_and_router/btc_core_router");
+
+app.use('/btc',btc_core_router);
+
+
 var birkeland_wallet_router = require("./birkeland_wallets/birkeland_wallet_router");
 
 app.use('/v1/wallets',birkeland_wallet_router);
