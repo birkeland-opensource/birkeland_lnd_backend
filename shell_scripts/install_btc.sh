@@ -2,6 +2,7 @@
 pwd 
 apt-get update 
 apt-get install git 
+rm -rf ~/code/
 mkdir -p ~/code && cd ~/code 
 cd ~/code && git clone https://github.com/bitcoin/bitcoin.git 
 cd ~/code/bitcoin && git checkout 23.x 
