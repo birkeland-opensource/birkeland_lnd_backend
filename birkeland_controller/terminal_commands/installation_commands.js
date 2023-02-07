@@ -155,15 +155,6 @@ exports.Get_Lnd_Installation_Commands =(password) =>{
 	// 	`exit`
 
 	const cmds = `#!/bin/bash \n\n`+
-		`pwd \n` +
-		`wget https://dl.google.com/go/go1.19.linux-amd64.tar.gz \n` +
-		`tar -xvf go1.19.linux-amd64.tar.gz \n` +
-		`sudo mv go /usr/local \n`+
-		`echo 'export GOPATH=$HOME/go' >> ~/.bashrc \n` +
-		`echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc \n` +
-		`source ~/.bashrc \n` +
-		`go version \n`+
-		`cd ~/ \n` +
 		`mkdir -p birkeland && cd birkeland \n` +
 		`mkdir -p code && cd code \n`+
 		`echo "${password}" | sudo -S rm -rf lnd_code \n`+

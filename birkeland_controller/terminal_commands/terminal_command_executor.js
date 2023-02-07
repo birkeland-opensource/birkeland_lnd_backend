@@ -1,7 +1,7 @@
 const { exec, spawn } = require('child_process');
 const { Get_bitcoin_installation_command, Get_Hardware_Monitoring_Installation_Commands, Get_Lnd_Installation_Commands, Check_Can_Execute_From_Terminal, Check_Node_Monitor_Is_Running, Check_BTC_Is_Running, get_lnbits_installation_commands } = require('./installation_commands');
 const { create_birkeland_lnd_comm_config_file } = require('./setup_config_files');
-
+const base_path = process.cwd()
 
 const available_operations = {
     "CAN_EXECUTE_COMMAND_FROM_TERMINAL" : 1,
@@ -75,8 +75,9 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
     var commands = [];
     switch(operations) {
         case available_operations.BTC_INSTALLATION_COMMANDS:
-            console.log("BTC_INSTALLATION_COMMANDS")
-            commands = Get_bitcoin_installation_command(password)
+            //console.log("BTC_INSTALLATION_COMMANDS")
+            commands = `${base_path}/shell_scripts/install_btc.sh`
+            //commands = Get_bitcoin_installation_command(password)
             console.log(commands)
           // code block
           break;
@@ -106,7 +107,8 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
             break;
 
         case available_operations.LND_INSTALLATION_COMMANDS:
-            commands = Get_Lnd_Installation_Commands(password)
+            commands = `${base_path}/shell_scripts/install_lnd.sh`
+            //commands = Get_Lnd_Installation_Commands(password)
             // code block
             break;
     

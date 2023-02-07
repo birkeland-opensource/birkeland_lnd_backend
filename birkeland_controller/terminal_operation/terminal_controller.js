@@ -2,6 +2,7 @@
 const {execute_solo_command,get_command_with_params_for_operation,get_command_for_operation} = require("../terminal_commands/solo_command_execution");
 const { execute_commands, available_operations, get_commands_with_password } = require("../terminal_commands/terminal_command_executor");
 const exec = require('child_process').exec;
+const base_path = process.cwd()
 
 const isRunning = (query, cb) => {
     let platform = process.platform;
@@ -118,6 +119,7 @@ exports.install_btc = async(req,res) =>{
         let cmds_to_exe = get_commands_with_password("username",password,"",available_operations.BTC_INSTALLATION_COMMANDS)
         console.log(cmds_to_exe)
         let rsp = execute_commands(cmds_to_exe);
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/create_btc_config.sh`);
         return res.status(200).send({success : true, message : rsp});
     }
     catch(err){
@@ -144,6 +146,7 @@ exports.install_lnd = async(req,res) =>{
         let {password} = req.body;
         let cmds_to_exe = get_commands_with_password("username",password,"",available_operations.LND_INSTALLATION_COMMANDS)
         let rsp = execute_commands(cmds_to_exe);
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/create_lnd_config.sh`);
         return res.status(200).send({success : true, message : rsp});
     }
     catch(err){
