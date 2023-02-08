@@ -39,14 +39,28 @@ exports.perform_lnd_operation = async(req,res) =>{
     }
 }
 
+const { exec } = require('child_process');
+
+
 exports.manage_a_process = async(req,res) =>{
     try{
 
         let {operation} = req.body;
         if(operation == AVAILABLE_OPERATIONS.START_LND){
             console.log(`${base_path}/shell_scripts/start_lnd.sh`);
-            let rsp = execute_commands(`${base_path}/shell_scripts/start_lnd.sh`);
-            return res.status(200).send({success : true, message : rsp});
+           // let rsp = execute_commands(`${base_path}/shell_scripts/start_lnd.sh`);
+            exec(`${base_path}/shell_scripts/start_lnd.sh`, { env: process.env, cwd: process.cwd() }, (error, stdout, stderr) => {
+                if (error) {
+                  console.error(`exec error: ${error}`);
+                  return res.status(500).send({success : false,message : error});
+                }
+              
+                console.log(`stdout: ${stdout}`);
+                console.error(`stderr: ${stderr}`);
+                return res.status(200).send({success : true, message : rsp});
+              });
+
+           
         }
         else{
             let command_to_execute = get_command_for_operation(operation);
