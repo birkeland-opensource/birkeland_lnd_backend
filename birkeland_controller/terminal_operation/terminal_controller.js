@@ -39,9 +39,6 @@ exports.perform_lnd_operation = async(req,res) =>{
     }
 }
 
-const { exec } = require('child_process');
-
-
 exports.manage_a_process = async(req,res) =>{
     try{
 
