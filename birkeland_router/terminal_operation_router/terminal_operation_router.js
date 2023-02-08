@@ -10,6 +10,7 @@ apirouter.post("/check_btc", terminal_controller.check_btc_running);
 apirouter.post("/check_node_monitor", terminal_controller.check_hw_monitor_running);
 apirouter.post("/check_lnd", terminal_controller.check_lnd_running);
 apirouter.post("/install_btc", terminal_controller.install_btc);
+apirouter.post("/update_birkeland_server", terminal_controller.update_birkeland_server);
 apirouter.post("/install_lnd", terminal_controller.install_lnd);
 apirouter.post("/install_node_monitoring", terminal_controller.install_node_monitoring);
 

@@ -12,7 +12,8 @@ const available_operations = {
     "CHECK_BTC_IS_RUNNING" : 6,
     "CHECK_NODE_MONITOR_IS_RUNNING" : 7,
     "CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG" : 8,
-    "LNBITS_INSTALLATION" : 9
+    "LNBITS_INSTALLATION" : 9,
+    "UPDATE_BIRKELAND_SERVER" : 10
 }
 const remove_the_file = (path) => {
     // if(path.length > 2)
@@ -121,6 +122,12 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
         case available_operations.LNBITS_INSTALLATION:
             console.log("LNBITS_INSTALLATION")
             commands = get_lnbits_installation_commands(password)
+            // code block
+            break;
+
+        case available_operations.UPDATE_BIRKELAND_SERVER:
+            console.log("UPDATE_BIRKELAND_SERVER")
+            commands = `${base_path}/shell_scripts/update_birkeland_server.sh`
             // code block
             break;
 

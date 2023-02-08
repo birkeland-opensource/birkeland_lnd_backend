@@ -127,6 +127,19 @@ exports.install_btc = async(req,res) =>{
     }
 }
 
+exports.update_birkeland_server = async(req,res) =>{
+    try{
+        let {password} = req.body;
+        let cmds_to_exe = get_commands_with_password("username",password,"",available_operations.UPDATE_BIRKELAND_SERVER)
+        console.log(cmds_to_exe)
+        let rsp = execute_commands(cmds_to_exe);
+        return res.status(200).send({success : true, message : rsp});
+    }
+    catch(err){
+        return res.status(400).send({success : false});
+    }
+}
+
 exports.execute_lnd_comm_config_command = async(req,res) =>{
     try{
         let {password} = req.body;
