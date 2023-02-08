@@ -62,4 +62,4 @@ const execute_solo_command = (command_to_execute,res)=>{
  
 }
 
-module.exports={execute_solo_command,get_command_with_params_for_operation,get_command_for_operation}
+module.exports={AVAILABLE_OPERATIONS,execute_solo_command,get_command_with_params_for_operation,get_command_for_operation}

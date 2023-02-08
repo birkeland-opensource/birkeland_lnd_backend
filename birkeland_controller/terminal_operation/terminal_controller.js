@@ -1,5 +1,5 @@
 
-const {execute_solo_command,get_command_with_params_for_operation,get_command_for_operation} = require("../terminal_commands/solo_command_execution");
+const {execute_solo_command,get_command_with_params_for_operation,get_command_for_operation, AVAILABLE_OPERATIONS} = require("../terminal_commands/solo_command_execution");
 const { execute_commands, available_operations, get_commands_with_password } = require("../terminal_commands/terminal_command_executor");
 const exec = require('child_process').exec;
 const base_path = process.cwd()
@@ -43,9 +43,17 @@ exports.manage_a_process = async(req,res) =>{
     try{
 
         let {operation} = req.body;
-        let command_to_execute = get_command_for_operation(operation);
-        console.log(command_to_execute)
-        execute_solo_command(command_to_execute,res);
+        if(operation == AVAILABLE_OPERATIONS.START_LND){
+            console.log(`${base_path}/shell_scripts/start_lnd.sh`);
+            let rsp = execute_commands(`${base_path}/shell_scripts/start_lnd.sh`);
+            return res.status(200).send({success : true, message : rsp});
+        }
+        else{
+            let command_to_execute = get_command_for_operation(operation);
+            console.log(command_to_execute)
+            execute_solo_command(command_to_execute,res);
+        }
+    
     }
     catch(e){
         return res.status(400).send({success : false});
