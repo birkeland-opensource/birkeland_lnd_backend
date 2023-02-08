@@ -3,6 +3,7 @@
 if systemctl is-active lnd; then
   echo "LND is running"
   exit 1
+fi
 
 echo "starting to install lnd"
 mkdir -p ~/birkeland/code
