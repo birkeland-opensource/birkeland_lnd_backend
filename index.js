@@ -1,6 +1,6 @@
 
 
-
+const packageJson = require('./package.json');
 const express = require('express');
 const app = express();
 const cron = require('node-cron');
@@ -32,7 +32,8 @@ app.use('/v1/wallets',birkeland_wallet_router);
 
 app.get("/",(req,res)=>{
 
-    res.status(200).send({success:true, message : "Balances of Statoshi API endpoint is running"});
+    res.status(200).send({success:true, message : "Birkeland server is running", version :packageJson.version});
+
   });
 
   const port = 9990;
@@ -43,16 +44,3 @@ app.get("/",(req,res)=>{
 });
 
 module.exports = app;
-
-
-
-// if ! [[ -x "$(command -v docker)" ]]; then
-// echo "Docker not installed"
-// fi
-
-// else 
-// echo "Trying to install docker..."
-// curl -fsSL https://get.docker.com -o get-docker.sh
-// chmod +x get-docker.sh
-// sh get-docker.sh
-// rm get-docker.sh

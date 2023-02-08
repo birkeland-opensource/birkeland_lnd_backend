@@ -1,4 +1,11 @@
 #!/bin/bash
+
+if pgrep bitcoind > /dev/null ; then
+  echo "bitcoind is already running."
+  exit 1
+fi
+
+echo "starting to install bitcoin"
 pwd 
 apt-get update 
 apt-get install git 
