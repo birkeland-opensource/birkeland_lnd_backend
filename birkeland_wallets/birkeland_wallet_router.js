@@ -6,7 +6,10 @@ var birkeland_wallet_controller = require("./controller");
 var controller_birkeland_payments = require("./controller_birkeland_payments");
 
 apirouter.post("/wallet", decode_node_auth_jwt_token,birkeland_wallet_controller.create_a_wallet);
-apirouter.get("/wallets",decode_node_auth_jwt_token, birkeland_wallet_controller.get_all_wallets);
+//apirouter.get("/wallets",decode_node_auth_jwt_token, birkeland_wallet_controller.get_all_wallets);
+
+apirouter.get("/wallets_by_user_id",decode_node_auth_jwt_token, birkeland_wallet_controller.get_all_wallets_by_user_id);
+
 apirouter.get("/wallet",decode_node_auth_jwt_token, birkeland_wallet_controller.get_one_wallet);
 
 apirouter.get("/all_transactions",decode_node_auth_jwt_token, controller_birkeland_payments.all_transactions);

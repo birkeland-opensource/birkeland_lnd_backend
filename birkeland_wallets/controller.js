@@ -46,6 +46,22 @@ exports.get_all_wallets = async (req, res) => {
   }
 };
 
+exports.get_all_wallets_by_user_id = async (req, res) => {
+  try {
+    var public_key_resp = await get_node_public_key(res);
+    let { user_id } = req.query;
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
+      var result = await birkeland_wallet_item.find({ user_id : user_id,
+        main_wallet_public_key: global.node_public_key,
+      });
+      return res.status(200).send({ success: true, message: result });
+    }
+  } catch (e) {
+    return res.status(400).send({ success: false });
+  }
+};
+
 exports.get_one_wallet = async (req, res) => {
   try {
 
