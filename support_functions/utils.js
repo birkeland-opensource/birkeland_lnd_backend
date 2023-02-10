@@ -13,6 +13,8 @@ exports.create_node_auth_jwt_token = (payload, private_key) => {
 exports.decode_node_auth_jwt_token = async (req, res, next) => {
   try {
     const token = req.headers["x-access-token"];
+    console.log("token")
+    console.log(token)
     if (!token) {
       return res
         .status(401)
@@ -20,8 +22,12 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
     }
     let {email} = jwt_decode(token);
     let filter = {"email" : email};
+    console.log("filter")
+    console.log(filter)
     let return_object = {private_key: 1}
     let result = await node_user_schema_item_model.findOne(filter,return_object);
+    console.log("result")
+    console.log(result)
     if(result){
     jwt.verify(token, result["private_key"], (err, decoded) => {
       if (err) {
