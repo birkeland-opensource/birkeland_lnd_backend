@@ -20,7 +20,9 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
         .status(401)
         .send({ auth: false, message: "No token provided." });
     }
-    let {email} = jwt_decode(token);
+    let decode_result = jwt_decode(token);
+    console.log("decoded token");
+    console.log(decode_result)
     let filter = {"email" : email};
     console.log("filter")
     console.log(filter)
