@@ -23,7 +23,7 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
     let decode_result = jwt_decode(token);
     console.log("decoded token");
     console.log(decode_result)
-    let filter = {"email" : email};
+    let filter = {"email" : decode_result["email"]};
     console.log("filter")
     console.log(filter)
     let return_object = {private_key: 1}
@@ -47,6 +47,7 @@ exports.decode_node_auth_jwt_token = async (req, res, next) => {
     return res.status(401).send({ message: "node auth failed" });
   }
   } catch (e) {
+    console.log(e)
     return res.status(401).send({ message: "node auth failed" });
   }
 };
