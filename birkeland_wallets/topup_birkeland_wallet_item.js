@@ -4,7 +4,7 @@ const topup_birkeland_wallet_schema = new mongoose.Schema({
   chain_address: {
     type: String,
     required: true,
-    unique: true,
+    unique: false,
   },
   public_key: {
     type: String,
