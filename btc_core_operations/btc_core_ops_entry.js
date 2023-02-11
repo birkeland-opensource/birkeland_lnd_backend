@@ -31,6 +31,26 @@ const PerformBtcCoreOperations = async(params) =>{
         case BTC_CORE_OPERATIONS.LIST_WALLET_DIR:
             let list_wallet_dir = await btcCoreOperations.list_wallet_dir();
             return list_wallet_dir;
+        case BTC_CORE_OPERATIONS.LIST_RECEIVED_BY_ADDRESS:
+            let received_by_address = await btcCoreOperations.received_by_address(params);
+            return received_by_address;
+        case BTC_CORE_OPERATIONS.GET_RAW_TRANSACTION:
+            let raw_transaction = await btcCoreOperations.get_raw_transaction(params);
+            return raw_transaction;
+        case BTC_CORE_OPERATIONS.GET_RECEIVED_BY_ADDRESS:
+            let get_received_by_address = await btcCoreOperations.get_received_by_address(params);
+            return get_received_by_address;
+        case BTC_CORE_OPERATIONS.GET_TRANSACTION:
+            let get_transaction = await btcCoreOperations.get_transaction(params);
+            return get_transaction;
+
+
+            
+        
+
+            
+
+            
     }
 
 }

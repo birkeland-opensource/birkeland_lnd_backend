@@ -37,7 +37,11 @@ const LND_GRPC_OPERATION = {
     GET_WALLET_INFO : "get_wallet_info",
     LIST_WALLET_DIR : "list_wallet_dir",
     LIST_ALL_WALLETS : "list_all_wallets",
-    LOAD_WALLET : "load_wallet"
+    LOAD_WALLET : "load_wallet",
+    LIST_RECEIVED_BY_ADDRESS : "list_received_by_address",
+    GET_RAW_TRANSACTION : "get_raw_transaction",
+    GET_RECEIVED_BY_ADDRESS : "get_received_by_address",
+    GET_TRANSACTION : "get_transaction"
 
   }
 

@@ -86,5 +86,56 @@ list_wallet_dir = async()=>{
   }
 }
 
+received_by_address = async(params)=>{
+  try{
+    console.log(params)
+    let {address} = params
+    let result = await btc_client.listReceivedByAddress(0,false,true,address );
+    console.log(result);
+    return { success: true, message: result };
+  }catch(err){
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
+get_raw_transaction = async(params) =>{
+  try{
+    
+    let {txid} = params
+    let result = await btc_client.getRawTransaction(txid,true);
+    console.log(result);
+    return { success: true, message: result };
+  }catch(err){
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
+get_received_by_address = async(params) =>{
+  try{
+    
+    let {address,minconf} = params
+    let result = await btc_client.getReceivedByAddress(address,minconf);
+    console.log(result);
+    return { success: true, message: result };
+  }catch(err){
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
+get_transaction = async(params) =>{
+  try{
+    let {txid} = params
+    let result = await btc_client.getTransaction(txid,false,true);
+    console.log(result);
+    return { success: true, message: result };
+  }catch(err){
+    console.error(err);
+    return { success: false, message: err };
+  }
+}
+
 }
 module.exports = { BTCCoreOperations };
