@@ -630,7 +630,7 @@ exports.update_on_chain_tx = async (req, res) => {
       user_id: user_id,
       main_wallet_public_key: global.node_public_key,
     };
-    console.log(wallet_filter);
+
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
     if (!user_wallet_info) {
       return res.status(400).send({ success: false, message: "Wrong params" });
@@ -640,23 +640,75 @@ exports.update_on_chain_tx = async (req, res) => {
       operation: LND_GRPC_OPERATION.GET_U_TXOS,
       min_confirmations: 3,
     });
-
+ 
     if (!utxos?.success) {
       return res
         .status(500)
         .send({ success: false, message: "Error getting utxos" });
     }
     let all_utxos = utxos?.message?.utxos;
-    if (!all_utxos || all_utxos?.length > 0) {
+    if (!all_utxos || all_utxos?.length == 0) {
       return res
         .status(500)
         .send({ success: false, message: "No UTXOs found" });
     }
     let matching_utxos = get_wallet_update_tx(on_chain_address, all_utxos);
 
+    if(matching_utxos?.length == 0){
+      return res
+        .status(500)
+        .send({ success: false, message: "No matching UTXOs found" });
+    }
+    for(var i=0; i<matching_utxos?.length ; i++){
+        var check_tx_exist_filter = {
+          transaction_id : matching_utxos[i]?.transaction_id
+        }
+     
+        var result = await topup_birkeland_wallet_item.find(check_tx_exist_filter);
+        if(result?.length == 0){
+          let wallet_update_tx_object = {
+            chain_address : matching_utxos[i]?.address,
+            public_key :global.node_public_key ,
+            wallet_id : wallet_id,
+            transaction_id : matching_utxos[i]?.transaction_id,
+            date_created : new Date(),
+            last_udapted : new Date(),
+            tokens : matching_utxos[i]?.tokens,
+            transaction_confirmed:  true,
+            confirmation_count : matching_utxos[i]?.confirmation_count,
+            utxo_object : matching_utxos[i],
+            user_id : user_id
+
+          }
+          await topup_birkeland_wallet_item.create(wallet_update_tx_object);
+
+          if(matching_utxos[i]?.tokens > 0){
+
+            let wallet_balance = await birkeland_wallet_item.findOne(
+              wallet_filter
+            );
+            let total_wallet_balance_msats =
+              wallet_balance["wallet_balance_in_mstats"] +
+              matching_utxos[i]?.tokens * 1000;
+           
+              let wallet_update_item = {
+              wallet_balance_in_mstats: total_wallet_balance_msats,
+              last_udapted: new Date(),
+            };
+
+            await birkeland_wallet_item.findOneAndUpdate(
+              wallet_filter,
+              wallet_update_item
+            );
+
+          }
+        }
+    }
+
     return res
-      .status(200)
-      .send({ success: true, message: matching_utxos });
+    .status(200)
+    .send({ success: true, message: "transaction verifcation run" });
+   
   } catch (err) {
     console.log(err);
     return res.status(500).send({ success: false, message: err });
