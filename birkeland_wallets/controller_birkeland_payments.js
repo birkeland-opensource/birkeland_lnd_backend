@@ -571,12 +571,10 @@ exports.withdraw_to_onchain_address = async (req, res) => {
                   await birkeland_wallet_transaction_item.create(
                     withdraw_transaction_object
                   );
-                  return res
-                    .status(200)
-                    .send({
-                      success: true,
-                      message: on_chain_withdraw_repsonse,
-                    });
+                  return res.status(200).send({
+                    success: true,
+                    message: on_chain_withdraw_repsonse,
+                  });
                 } else {
                   return res.status(500).send({
                     success: false,
@@ -615,65 +613,50 @@ exports.withdraw_to_onchain_address = async (req, res) => {
 exports.update_on_chain_tx = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
-    if (user_id && wallet_id) {
-      var public_key_resp = await get_node_public_key(res);
-      if (public_key_resp?.success) {
-        global.node_public_key = public_key_resp?.public_key;
-        if (global.node_public_key) {
-          var wallet_filter = {
-            wallet_id: wallet_id,
-            user_id: user_id,
-            main_wallet_public_key: global.node_public_key,
-          };
-          console.log(wallet_filter);
-          var user_wallet_info = await birkeland_wallet_item.findOne(
-            wallet_filter
-          );
-          if (user_wallet_info) {
-            var on_chain_address = user_wallet_info?.on_chain_address;
-            let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({
-              operation: LND_GRPC_OPERATION.GET_U_TXOS,
-              min_confirmations: 3,
-            });
-
-            if (utxos["success"]) {
-              let all_utxos = utxos?.message?.utxos;
-              if (all_utxos?.length > 0) {
-                let matching_utxos = get_wallet_update_tx(
-                  on_chain_address,
-                  all_utxos
-                );
-                console.log(matching_utxos);
-              } else {
-                return res
-                  .status(500)
-                  .send({ success: false, message: "No UTXOs found" });
-              }
-            } else {
-              return res
-                .status(500)
-                .send({ success: false, message: "Error getting utxos" });
-            }
-
-            return res
-              .status(200)
-              .send({ success: true, message: utxos["message"]["utxos"] });
-          } else {
-            return res
-              .status(400)
-              .send({ success: false, message: "Wrong params" });
-          }
-        }
-      } else {
-        return res
-          .status(500)
-          .send({ success: false, message: "Node may not be running" });
-      }
-    } else {
+    if (!user_id || !wallet_id) {
       return res
         .status(400)
         .send({ success: false, message: "Insufficient params" });
     }
+    var public_key_resp = await get_node_public_key(res);
+    if (!public_key_resp?.success || !public_key_resp?.public_key) {
+      return res
+        .status(500)
+        .send({ success: false, message: "Node may not be running" });
+    }
+    global.node_public_key = public_key_resp?.public_key;
+    var wallet_filter = {
+      wallet_id: wallet_id,
+      user_id: user_id,
+      main_wallet_public_key: global.node_public_key,
+    };
+    console.log(wallet_filter);
+    var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
+    if (!user_wallet_info) {
+      return res.status(400).send({ success: false, message: "Wrong params" });
+    }
+    var on_chain_address = user_wallet_info?.on_chain_address;
+    let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({
+      operation: LND_GRPC_OPERATION.GET_U_TXOS,
+      min_confirmations: 3,
+    });
+
+    if (!utxos?.success) {
+      return res
+        .status(500)
+        .send({ success: false, message: "Error getting utxos" });
+    }
+    let all_utxos = utxos?.message?.utxos;
+    if (!all_utxos || all_utxos?.length > 0) {
+      return res
+        .status(500)
+        .send({ success: false, message: "No UTXOs found" });
+    }
+    let matching_utxos = get_wallet_update_tx(on_chain_address, all_utxos);
+
+    return res
+      .status(200)
+      .send({ success: true, message: matching_utxos });
   } catch (err) {
     console.log(err);
     return res.status(500).send({ success: false, message: err });
