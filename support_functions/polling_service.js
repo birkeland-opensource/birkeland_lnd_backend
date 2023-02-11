@@ -114,9 +114,7 @@ var utxos = [
 ]
 
 const get_wallet_update_tx = (chain_address, utxos) =>{
- 
-  console.log(utxos);
-  console.log(chain_address);
+  return utxos.filter(utxo => utxo.address === chain_address);
 }
 
 get_wallet_update_tx(address, utxos)
