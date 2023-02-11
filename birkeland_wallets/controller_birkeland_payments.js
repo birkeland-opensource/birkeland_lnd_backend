@@ -13,6 +13,7 @@ const {
 const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
 const {
   get_wallet_top_tx_status,
+  get_wallet_update_tx,
 } = require("../support_functions/polling_service");
 const { get_node_public_key } = require("../support_functions/utils");
 const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
@@ -250,31 +251,31 @@ exports.transactions = async (req, res) => {
 };
 
 exports.all_transactions = async (req, res) => {
-    // Query the database with from_wallet_id to get alltransactions
-    try {
-      let { user_id } = req.query;
-      var public_key_resp = await get_node_public_key(res);
-      if (public_key_resp?.success) {
-        global.node_public_key = public_key_resp?.public_key;
-        if (global.node_public_key) {
-          let filter = {
-            public_key: global.node_public_key,
-            user_id : user_id
-          };
-          let result = await birkeland_payment_transaction_item.countDocuments(
-            filter
-          );
-          return res.status(200).send({ success: true, message: result });
-        } else {
-          return res.status(500).send({
-            success: false,
-            message: "Lightning node maynot be running",
-          });
-        }
+  // Query the database with from_wallet_id to get alltransactions
+  try {
+    let { user_id } = req.query;
+    var public_key_resp = await get_node_public_key(res);
+    if (public_key_resp?.success) {
+      global.node_public_key = public_key_resp?.public_key;
+      if (global.node_public_key) {
+        let filter = {
+          public_key: global.node_public_key,
+          user_id: user_id,
+        };
+        let result = await birkeland_payment_transaction_item.countDocuments(
+          filter
+        );
+        return res.status(200).send({ success: true, message: result });
+      } else {
+        return res.status(500).send({
+          success: false,
+          message: "Lightning node maynot be running",
+        });
       }
-    } catch (err) {
-      return res.status(400).send({ success: false });
     }
+  } catch (err) {
+    return res.status(400).send({ success: false });
+  }
 };
 exports.create_invoice = async (req, res) => {
   try {
@@ -358,90 +359,97 @@ exports.make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { request_hash } = req.body;
-    if(user_id &&wallet_id &&request_hash ){
-    var public_key_resp = await get_node_public_key(res);
-    if (public_key_resp?.success) {
-      global.node_public_key = public_key_resp?.public_key;
-      console.log(global.node_public_key);
-      if (global.node_public_key) {
-        var decoded_request_hash = invoice.decode(request_hash);
-        var from_node_public_key = decoded_request_hash?.desc;
-        const node_public_key = global.node_public_key;
-        if (node_public_key === from_node_public_key) {
-          var transaction_filter = {
-            payment_request_hash: request_hash,
-          };
-          var transact_object = await birkeland_payment_transaction_item.find(
-            transaction_filter
-          );
-
-          if (transact_object.length == 1) {
-            //1. check if there is sufficient balance in the payment sender account
-            var wallet_filter = {
-              wallet_id: wallet_id,
-              user_id: user_id,
+    if (user_id && wallet_id && request_hash) {
+      var public_key_resp = await get_node_public_key(res);
+      if (public_key_resp?.success) {
+        global.node_public_key = public_key_resp?.public_key;
+        console.log(global.node_public_key);
+        if (global.node_public_key) {
+          var decoded_request_hash = invoice.decode(request_hash);
+          var from_node_public_key = decoded_request_hash?.desc;
+          const node_public_key = global.node_public_key;
+          if (node_public_key === from_node_public_key) {
+            var transaction_filter = {
+              payment_request_hash: request_hash,
             };
-            var user_wallet_info = await birkeland_wallet_item.find(
-              wallet_filter
+            var transact_object = await birkeland_payment_transaction_item.find(
+              transaction_filter
             );
-            if (
-              user_wallet_info[0]["wallet_balance_in_mstats"] >
-              decoded_request_hash?.valueMsat
-            ) {
-              //2. if so upadte the satus of the invoice creator
-              //3. insert the transaction satus in the sender
-              let birkeland_payment_transaction_item_object = {
-                payment_request_hash: request_hash,
-                transaction_id: uuidv4(),
-                memo: transact_object[0]?.memo,
-                user_id: user_id,
-                amount_in_msats: decoded_request_hash?.valueMsat,
-                public_key: node_public_key,
-                wallet_id: wallet_id,
-                date_created: new Date(),
-                date_updated: new Date(),
-                payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
-                intent: BIRKELAND_WALLET_TRANSACTION_INTENT.SEND,
-              };
-              await birkeland_payment_transaction_item.findOneAndUpdate(
-                transaction_filter,
-                { payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS }
-              );
-              await birkeland_payment_transaction_item.create(
-                birkeland_payment_transaction_item_object
-              );
-              let updated_walled_balance_sender =
-                user_wallet_info[0]["wallet_balance_in_mstats"] -
-                decoded_request_hash?.valueMsat;
-              await birkeland_wallet_item.findOneAndUpdate(wallet_filter, {
-                wallet_balance_in_mstats: updated_walled_balance_sender,
-              });
-              let receiver_wallet_filter = {
-                user_id: transact_object[0]["user_id"],
-                wallet_id: transact_object[0]["wallet_id"],
-              };
-              let receiver_wallet_current_satus =
-                await birkeland_wallet_item.find(receiver_wallet_filter);
-              let updated_balance =
-                parseInt(decoded_request_hash?.valueMsat) +
-                parseInt(
-                  receiver_wallet_current_satus[0]["wallet_balance_in_mstats"]
-                );
-              await birkeland_wallet_item.findOneAndUpdate(
-                receiver_wallet_filter,
-                {
-                  wallet_balance_in_mstats: updated_balance,
-                  last_udapted: new Date(),
-                }
-              );
 
-              return res
-                .status(200)
-                .send({ success: true, message: "Payment Success" });
+            if (transact_object.length == 1) {
+              //1. check if there is sufficient balance in the payment sender account
+              var wallet_filter = {
+                wallet_id: wallet_id,
+                user_id: user_id,
+                main_wallet_public_key: global.node_public_key,
+              };
+              var user_wallet_info = await birkeland_wallet_item.find(
+                wallet_filter
+              );
+              if (
+                user_wallet_info[0]["wallet_balance_in_mstats"] >
+                decoded_request_hash?.valueMsat
+              ) {
+                //2. if so upadte the satus of the invoice creator
+                //3. insert the transaction satus in the sender
+                let birkeland_payment_transaction_item_object = {
+                  payment_request_hash: request_hash,
+                  transaction_id: uuidv4(),
+                  memo: transact_object[0]?.memo,
+                  user_id: user_id,
+                  amount_in_msats: decoded_request_hash?.valueMsat,
+                  public_key: node_public_key,
+                  wallet_id: wallet_id,
+                  date_created: new Date(),
+                  date_updated: new Date(),
+                  payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
+                  intent: BIRKELAND_WALLET_TRANSACTION_INTENT.SEND,
+                };
+                await birkeland_payment_transaction_item.findOneAndUpdate(
+                  transaction_filter,
+                  { payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS }
+                );
+                await birkeland_payment_transaction_item.create(
+                  birkeland_payment_transaction_item_object
+                );
+                let updated_walled_balance_sender =
+                  user_wallet_info[0]["wallet_balance_in_mstats"] -
+                  decoded_request_hash?.valueMsat;
+                await birkeland_wallet_item.findOneAndUpdate(wallet_filter, {
+                  wallet_balance_in_mstats: updated_walled_balance_sender,
+                });
+                let receiver_wallet_filter = {
+                  user_id: transact_object[0]["user_id"],
+                  wallet_id: transact_object[0]["wallet_id"],
+                };
+                let receiver_wallet_current_satus =
+                  await birkeland_wallet_item.find(receiver_wallet_filter);
+                let updated_balance =
+                  parseInt(decoded_request_hash?.valueMsat) +
+                  parseInt(
+                    receiver_wallet_current_satus[0]["wallet_balance_in_mstats"]
+                  );
+                await birkeland_wallet_item.findOneAndUpdate(
+                  receiver_wallet_filter,
+                  {
+                    wallet_balance_in_mstats: updated_balance,
+                    last_udapted: new Date(),
+                  }
+                );
+
+                return res
+                  .status(200)
+                  .send({ success: true, message: "Payment Success" });
+              } else {
+                return res.status(500).send({
+                  success: false,
+                  message: "Insufficient balance",
+                });
+              }
             } else {
-              return res.status(500).send({
+              return res.status(400).send({
                 success: false,
-                message: "Insufficient balance",
+                message: "Error processing this create new payment request",
               });
             }
           } else {
@@ -451,22 +459,16 @@ exports.make_a_payment = async (req, res) => {
             });
           }
         } else {
-          return res.status(400).send({
-            success: false,
-            message: "Error processing this create new payment request",
-          });
+          return res
+            .status(400)
+            .send({ success: false, message: "Public key not availabe" });
         }
-      } else {
-        return res
-          .status(400)
-          .send({ success: false, message: "Public key not availabe" });
       }
+    } else {
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
     }
-  }else{
-    return res
-          .status(400)
-          .send({ success: false, message: "Insufficient params" });
-  }
   } catch (err) {
     console.log(err);
     return res.status(400).send({ success: false });
@@ -476,24 +478,24 @@ exports.make_a_payment = async (req, res) => {
 exports.decode_lightning_invoice = async (req, res) => {
   try {
     let { payment_hash } = req.query;
-    if(payment_hash){
-    let result = invoice.decode(payment_hash);
+    if (payment_hash) {
+      let result = invoice.decode(payment_hash);
 
-    let decoded_invoice = {
-      value_in_sat: result?.valueSat,
-      pubkey: result?.pubkey,
-      inv_payment_hash: result?.paymentHash,
-      expiry: result?.expiry,
-      payee_node: result?.payeeNode,
-      description: result?.desc,
-      description: result?.shortDesc,
-    };
-    return res.status(200).send({ success: true, message: decoded_invoice });
-  }else{
-    return res
-    .status(400)
-    .send({ success: false, message: "Insufficient params" });
-  }
+      let decoded_invoice = {
+        value_in_sat: result?.valueSat,
+        pubkey: result?.pubkey,
+        inv_payment_hash: result?.paymentHash,
+        expiry: result?.expiry,
+        payee_node: result?.payeeNode,
+        description: result?.desc,
+        description: result?.shortDesc,
+      };
+      return res.status(200).send({ success: true, message: decoded_invoice });
+    } else {
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
+    }
   } catch (err) {
     return res.status(400).send({ success: false });
   }
@@ -503,105 +505,211 @@ exports.withdraw_to_onchain_address = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { tokens, address } = req.body;
-    if(user_id && wallet_id &&tokens &&address)
-    {
-    var public_key_resp = await get_node_public_key(res);
-    if (public_key_resp?.success) {
-      global.node_public_key = public_key_resp?.public_key;
-      if (global.node_public_key) {
-        var filter = {
-          user_id: user_id,
-          wallet_id: wallet_id,
-        };
-        var tokens_int = parseInt(tokens);
-        if (tokens_int > 1 && address.length > 3) {
-          var birkeland_wallet_info = await birkeland_wallet_item.findOne(
-            filter
-          );
-          //console.log(result)
-          var wallet_balance =
-            birkeland_wallet_info["wallet_balance_in_mstats"] / 1000;
-          console.log(`${tokens_int} < ${wallet_balance}`);
-          if (tokens_int < wallet_balance) {
-            var withdraw_amount_in_usd = await satoshisToFiat(
-              tokens_int,
-              "USD"
+    if (user_id && wallet_id && tokens && address) {
+      var public_key_resp = await get_node_public_key(res);
+      if (public_key_resp?.success) {
+        global.node_public_key = public_key_resp?.public_key;
+        if (global.node_public_key) {
+          var filter = {
+            user_id: user_id,
+            wallet_id: wallet_id,
+            main_wallet_public_key: global.node_public_key,
+          };
+          var tokens_int = parseInt(tokens);
+          if (tokens_int > 1 && address.length > 3) {
+            var birkeland_wallet_info = await birkeland_wallet_item.findOne(
+              filter
             );
-            console.log(withdraw_amount_in_usd);
-            if (withdraw_amount_in_usd > 2.2) {
-              //1. make request to lnd
-              let on_chain_withdraw_params = {
-                operation: "send_to_chain_address",
-                tokens: tokens_int,
-                address: address,
-              };
-              let on_chain_withdraw_repsonse =
-                await test_birkeland_lnd.PerformAuthenticatedOperation(
-                  on_chain_withdraw_params
-                );
-              if (on_chain_withdraw_repsonse["success"]) {
-                //2. if the request is success subsctract from the wallet
-                var updated_balance = wallet_balance - tokens_int;
-                let updatd_object = {
-                  last_udapted: new Date(),
-                  wallet_balance_in_mstats: updated_balance * 1000,
+            //console.log(result)
+            var wallet_balance =
+              birkeland_wallet_info["wallet_balance_in_mstats"] / 1000;
+            console.log(`${tokens_int} < ${wallet_balance}`);
+            if (tokens_int < wallet_balance) {
+              var withdraw_amount_in_usd = await satoshisToFiat(
+                tokens_int,
+                "USD"
+              );
+              console.log(withdraw_amount_in_usd);
+              if (withdraw_amount_in_usd > 2.2) {
+                //1. make request to lnd
+                let on_chain_withdraw_params = {
+                  operation: "send_to_chain_address",
+                  tokens: tokens_int,
+                  address: address,
                 };
+                let on_chain_withdraw_repsonse =
+                  await test_birkeland_lnd.PerformAuthenticatedOperation(
+                    on_chain_withdraw_params
+                  );
+                if (on_chain_withdraw_repsonse["success"]) {
+                  //2. if the request is success subsctract from the wallet
+                  var updated_balance = wallet_balance - tokens_int;
+                  let updatd_object = {
+                    last_udapted: new Date(),
+                    wallet_balance_in_mstats: updated_balance * 1000,
+                  };
 
-                await birkeland_wallet_item.findOneAndUpdate(
-                  filter,
-                  updatd_object
-                );
-                console.log(on_chain_withdraw_repsonse["message"]);
-                var withdraw_transaction_object = {
-                  transaction_id: on_chain_withdraw_repsonse["message"]["id"],
-                  memo: `Withdraw to chain address ${address}`,
-                  payment_request_hash: uuidv4(),
-                  wallet_id: wallet_id,
-                  user_id: user_id,
-                  amount_in_msats: tokens_int * 1000,
-                  public_key: global.node_public_key,
-                  date_created: new Date(),
-                  intent: BIRKELAND_WALLET_TRANSACTION_INTENT.WITHDRAW,
-                  date_updated: new Date(),
-                  payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
-                };
+                  await birkeland_wallet_item.findOneAndUpdate(
+                    filter,
+                    updatd_object
+                  );
+                  console.log(on_chain_withdraw_repsonse["message"]);
+                  var withdraw_transaction_object = {
+                    transaction_id: on_chain_withdraw_repsonse["message"]["id"],
+                    memo: `Withdraw to chain address ${address}`,
+                    payment_request_hash: uuidv4(),
+                    wallet_id: wallet_id,
+                    user_id: user_id,
+                    amount_in_msats: tokens_int * 1000,
+                    public_key: global.node_public_key,
+                    date_created: new Date(),
+                    intent: BIRKELAND_WALLET_TRANSACTION_INTENT.WITHDRAW,
+                    date_updated: new Date(),
+                    payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
+                  };
 
-                await birkeland_wallet_transaction_item.create(
-                  withdraw_transaction_object
-                );
-                return res
-                  .status(200)
-                  .send({ success: true, message: on_chain_withdraw_repsonse });
+                  await birkeland_wallet_transaction_item.create(
+                    withdraw_transaction_object
+                  );
+                  return res.status(200).send({
+                    success: true,
+                    message: on_chain_withdraw_repsonse,
+                  });
+                } else {
+                  return res.status(500).send({
+                    success: false,
+                    message: on_chain_withdraw_repsonse["message"],
+                  });
+                }
               } else {
                 return res.status(500).send({
                   success: false,
-                  message: on_chain_withdraw_repsonse["message"],
+                  message: "Minimum Sats to withdraw is 3$ or more",
                 });
               }
             } else {
-              return res.status(500).send({
-                success: false,
-                message: "Minimum Sats to withdraw is 3$ or more",
-              });
+              return res
+                .status(500)
+                .send({ success: false, message: "Insufficient balance" });
             }
-          } else {
-            return res
-              .status(500)
-              .send({ success: false, message: "Insufficient balance" });
+          }
+        } else {
+          return res
+            .status(500)
+            .send({ success: false, message: "Node may not be running" });
+        }
+      }
+    } else {
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ success: false, message: err });
+  }
+};
+
+exports.update_on_chain_tx = async (req, res) => {
+  try {
+    var { user_id, wallet_id } = req.query;
+    if (!user_id || !wallet_id) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
+    }
+    var public_key_resp = await get_node_public_key(res);
+    if (!public_key_resp?.success || !public_key_resp?.public_key) {
+      return res
+        .status(500)
+        .send({ success: false, message: "Node may not be running" });
+    }
+    global.node_public_key = public_key_resp?.public_key;
+    var wallet_filter = {
+      wallet_id: wallet_id,
+      user_id: user_id,
+      main_wallet_public_key: global.node_public_key,
+    };
+
+    var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
+    if (!user_wallet_info) {
+      return res.status(400).send({ success: false, message: "Wrong params" });
+    }
+    var on_chain_address = user_wallet_info?.on_chain_address;
+    let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({
+      operation: LND_GRPC_OPERATION.GET_U_TXOS,
+      min_confirmations: 3,
+    });
+ 
+    if (!utxos?.success) {
+      return res
+        .status(500)
+        .send({ success: false, message: "Error getting utxos" });
+    }
+    let all_utxos = utxos?.message?.utxos;
+    if (!all_utxos || all_utxos?.length == 0) {
+      return res
+        .status(500)
+        .send({ success: false, message: "No UTXOs found" });
+    }
+    let matching_utxos = get_wallet_update_tx(on_chain_address, all_utxos);
+
+    if(matching_utxos?.length == 0){
+      return res
+        .status(500)
+        .send({ success: false, message: "No matching UTXOs found" });
+    }
+    for(var i=0; i<matching_utxos?.length ; i++){
+        var check_tx_exist_filter = {
+          transaction_id : matching_utxos[i]?.transaction_id
+        }
+     
+        var result = await topup_birkeland_wallet_item.find(check_tx_exist_filter);
+        if(result?.length == 0){
+          let wallet_update_tx_object = {
+            chain_address : matching_utxos[i]?.address,
+            public_key :global.node_public_key ,
+            wallet_id : wallet_id,
+            transaction_id : matching_utxos[i]?.transaction_id,
+            date_created : new Date(),
+            last_udapted : new Date(),
+            tokens : matching_utxos[i]?.tokens,
+            transaction_confirmed:  true,
+            confirmation_count : matching_utxos[i]?.confirmation_count,
+            utxo_object : matching_utxos[i],
+            user_id : user_id
+
+          }
+          await topup_birkeland_wallet_item.create(wallet_update_tx_object);
+
+          if(matching_utxos[i]?.tokens > 0){
+
+            let wallet_balance = await birkeland_wallet_item.findOne(
+              wallet_filter
+            );
+            let total_wallet_balance_msats =
+              wallet_balance["wallet_balance_in_mstats"] +
+              matching_utxos[i]?.tokens * 1000;
+           
+              let wallet_update_item = {
+              wallet_balance_in_mstats: total_wallet_balance_msats,
+              last_udapted: new Date(),
+            };
+
+            await birkeland_wallet_item.findOneAndUpdate(
+              wallet_filter,
+              wallet_update_item
+            );
+
           }
         }
-      } else {
-        return res
-          .status(500)
-          .send({ success: false, message: "Node may not be running" });
-      }
     }
-  }else{
+
     return res
-    .status(400)
-    .send({ success: false, message: "Insufficient params" });
-  
-  }} catch (err) {
+    .status(200)
+    .send({ success: true, message: "transaction verifcation run" });
+   
+  } catch (err) {
     console.log(err);
     return res.status(500).send({ success: false, message: err });
   }

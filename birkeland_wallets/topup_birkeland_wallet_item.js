@@ -18,8 +18,8 @@ const topup_birkeland_wallet_schema = new mongoose.Schema({
   },
   transaction_id: {
     type: String,
-    required: false,
-    unique: false,
+    required: true,
+    unique: true,
   },
   date_created: {
     type: Date,
