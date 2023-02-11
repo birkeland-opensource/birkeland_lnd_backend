@@ -2,7 +2,7 @@ const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 
 const { v4: uuidv4 } = require("uuid");
 const { get_node_public_key } = require("../support_functions/utils");
-
+const test_birkeland_lnd = require('test_birkeland_lnd')
 
 exports.create_a_wallet = async (req, res) => {
   try {
@@ -11,8 +11,11 @@ exports.create_a_wallet = async (req, res) => {
     let { wallet_name } = req.body;
     var public_key_resp = await get_node_public_key(res);
     if (public_key_resp?.success) {
+      let public_address = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "create_chain_address"});
       global.node_public_key = public_key_resp?.public_key;
+      console.log(public_address?.message?.address);
       var object = {
+        on_chain_address : public_address?.message?.address,
         main_wallet_public_key: global.node_public_key,
         wallet_name: wallet_name,
         user_id: user_id,
