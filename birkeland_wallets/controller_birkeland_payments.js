@@ -812,6 +812,7 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
      console.log(sender_wallet_balance)
 
      var receiver_wallet_info = await birkeland_wallet_item.findOne(receiver_wallet_filter);
+     console.log(receiver_wallet_info)
      var updated_receiver_wallet_balance = receiver_wallet_info["wallet_balance_in_mstats"] + (amount_in_sats *1000)
      var receiver_wallet_balance = {
       wallet_balance_in_mstats : updated_receiver_wallet_balance
