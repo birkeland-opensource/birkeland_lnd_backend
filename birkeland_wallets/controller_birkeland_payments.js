@@ -610,7 +610,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
   }
 };
 
-exports.update_on_chain_tx = async (req, res) => {
+exports.get_on_chain_tx = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     if (!user_id || !wallet_id) {
