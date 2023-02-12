@@ -792,6 +792,32 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
     await birkeland_payment_transaction_item.create(
       birkeland_payment_transaction_item_object_send
     );
+
+    var receiver_wallet_filter = {
+      user_id: user_id,
+      public_key: global.node_public_key ,
+      wallet_id: birkeland_wallet_address,
+    }
+
+    var sender_wallet_filter = {
+      user_id: user_id,
+      public_key: global.node_public_key ,
+      wallet_id: wallet_id,
+    }
+     var updated_sender_wallet_balance = user_wallet_info["wallet_balance_in_mstats"] - (amount_in_sats *1000)
+
+     var sender_wallet_balance = {
+      wallet_balance_in_mstats : updated_sender_wallet_balance
+     }
+     console.log(sender_wallet_balance)
+
+     var receiver_wallet_info = await birkeland_wallet_item.findOne(receiver_wallet_filter);
+     var updated_receiver_wallet_balance = receiver_wallet_info["wallet_balance_in_mstats"] + (amount_in_sats *1000)
+     var receiver_wallet_balance = {
+      wallet_balance_in_mstats : updated_receiver_wallet_balance
+     }
+     console.log(receiver_wallet_balance)
+
     return res
     .status(200)
     .send({ success: true, message: "Payment Success" });
