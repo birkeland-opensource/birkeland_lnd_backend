@@ -832,6 +832,8 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
      }
      console.log(receiver_wallet_balance)
 
+     console.log("make_birkeland_wallet_payment end ")
+
     return res
     .status(200)
     .send({ success: true, message: "Payment Success" });
