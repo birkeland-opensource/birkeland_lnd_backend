@@ -50,6 +50,8 @@ apirouter.get("/update_on_chain_tx",auth_birkeland_wallet_access,controller_birk
 
 apirouter.post("/check_endpoint_is_authenticated",auth_birkeland_wallet_access, birkeland_wallet_controller.check_endpoint_is_authenticated);
 
+apirouter.post("/make_birkeland_wallet_payment",auth_birkeland_wallet_access, controller_birkeland_payments.make_birkeland_wallet_payment);
+
 
 
 

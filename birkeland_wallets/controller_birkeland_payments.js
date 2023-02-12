@@ -714,3 +714,66 @@ exports.update_on_chain_tx = async (req, res) => {
     return res.status(500).send({ success: false, message: err });
   }
 };
+
+exports.make_birkeland_wallet_payment = async(req,res) =>{
+  var { user_id, wallet_id } = req.query;
+  var {amount_in_sats, birkeland_wallet_address} = req.body;
+  if (!user_id || !wallet_id) {
+    return res
+      .status(400)
+      .send({ success: false, message: "Insufficient params" });
+  }
+
+  if(amount_in_sats <=0 || birkeland_wallet_address?.length == 0){
+    return res
+      .status(400)
+      .send({ success: false, message: "Insufficient params" });
+  }
+
+  var public_key_resp = await get_node_public_key(res);
+  if (!public_key_resp?.success || !public_key_resp?.public_key) {
+    return res
+      .status(500)
+      .send({ success: false, message: "Node may not be running" });
+  }
+  global.node_public_key = public_key_resp?.public_key;
+
+  var wallet_filter = {
+    wallet_id: wallet_id,
+    user_id: user_id,
+    main_wallet_public_key: global.node_public_key,
+  };
+
+  var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
+    if (!user_wallet_info) {
+      return res.status(400).send({ success: false, message: "Wrong params" });
+    }
+    var wallet_balance_in_sats = user_wallet_info?.wallet_balance_in_mstats / 1000
+    if (wallet_balance_in_sats < amount_in_sats) {
+      return res
+      .status(400)
+      .send({ success: false, message: "Insufficient balance" });
+    }
+
+    let birkeland_payment_transaction_item_object = {
+      payment_request_hash: uuidv4(),
+      transaction_id: uuidv4(),
+      memo: "Birkeland wallet transaction",
+      user_id: user_id,
+      amount_in_msats: amount_in_sats *1000,
+      public_key: global.node_public_key ,
+      wallet_id: wallet_id,
+      date_created: new Date(),
+      date_updated: new Date(),
+      payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
+      intent: BIRKELAND_WALLET_TRANSACTION_INTENT.SEND,
+    };
+
+    console.log(birkeland_payment_transaction_item_object);
+    return res
+    .status(200)
+    .send({ success: true, message: "Payment Success" });
+    
+  
+
+}
