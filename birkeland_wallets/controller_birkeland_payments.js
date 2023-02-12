@@ -717,7 +717,7 @@ exports.update_on_chain_tx = async (req, res) => {
 
 exports.make_birkeland_wallet_payment = async(req,res) =>{
   var { user_id, wallet_id } = req.query;
-  var {amount_in_sats, birkeland_wallet_address} = req.body;
+  var {amount_in_sats, birkeland_wallet_address,memo} = req.body;
   if (!user_id || !wallet_id) {
     return res
       .status(400)
@@ -758,7 +758,7 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
     let birkeland_payment_transaction_item_object_send = {
       payment_request_hash: uuidv4(),
       transaction_id: uuidv4(),
-      memo: "Birkeland wallet transaction",
+      memo: memo,
       user_id: user_id,
       amount_in_msats: amount_in_sats *1000,
       public_key: global.node_public_key ,
@@ -772,7 +772,7 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
     let birkeland_payment_transaction_item_object_receive = {
       payment_request_hash: uuidv4(),
       transaction_id: uuidv4(),
-      memo: "Birkeland wallet transaction",
+      memo: memo,
       user_id: user_id,
       amount_in_msats: amount_in_sats *1000,
       public_key: global.node_public_key ,
