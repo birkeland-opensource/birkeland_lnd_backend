@@ -785,13 +785,13 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
 
     console.log(birkeland_payment_transaction_item_object_send);
 
-    await birkeland_payment_transaction_item.create(
-      birkeland_payment_transaction_item_object_receive
-    );
+    // await birkeland_payment_transaction_item.create(
+    //   birkeland_payment_transaction_item_object_receive
+    // );
 
-    await birkeland_payment_transaction_item.create(
-      birkeland_payment_transaction_item_object_send
-    );
+    // await birkeland_payment_transaction_item.create(
+    //   birkeland_payment_transaction_item_object_send
+    // );
 
     var receiver_wallet_filter = {
       user_id: user_id,
