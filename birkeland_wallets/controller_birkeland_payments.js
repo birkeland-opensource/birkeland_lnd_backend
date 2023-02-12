@@ -755,7 +755,7 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
       .send({ success: false, message: "Insufficient balance" });
     }
 
-    let birkeland_payment_transaction_item_object = {
+    let birkeland_payment_transaction_item_object_send = {
       payment_request_hash: uuidv4(),
       transaction_id: uuidv4(),
       memo: "Birkeland wallet transaction",
@@ -769,7 +769,29 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
       intent: BIRKELAND_WALLET_TRANSACTION_INTENT.SEND,
     };
 
-    console.log(birkeland_payment_transaction_item_object);
+    let birkeland_payment_transaction_item_object_receive = {
+      payment_request_hash: uuidv4(),
+      transaction_id: uuidv4(),
+      memo: "Birkeland wallet transaction",
+      user_id: user_id,
+      amount_in_msats: amount_in_sats *1000,
+      public_key: global.node_public_key ,
+      wallet_id: birkeland_wallet_address,
+      date_created: new Date(),
+      date_updated: new Date(),
+      payment_satus: BIRKELAND_WALLET_TRANSACTION_STATUS.SUCCESS,
+      intent: BIRKELAND_WALLET_TRANSACTION_INTENT.RECEIVE,
+    };
+
+    console.log(birkeland_payment_transaction_item_object_send);
+
+    await birkeland_payment_transaction_item.create(
+      birkeland_payment_transaction_item_object_receive
+    );
+
+    await birkeland_payment_transaction_item.create(
+      birkeland_payment_transaction_item_object_send
+    );
     return res
     .status(200)
     .send({ success: true, message: "Payment Success" });
