@@ -783,8 +783,6 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
       intent: BIRKELAND_WALLET_TRANSACTION_INTENT.RECEIVE,
     };
 
-    console.log(birkeland_payment_transaction_item_object_send);
-
     var receiver_wallet_filter = {
       user_id: user_id,
       public_key: global.node_public_key ,
@@ -805,13 +803,13 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
       .status(400)
       .send({ success: false, message: "Wallet not found" });
     }
-    // await birkeland_payment_transaction_item.create(
-    //   birkeland_payment_transaction_item_object_receive
-    // );
+    await birkeland_payment_transaction_item.create(
+      birkeland_payment_transaction_item_object_receive
+    );
 
-    // await birkeland_payment_transaction_item.create(
-    //   birkeland_payment_transaction_item_object_send
-    // );
+    await birkeland_payment_transaction_item.create(
+      birkeland_payment_transaction_item_object_send
+    );
 
     
 
@@ -820,19 +818,13 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
      var sender_wallet_balance = {
       wallet_balance_in_mstats : updated_sender_wallet_balance
      }
-     console.log(sender_wallet_balance)
-
-     console.log(receiver_wallet_filter)
-     
-  
-     console.log(receiver_wallet_info)
      var updated_receiver_wallet_balance = receiver_wallet_info["wallet_balance_in_mstats"] + (amount_in_sats *1000)
      var receiver_wallet_balance = {
       wallet_balance_in_mstats : updated_receiver_wallet_balance
      }
-     console.log(receiver_wallet_balance)
 
-     console.log("make_birkeland_wallet_payment end ")
+     await birkeland_wallet_item.findOneAndUpdate(receiver_wallet_filter,receiver_wallet_balance);
+     await birkeland_wallet_item.findOneAndUpdate(sender_wallet_filter,sender_wallet_balance);
 
     return res
     .status(200)
