@@ -45,20 +45,14 @@ apirouter.post("/make_a_payment", auth_birkeland_wallet_access,controller_birkel
 //13
 apirouter.get("/decode_lightning_invoice", controller_birkeland_payments.decode_lightning_invoice);
 
-
 apirouter.get("/get_on_chain_tx",auth_birkeland_wallet_access,controller_birkeland_payments.get_on_chain_tx);
 
 apirouter.post("/check_endpoint_is_authenticated",auth_birkeland_wallet_access, birkeland_wallet_controller.check_endpoint_is_authenticated);
 
 apirouter.post("/make_birkeland_wallet_payment",auth_birkeland_wallet_access, controller_birkeland_payments.make_birkeland_wallet_payment);
 
-apirouter.post("/update_self_custodial_wallet_address",auth_birkeland_wallet_access, controller_birkeland_payments.update_self_custodial_wallet_address);
 
 apirouter.patch("/update_auto_loop_setting",auth_birkeland_wallet_access, controller_birkeland_payments.update_auto_loop_setting);
-
-
-
-
 
 
 
