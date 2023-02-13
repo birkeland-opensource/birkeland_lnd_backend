@@ -620,9 +620,7 @@ exports.get_on_chain_tx = async (req, res) => {
     }
     var public_key_resp = await get_node_public_key(res);
     if (!public_key_resp?.success || !public_key_resp?.public_key) {
-      return res
-        .status(500)
-        .send({ success: false, message: "Node may not be running" });
+      return;
     }
     global.node_public_key = public_key_resp?.public_key;
     var wallet_filter = {
@@ -730,9 +728,7 @@ exports.update_auto_loop_setting = async (req, res) => {
 
   var public_key_resp = await get_node_public_key(res);
   if (!public_key_resp?.success || !public_key_resp?.public_key) {
-    return res
-      .status(500)
-      .send({ success: false, message: "Node may not be running" });
+    return;
   }
   global.node_public_key = public_key_resp?.public_key;
 
@@ -780,9 +776,7 @@ exports.make_birkeland_wallet_payment = async (req, res) => {
 
     var public_key_resp = await get_node_public_key(res);
     if (!public_key_resp?.success || !public_key_resp?.public_key) {
-      return res
-        .status(500)
-        .send({ success: false, message: "Node may not be running" });
+      return;
     }
     global.node_public_key = public_key_resp?.public_key;
 
