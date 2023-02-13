@@ -757,6 +757,10 @@ exports.update_auto_loop_setting = async(req,res) =>{
       return res.status(400).send({ success: false, message: "Wrong params" });
     }
 
+    return res
+    .status(200)
+    .send({ success: true, message: "updated" });
+
   }catch(err){
     return res.status(500).send({ success: false, message: err });
   }
