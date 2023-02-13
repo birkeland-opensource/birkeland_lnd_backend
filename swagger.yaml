@@ -1,0 +1,100 @@
+swagger: "2.0"
+info:
+  description: "API for creating a wallet and retrieving wallets by user ID"
+  version: "1.0.0"
+  title: "Wallet API"
+host: birkelandnodeone.southeastasia.cloudapp.azure.com
+basePath: "/v1/wallets"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  "/wallet":
+    post:
+      summary: "Create a wallet"
+      operationId: "createWallet"
+      tags:
+        - "wallets"
+      parameters:
+        - name: "user_id"
+          in: "query"
+          description: "The ID of the user who the wallet belongs to"
+          required: true
+          type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                wallet_name:
+                  type: "string"
+                  description: "The name of the wallet to be created"
+      responses:
+        "200":
+          description: "The wallet was successfully created"
+          schema:
+            type: "object"
+            properties:
+              wallet_id:
+                type: "string"
+                description: "The ID of the created wallet"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+      security:
+        - x-access-token: []
+
+  "/wallets_by_user_id":
+    get:
+      summary: "Retrieve wallets by user ID"
+      operationId: "getWalletsByUserId"
+      tags:
+        - "wallets"
+      parameters:
+        - name: "user_id"
+          in: "query"
+          description: "The ID of the user to retrieve wallets for"
+          required: true
+          type: "string"
+        - name: "wallet_id"
+          in: "query"
+          description: "The ID of the user's walled to retrieve for"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "The list of wallets belonging to the user"
+          schema:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                wallet_id:
+                  type: "string"
+                  description: "The ID of the wallet"
+                wallet_name:
+                  type: "string"
+                  description: "The name of the wallet"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+    security:
+      - access-token: []
+      
+securityDefinitions:
+  access-token:
+    type: "apiKey"
+    name: "access-token"
+    in: "header"
+  x-access-token:
+    type: "apiKey"
+    name: "x-access-token"
+    in: "header"
+
