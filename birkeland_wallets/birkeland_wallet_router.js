@@ -52,6 +52,14 @@ apirouter.post("/check_endpoint_is_authenticated",auth_birkeland_wallet_access, 
 
 apirouter.post("/make_birkeland_wallet_payment",auth_birkeland_wallet_access, controller_birkeland_payments.make_birkeland_wallet_payment);
 
+apirouter.post("/update_self_custodial_wallet_address",auth_birkeland_wallet_access, controller_birkeland_payments.update_self_custodial_wallet_address);
+
+apirouter.patch("/update_auto_loop_setting",auth_birkeland_wallet_access, controller_birkeland_payments.update_auto_loop_setting);
+
+
+
+
+
 
 
 

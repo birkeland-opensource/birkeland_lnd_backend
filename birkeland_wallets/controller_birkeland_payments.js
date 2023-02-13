@@ -715,7 +715,55 @@ exports.get_on_chain_tx = async (req, res) => {
   }
 };
 
+
+exports.update_auto_loop_setting = async(req,res) =>{
+  try{
+    var { user_id, wallet_id } = req.query;
+    var {self_custodial_wallet_address,auto_transact_min_sats} = req.body;
+    if (!user_id || !wallet_id) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
+    }
+
+    if(!self_custodial_wallet_address){
+      return res
+        .status(400)
+        .send({ success: false, message: "Insufficient params" });
+    }
+
+    var public_key_resp = await get_node_public_key(res);
+    if (!public_key_resp?.success || !public_key_resp?.public_key) {
+      return res
+      .status(500)
+      .send({ success: false, message: "Node may not be running" });
+    }
+    global.node_public_key = public_key_resp?.public_key;
+
+    var wallet_filter = {
+      wallet_id: wallet_id,
+      user_id: user_id,
+      main_wallet_public_key: global.node_public_key,
+    };
+
+    var update_object = {
+      self_custodial_wallet_address : self_custodial_wallet_address,
+      auto_transact_min_sats : auto_transact_min_sats
+    }
+
+    var user_wallet_info = await birkeland_wallet_item.findOneAndUpdate(wallet_filter,update_object);
+    console.log(user_wallet_info)
+    if (!user_wallet_info) {
+      return res.status(400).send({ success: false, message: "Wrong params" });
+    }
+
+  }catch(err){
+    return res.status(500).send({ success: false, message: err });
+  }
+}
+
 exports.make_birkeland_wallet_payment = async(req,res) =>{
+  try{
   var { user_id, wallet_id } = req.query;
   var {amount_in_sats, birkeland_wallet_address,memo} = req.body;
   if (!user_id || !wallet_id) {
@@ -830,6 +878,9 @@ exports.make_birkeland_wallet_payment = async(req,res) =>{
     .status(200)
     .send({ success: true, message: "Payment Success" });
     
-  
+    }
+    catch(err){
+      return res.status(500).send({ success: false, message: err });
+    }
 
 }

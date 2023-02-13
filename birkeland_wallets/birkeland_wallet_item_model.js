@@ -51,6 +51,16 @@ const birkeland_wallet_schema = new mongoose.Schema({
     required: true,
     unique: false,
   },
+  self_custodial_wallet_address : {
+    type: String,
+    required: false,
+    unique: false,
+  },
+  auto_transact_min_sats : {
+    type: Number,
+    required: false,
+    unique: false,
+  }
 });
 
 const birkeland_wallet_item = mongoose.model(
