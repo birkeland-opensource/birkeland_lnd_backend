@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const loop_back_transaction_schema = new mongoose.Schema({
   
-  publick_key: {
+  public_key: {
     type: String,
     required: true,
     unique: false,
