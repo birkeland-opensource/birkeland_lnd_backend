@@ -17,6 +17,7 @@ const {
 } = require("../support_functions/polling_service");
 const { get_node_public_key } = require("../support_functions/utils");
 const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
+const loop_back_transaction_item = require("./loop_back_transaction_item_model ");
 
 const withdraw_from_wallet = async (req, res) => {
   try {
@@ -761,27 +762,28 @@ const update_auto_loop_setting = async (req, res) => {
 
 
 const make_loop_payment = async (user_info) =>{
+  var resp_object = {
+    success: false,
+    message : ""
+  }
   try{
 
-    var resp_object = {
-      success: false,
-      message : ""
-    }
     let {user_id,wallet_id} = user_info;
     
-    var wallet_filter = {
-      user_id : user_id,
-      wallet_id : wallet_id
-    };
-
-
     var public_key_resp = await get_node_public_key({});
     if (!public_key_resp?.success || !public_key_resp?.public_key) {
       resp_object["message"] = "Error running node";
       return resp_object;
 
     }
+
     global.node_public_key = public_key_resp?.public_key;
+
+    var wallet_filter = {
+      user_id : user_id,
+      wallet_id : wallet_id,
+      main_wallet_public_key : global.node_public_key
+    };
 
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
     console.log(user_wallet_info);
@@ -825,6 +827,12 @@ const make_loop_payment = async (user_info) =>{
 
     console.log(on_chain_withdraw_repsonse);
 
+    var birkeland_wallet_update_object = {
+      wallet_balance_in_mstats : 0
+    }
+
+    var user_wallet_info = await birkeland_wallet_item.findOneAndUpdate(wallet_filter,birkeland_wallet_update_object);
+
     var loopback_transaction_item = {
       "public_key" : global.node_public_key,
       "user_id" : user_id,
@@ -837,6 +845,7 @@ const make_loop_payment = async (user_info) =>{
       "transaction_id" : on_chain_withdraw_repsonse?.message?.id,
       "transaction_fee_in_sats" : 0
     }
+    await loop_back_transaction_item.create(loopback_transaction_item);
 
     console.log(loopback_transaction_item);
 
@@ -845,6 +854,7 @@ const make_loop_payment = async (user_info) =>{
 
   }
   catch(err){
+    resp_object["message"] = err;
     console.log(err)
   }
 }
