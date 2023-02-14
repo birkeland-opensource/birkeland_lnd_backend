@@ -28,6 +28,7 @@ app.use('/btc',btc_core_router);
 
 
 var birkeland_wallet_router = require("./birkeland_wallets/birkeland_wallet_router");
+const { make_loop_payment } = require('./birkeland_wallets/controller_birkeland_payments');
 
 app.use('/v1/wallets',birkeland_wallet_router);
 
@@ -51,12 +52,22 @@ app.get("/",(req,res)=>{
 var spec = fs.readFileSync('./swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
+make_loop_payment({ user_id: 'b5ff4527-872f-4692-8a9a-759758048413', wallet_id: '97326e5a-575f-47c5-91f6-326e9d7f50c8' })
+.then(result => {
+  console.log(result)
+  // handle result here
+})
+.catch(error => {
+  console.log(error)
+  // handle error here
+});
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
   
 
-  app.listen(port, () => 
-{
-    console.log('Running on port ' + port);
-});
+//   app.listen(port, () => 
+// {
+//     console.log('Running on port ' + port);
+// });
 
 module.exports = app;

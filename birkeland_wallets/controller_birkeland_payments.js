@@ -18,7 +18,7 @@ const {
 const { get_node_public_key } = require("../support_functions/utils");
 const birkeland_wallet_transaction_item = require("./birkeland_payment_transaction_item");
 
-exports.withdraw_from_wallet = async (req, res) => {
+const withdraw_from_wallet = async (req, res) => {
   try {
     let { wallet_id, user_id } = req.query;
     var public_key_resp = await get_node_public_key(res);
@@ -41,7 +41,7 @@ exports.withdraw_from_wallet = async (req, res) => {
   } catch (err) {}
 };
 
-exports.topup_wallet = async (req, res) => {
+const topup_wallet = async (req, res) => {
   try {
     let { wallet_id, user_id } = req.query;
     // 1. Create on chain address
@@ -94,7 +94,7 @@ exports.topup_wallet = async (req, res) => {
   }
 };
 
-exports.get_wallet_topup_tx = async (req, res) => {
+const get_wallet_topup_tx = async (req, res) => {
   try {
     let { wallet_id, user_id } = req.query;
     var public_key_resp = await get_node_public_key(res);
@@ -120,7 +120,7 @@ exports.get_wallet_topup_tx = async (req, res) => {
   }
 };
 
-exports.get_wallet_topup_tx_status = async (req, res) => {
+const get_wallet_topup_tx_status = async (req, res) => {
   try {
     var { wallet_id, user_id } = req.query;
     var public_key_resp = await get_node_public_key(res);
@@ -215,7 +215,7 @@ exports.get_wallet_topup_tx_status = async (req, res) => {
   }
 };
 
-exports.transactions = async (req, res) => {
+const transactions = async (req, res) => {
   try {
     // Query the database with from_wallet_id to get alltransactions
     try {
@@ -250,7 +250,7 @@ exports.transactions = async (req, res) => {
   } catch (err) {}
 };
 
-exports.all_transactions = async (req, res) => {
+const all_transactions = async (req, res) => {
   // Query the database with from_wallet_id to get alltransactions
   try {
     let { user_id } = req.query;
@@ -277,7 +277,8 @@ exports.all_transactions = async (req, res) => {
     return res.status(400).send({ success: false });
   }
 };
-exports.create_invoice = async (req, res) => {
+
+const create_invoice = async (req, res) => {
   try {
     var { wallet_id, user_id } = req.query;
     var { memo, sats } = req.body;
@@ -355,7 +356,7 @@ exports.create_invoice = async (req, res) => {
   }
 };
 
-exports.make_a_payment = async (req, res) => {
+const make_a_payment = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { request_hash } = req.body;
@@ -475,7 +476,7 @@ exports.make_a_payment = async (req, res) => {
   }
 };
 
-exports.decode_lightning_invoice = async (req, res) => {
+const decode_lightning_invoice = async (req, res) => {
   try {
     let { payment_hash } = req.query;
     if (payment_hash) {
@@ -501,7 +502,7 @@ exports.decode_lightning_invoice = async (req, res) => {
   }
 };
 
-exports.withdraw_to_onchain_address = async (req, res) => {
+const withdraw_to_onchain_address = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { tokens, address } = req.body;
@@ -610,7 +611,7 @@ exports.withdraw_to_onchain_address = async (req, res) => {
   }
 };
 
-exports.get_on_chain_tx = async (req, res) => {
+const get_on_chain_tx = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     if (!user_id || !wallet_id) {
@@ -711,7 +712,7 @@ exports.get_on_chain_tx = async (req, res) => {
   }
 };
 
-exports.update_auto_loop_setting = async (req, res) => {
+const update_auto_loop_setting = async (req, res) => {
   var { user_id, wallet_id } = req.query;
   var { self_custodial_wallet_address, auto_transact_min_sats } = req.body;
   if (!user_id || !wallet_id) {
@@ -758,7 +759,79 @@ exports.update_auto_loop_setting = async (req, res) => {
   }
 };
 
-exports.make_birkeland_wallet_payment = async (req, res) => {
+
+const make_loop_payment = async (user_info) =>{
+  try{
+    let {user_id,wallet_id} = user_info;
+    
+    var wallet_filter = {
+      user_id : user_id,
+      wallet_id : wallet_id
+    };
+
+    var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
+    console.log(user_wallet_info);
+    if(!user_wallet_info?.auto_transact_min_sats){
+      return;
+    }
+    console.log(`${(user_wallet_info?.auto_transact_min_sats *1000)} <= ${user_wallet_info?.wallet_balance_in_mstats}`)
+    if((user_wallet_info?.auto_transact_min_sats *1000) > user_wallet_info?.wallet_balance_in_mstats){
+      console.log("insufficient balance")
+        return;
+    }
+
+    var on_chain_transfer_object = {
+      self_custodial_wallet_address : user_wallet_info?.self_custodial_wallet_address,
+      tokens : (user_wallet_info?.wallet_balance_in_mstats / 1000)
+    }
+    console.log(on_chain_transfer_object)
+    if(!on_chain_transfer_object?.self_custodial_wallet_address || !on_chain_transfer_object?.tokens){
+      console.log("insufficient params")
+      return;
+    }
+    
+    let on_chain_withdraw_params = {
+      operation: "send_to_chain_address",
+      tokens: on_chain_transfer_object?.tokens,
+      address: on_chain_transfer_object?.self_custodial_wallet_address,
+    };
+    let on_chain_withdraw_repsonse =
+      await test_birkeland_lnd.PerformAuthenticatedOperation(
+        on_chain_withdraw_params
+      );
+    
+    if(!on_chain_withdraw_repsonse["success"]){
+      console.log("error trasnferring")
+      return;
+    }
+
+    console.log(on_chain_withdraw_repsonse);
+    
+    var loopback_transaction_item = {
+      "public_key" : public_key,
+      "user_id" : user_id,
+      "wallet_id" : wallet_id,
+      "auto_transact_min_sats" :user_wallet_info?.auto_transact_min_sats,
+      "transferred_sats" : on_chain_transfer_object?.tokens,
+      "date_created" : new Date(),
+      "last_udapted" : new Date(),
+      "transaction_satus" : "",
+      "transaction_id" : on_chain_withdraw_repsonse?.message?.transaction_id,
+      "transaction_fee_in_sats" : 0
+    }
+
+    console.log(loopback_transaction_item);
+
+
+
+  }
+  catch(err){
+    console.log(err)
+  }
+}
+
+
+const make_birkeland_wallet_payment = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
     var { amount_in_sats, birkeland_wallet_address, memo } = req.body;
@@ -881,4 +954,21 @@ exports.make_birkeland_wallet_payment = async (req, res) => {
   } catch (err) {
     return res.status(500).send({ success: false, message: err });
   }
+};
+
+module.exports = {
+  make_birkeland_wallet_payment,
+  update_auto_loop_setting,
+  get_on_chain_tx,
+  withdraw_to_onchain_address,
+  decode_lightning_invoice,
+  make_a_payment,
+  create_invoice,
+  all_transactions,
+  withdraw_from_wallet,
+  topup_wallet,
+  get_wallet_topup_tx,
+  get_wallet_topup_tx_status,
+  transactions,
+  make_loop_payment
 };
