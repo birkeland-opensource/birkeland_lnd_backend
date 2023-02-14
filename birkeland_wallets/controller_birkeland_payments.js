@@ -438,7 +438,7 @@ const make_a_payment = async (req, res) => {
                     last_udapted: new Date(),
                   }
                 );
-
+                await make_loop_payment(wallet_filter);
                 return res
                   .status(200)
                   .send({ success: true, message: "Payment Success" });
@@ -768,21 +768,12 @@ const make_loop_payment = async (user_info) =>{
   }
   try{
 
-    let {user_id,wallet_id} = user_info;
+    let {user_id,wallet_id,main_wallet_public_key} = user_info;
     
-    var public_key_resp = await get_node_public_key({});
-    if (!public_key_resp?.success || !public_key_resp?.public_key) {
-      resp_object["message"] = "Error running node";
-      return resp_object;
-
-    }
-
-    global.node_public_key = public_key_resp?.public_key;
-
     var wallet_filter = {
       user_id : user_id,
       wallet_id : wallet_id,
-      main_wallet_public_key : global.node_public_key
+      main_wallet_public_key : main_wallet_public_key
     };
 
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
@@ -834,7 +825,7 @@ const make_loop_payment = async (user_info) =>{
     var user_wallet_info = await birkeland_wallet_item.findOneAndUpdate(wallet_filter,birkeland_wallet_update_object);
 
     var loopback_transaction_item = {
-      "public_key" : global.node_public_key,
+      "public_key" : main_wallet_public_key,
       "user_id" : user_id,
       "wallet_id" : wallet_id,
       "auto_transact_min_sats" :user_wallet_info?.auto_transact_min_sats,
@@ -978,6 +969,14 @@ const make_birkeland_wallet_payment = async (req, res) => {
       sender_wallet_filter,
       sender_wallet_balance
     );
+
+    var auto_loop_params = {
+      user_id: user_id,
+      wallet_id: birkeland_wallet_address,
+      main_wallet_public_key : global.node_public_key,
+    }
+
+    await make_loop_payment(auto_loop_params)
 
     return res.status(200).send({ success: true, message: "Payment Success" });
   } catch (err) {
