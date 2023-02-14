@@ -799,14 +799,14 @@ const make_loop_payment = async (user_info) =>{
       await test_birkeland_lnd.PerformAuthenticatedOperation(
         on_chain_withdraw_params
       );
-    
+    console.log(on_chain_withdraw_repsonse)
     if(!on_chain_withdraw_repsonse["success"]){
       console.log("error trasnferring")
       return;
     }
 
     console.log(on_chain_withdraw_repsonse);
-    
+
     var loopback_transaction_item = {
       "public_key" : public_key,
       "user_id" : user_id,
