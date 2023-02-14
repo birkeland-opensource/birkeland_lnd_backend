@@ -762,6 +762,11 @@ const update_auto_loop_setting = async (req, res) => {
 
 const make_loop_payment = async (user_info) =>{
   try{
+
+    var resp_object = {
+      success: false,
+      message : ""
+    }
     let {user_id,wallet_id} = user_info;
     
     var wallet_filter = {
@@ -772,19 +777,23 @@ const make_loop_payment = async (user_info) =>{
 
     var public_key_resp = await get_node_public_key({});
     if (!public_key_resp?.success || !public_key_resp?.public_key) {
-      return;
+      resp_object["message"] = "Error running node";
+      return resp_object;
+
     }
     global.node_public_key = public_key_resp?.public_key;
 
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
     console.log(user_wallet_info);
     if(!user_wallet_info?.auto_transact_min_sats){
-      return;
+      resp_object["message"] = "Auto transact not set";
+      return resp_object;
     }
     console.log(`${(user_wallet_info?.auto_transact_min_sats *1000)} <= ${user_wallet_info?.wallet_balance_in_mstats}`)
     if((user_wallet_info?.auto_transact_min_sats *1000) > user_wallet_info?.wallet_balance_in_mstats){
       console.log("insufficient balance")
-        return;
+      resp_object["message"] = "Insufficient balance";
+        return resp_object;
     }
 
     var on_chain_transfer_object = {
@@ -793,8 +802,9 @@ const make_loop_payment = async (user_info) =>{
     }
     console.log(on_chain_transfer_object)
     if(!on_chain_transfer_object?.self_custodial_wallet_address || !on_chain_transfer_object?.tokens){
+      resp_object["message"] = "Insufficient balance";
       console.log("insufficient params")
-      return;
+      return resp_object;
     }
     
     let on_chain_withdraw_params = {
@@ -808,8 +818,9 @@ const make_loop_payment = async (user_info) =>{
       );
     console.log(on_chain_withdraw_repsonse)
     if(!on_chain_withdraw_repsonse["success"]){
+      resp_object["message"] = "Error trasnferring";
       console.log("error trasnferring")
-      return;
+      return resp_object;
     }
 
     console.log(on_chain_withdraw_repsonse);
@@ -822,14 +833,15 @@ const make_loop_payment = async (user_info) =>{
       "transferred_sats" : on_chain_transfer_object?.tokens,
       "date_created" : new Date(),
       "last_udapted" : new Date(),
-      "transaction_satus" : "",
-      "transaction_id" : on_chain_withdraw_repsonse?.message?.transaction_id,
+      "transaction_satus" : "success",
+      "transaction_id" : on_chain_withdraw_repsonse?.message?.id,
       "transaction_fee_in_sats" : 0
     }
 
     console.log(loopback_transaction_item);
 
-
+    resp_object["success"] = true;
+    return resp_object;
 
   }
   catch(err){
