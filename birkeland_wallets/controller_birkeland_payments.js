@@ -769,6 +769,13 @@ const make_loop_payment = async (user_info) =>{
       wallet_id : wallet_id
     };
 
+
+    var public_key_resp = await get_node_public_key(res);
+    if (!public_key_resp?.success || !public_key_resp?.public_key) {
+      return;
+    }
+    global.node_public_key = public_key_resp?.public_key;
+
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
     console.log(user_wallet_info);
     if(!user_wallet_info?.auto_transact_min_sats){
@@ -808,7 +815,7 @@ const make_loop_payment = async (user_info) =>{
     console.log(on_chain_withdraw_repsonse);
 
     var loopback_transaction_item = {
-      "public_key" : public_key,
+      "public_key" : global.node_public_key,
       "user_id" : user_id,
       "wallet_id" : wallet_id,
       "auto_transact_min_sats" :user_wallet_info?.auto_transact_min_sats,
