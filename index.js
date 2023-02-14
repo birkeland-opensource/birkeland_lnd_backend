@@ -55,10 +55,12 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 make_loop_payment({ user_id: 'b5ff4527-872f-4692-8a9a-759758048413', wallet_id: '97326e5a-575f-47c5-91f6-326e9d7f50c8' })
 .then(result => {
   console.log(result)
+  return;
   // handle result here
 })
 .catch(error => {
   console.log(error)
+  return;
   // handle error here
 });
 
