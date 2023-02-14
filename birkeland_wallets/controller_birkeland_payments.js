@@ -770,7 +770,7 @@ const make_loop_payment = async (user_info) =>{
     };
 
 
-    var public_key_resp = await get_node_public_key(res);
+    var public_key_resp = await get_node_public_key({});
     if (!public_key_resp?.success || !public_key_resp?.public_key) {
       return;
     }
