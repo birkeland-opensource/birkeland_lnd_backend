@@ -438,7 +438,12 @@ const make_a_payment = async (req, res) => {
                     last_udapted: new Date(),
                   }
                 );
-                await make_loop_payment(wallet_filter);
+                let loop_filter = {
+                  user_id: transact_object[0]["user_id"],
+                  wallet_id: transact_object[0]["wallet_id"],
+                  main_wallet_public_key : node_public_key
+                }
+                await make_loop_payment(loop_filter);
                 return res
                   .status(200)
                   .send({ success: true, message: "Payment Success" });
