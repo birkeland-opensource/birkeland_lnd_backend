@@ -65,9 +65,9 @@ make_loop_payment({ user_id: 'b5ff4527-872f-4692-8a9a-759758048413', wallet_id: 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
   
 
-//   app.listen(port, () => 
-// {
-//     console.log('Running on port ' + port);
-// });
+  app.listen(port, () => 
+{
+    console.log('Running on port ' + port);
+});
 
 module.exports = app;
