@@ -52,7 +52,7 @@ app.get("/",(req,res)=>{
 var spec = fs.readFileSync('./swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
-make_loop_payment({ user_id: "b5ff4527-872f-4692-8a9a-759758048413", wallet_id: "2927857f-b729-438c-8389-65866bbf2782" })
+make_loop_payment({ user_id: "b5ff4527-872f-4692-8a9a-759758048413", wallet_id: "7713798e-2ff8-44db-90d0-a67265c2b5c9" })
 .then(result => {
   console.log(result)
   return;
