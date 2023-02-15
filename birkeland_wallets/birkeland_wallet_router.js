@@ -55,6 +55,7 @@ apirouter.post("/make_birkeland_wallet_payment",auth_birkeland_wallet_access, co
 apirouter.patch("/update_auto_loop_setting",auth_birkeland_wallet_access, controller_birkeland_payments.update_auto_loop_setting);
 
 
+apirouter.get("/get_loop_back_transaction",auth_birkeland_wallet_access, controller_birkeland_payments.get_loop_back_transaction);
 
 
 module.exports = apirouter;

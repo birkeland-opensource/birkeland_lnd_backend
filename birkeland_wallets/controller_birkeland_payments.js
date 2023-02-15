@@ -856,6 +856,26 @@ const make_loop_payment = async (user_info) =>{
 }
 
 
+const get_loop_back_transaction = async(req,res) => {
+  try{
+    var { user_id, wallet_id } = req.query;
+    if(!user_id || !wallet_id || typeof user_id !== "string" || typeof wallet_id !== "string"){
+      return res
+      .status(400)
+      .send({ success: false, message: "Insufficient params" }); 
+    }
+    var loop_back_filter = { user_id : user_id,wallet_id :wallet_id};
+    let loop_back_tx = await loop_back_transaction_item.find(loop_back_filter);
+    return res
+      .status(200)
+      .send({ success: true, message: loop_back_tx }); 
+  }
+  catch(err){
+    return res.status(500).send({ success: false, message: err });
+  }
+}
+
+
 const make_birkeland_wallet_payment = async (req, res) => {
   try {
     var { user_id, wallet_id } = req.query;
@@ -990,6 +1010,7 @@ const make_birkeland_wallet_payment = async (req, res) => {
 };
 
 module.exports = {
+  get_loop_back_transaction,
   make_birkeland_wallet_payment,
   update_auto_loop_setting,
   get_on_chain_tx,
