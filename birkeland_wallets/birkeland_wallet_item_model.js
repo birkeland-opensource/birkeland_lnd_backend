@@ -60,6 +60,11 @@ const birkeland_wallet_schema = new mongoose.Schema({
     type: Number,
     required: false,
     unique: false,
+  },
+  do_loop_back_transfer : {
+    type : Boolean,
+    required: false,
+    unique : false
   }
 });
 

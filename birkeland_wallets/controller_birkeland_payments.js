@@ -443,7 +443,13 @@ const make_a_payment = async (req, res) => {
                   wallet_id: transact_object[0]["wallet_id"],
                   main_wallet_public_key : node_public_key
                 }
-                await make_loop_payment(loop_filter);
+
+                var receiver_wallet_info = await birkeland_wallet_item.findOne(loop_filter)
+
+                if(receiver_wallet_info?.do_loop_back_transfer){
+                  await make_loop_payment(loop_filter);
+                }
+      
                 return res
                   .status(200)
                   .send({ success: true, message: "Payment Success" });
@@ -720,14 +726,14 @@ const get_on_chain_tx = async (req, res) => {
 
 const update_auto_loop_setting = async (req, res) => {
   var { user_id, wallet_id } = req.query;
-  var { self_custodial_wallet_address, auto_transact_min_sats } = req.body;
+  var { self_custodial_wallet_address, auto_transact_min_sats,do_loop_back_transfer } = req.body;
   if (!user_id || !wallet_id) {
     return res
       .status(400)
       .send({ success: false, message: "Insufficient params" });
   }
 
-  if (!self_custodial_wallet_address) {
+  if (!self_custodial_wallet_address || !auto_transact_min_sats) {
     return res
       .status(400)
       .send({ success: false, message: "Insufficient params" });
@@ -748,6 +754,7 @@ const update_auto_loop_setting = async (req, res) => {
   var update_object = {
     self_custodial_wallet_address: self_custodial_wallet_address,
     auto_transact_min_sats: auto_transact_min_sats,
+    do_loop_back_transfer : do_loop_back_transfer
   };
 
   try {
@@ -1000,8 +1007,10 @@ const make_birkeland_wallet_payment = async (req, res) => {
       wallet_id: birkeland_wallet_address,
       main_wallet_public_key : global.node_public_key,
     }
-
-    await make_loop_payment(auto_loop_params)
+    if(receiver_wallet_info?.do_loop_back_transfer){
+      await make_loop_payment(auto_loop_params);
+    }
+    
 
     return res.status(200).send({ success: true, message: "Payment Success" });
   } catch (err) {
