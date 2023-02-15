@@ -727,13 +727,13 @@ const get_on_chain_tx = async (req, res) => {
 const update_auto_loop_setting = async (req, res) => {
   var { user_id, wallet_id } = req.query;
   var { self_custodial_wallet_address, auto_transact_min_sats,do_loop_back_transfer } = req.body;
-  if (!user_id || !wallet_id) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Insufficient params" });
-  }
 
-  if (!self_custodial_wallet_address || !auto_transact_min_sats) {
+  console.log({
+    self_custodial_wallet_address : self_custodial_wallet_address,
+    auto_transact_min_sats : auto_transact_min_sats,
+    do_loop_back_transfer : do_loop_back_transfer
+  })
+  if (!user_id || !wallet_id || !self_custodial_wallet_address || !auto_transact_min_sats) {
     return res
       .status(400)
       .send({ success: false, message: "Insufficient params" });
@@ -743,12 +743,10 @@ const update_auto_loop_setting = async (req, res) => {
   if (!public_key_resp?.success || !public_key_resp?.public_key) {
     return;
   }
-  global.node_public_key = public_key_resp?.public_key;
 
   var wallet_filter = {
     wallet_id: wallet_id,
     user_id: user_id,
-    main_wallet_public_key: global.node_public_key,
   };
 
   var update_object = {
