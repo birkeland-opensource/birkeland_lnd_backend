@@ -16,21 +16,21 @@ const available_operations = {
     "UPDATE_BIRKELAND_SERVER" : 10
 }
 const remove_the_file = (path) => {
-    // if(path.length > 2)
-    // {
-    //    exec(`rm -rf ${path}`, (error,stdout, stderr) =>{
-    //        console.log("Attempting to remove shell script")
-    //        if(error){
-    //            console.log(first)
-    //        }
-    //        if(stdout){
-    //            console.log(stdout);
-    //        }
-    //        if(stderr){
-    //            console.log(stderr);
-    //        }
-    //    });
-    // }
+    if(path.length > 2)
+    {
+       exec(`rm -rf ${path}`, (error,stdout, stderr) =>{
+           console.log("Attempting to remove shell script")
+           if(error){
+               console.log(first)
+           }
+           if(stdout){
+               console.log(stdout);
+           }
+           if(stderr){
+               console.log(stderr);
+           }
+       });
+    }
 }
 
 //FireBox, MultiSig wallet,Anchroga, zodiac, who are licenced and blockdaimond figment
