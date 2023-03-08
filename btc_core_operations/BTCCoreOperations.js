@@ -20,7 +20,6 @@ const btc_client = new bitcoin({
 class BTCCoreOperations {
   get_block_chain_info = async () => {
     try {
-      console.log("get_block_chain_info");
       let blockchainInfo = await btc_client.getBlockchainInfo();
       return { success: true, message: blockchainInfo };
     } catch (err) {
@@ -32,10 +31,8 @@ class BTCCoreOperations {
     let { password, wallet_name } = params;
     try {
       let result = await btc_client.createWallet(wallet_name,false, false,password,false,false,null);
-      console.log("Wallet created:", result);
       return { success: true, message: result };
     } catch (err) {
-      console.error(err);
       return { success: false, message: err };
     }
   };
@@ -44,10 +41,8 @@ class BTCCoreOperations {
     let { filename, load_on_startup } = params;
     try {
       let result = await btc_client.loadWallet(filename, load_on_startup);
-      console.log(result);
       return { success: true, message: result };
     } catch (err) {
-      console.error(err);
       return { success: false, message: err };
     }
   };
@@ -56,10 +51,8 @@ class BTCCoreOperations {
 get_wallet_info = async() =>{
   try {
     let result = await btc_client.getWalletInfo();
-    console.log(result);
     return { success: true, message: result };
   } catch (err) {
-    console.error(err);
     return { success: false, message: err };
   }
 }
@@ -67,10 +60,8 @@ get_wallet_info = async() =>{
 list_wallets = async() =>{
   try {
     let result = await btc_client.listWallets();
-    console.log(result);
     return { success: true, message: result };
   } catch (err) {
-    console.error(err);
     return { success: false, message: err };
   }
 }
@@ -78,23 +69,18 @@ list_wallets = async() =>{
 list_wallet_dir = async()=>{
   try {
     let result = await btc_client.listWalletDir();
-    console.log(result);
     return { success: true, message: result };
   } catch (err) {
-    console.error(err);
     return { success: false, message: err };
   }
 }
 
 received_by_address = async(params)=>{
   try{
-    console.log(params)
     let {address} = params
     let result = await btc_client.listReceivedByAddress(0,false,true,address );
-    console.log(result);
     return { success: true, message: result };
   }catch(err){
-    console.error(err);
     return { success: false, message: err };
   }
 }
@@ -104,10 +90,8 @@ get_raw_transaction = async(params) =>{
     
     let {txid} = params
     let result = await btc_client.getRawTransaction(txid,true);
-    console.log(result);
     return { success: true, message: result };
   }catch(err){
-    console.error(err);
     return { success: false, message: err };
   }
 }
@@ -117,10 +101,8 @@ get_received_by_address = async(params) =>{
     
     let {address,minconf} = params
     let result = await btc_client.getReceivedByAddress(address,minconf);
-    console.log(result);
     return { success: true, message: result };
   }catch(err){
-    console.error(err);
     return { success: false, message: err };
   }
 }
@@ -129,10 +111,8 @@ get_transaction = async(params) =>{
   try{
     let {txid} = params
     let result = await btc_client.getTransaction(txid,false,true);
-    console.log(result);
     return { success: true, message: result };
   }catch(err){
-    console.error(err);
     return { success: false, message: err };
   }
 }

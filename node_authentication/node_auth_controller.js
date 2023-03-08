@@ -11,7 +11,6 @@ exports.check_endpoint_is_authenticated = async (req, res) => {
 
 const create_node_auth_password = async (req, res) => {
   try {
-    console.log(req.body);
     var email = req.body.email;
     const userTaken = await validateEmail(email);
     if (userTaken) {
@@ -39,13 +38,11 @@ const create_node_auth_password = async (req, res) => {
       payload,
       result["private_key"]
     );
-    console.log(result);
     return res.status(201).send({
       message: { node_auth_key: auth_token },
       success: true,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).send({
       message: err.message,
       success: false,
@@ -57,9 +54,6 @@ exports.get_node_auth_token = async (req, res) => {
   try {
     var email = req.body.email;
     var password = req.body.password;
-    // const current_users = await node_user_schema_item_model.find({});
-    // console.log(current_users.length);
-   // if (current_users.length <= 1 && email === current_users[0]["email"]) {
       var user = await node_user_schema_item_model.findOne({ email });
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password);
@@ -87,14 +81,8 @@ exports.get_node_auth_token = async (req, res) => {
       } else {
         await create_node_auth_password(req, res);
       }
-    // } else {
-    //   return res.status(400).json({
-    //     message: "Wrong credentials",
-    //     success: false,
-    //   });
-    // }
+    
   } catch (err) {
-    console.log(err);
     return res.status(500).send({
       message: err.message,
       success: false,

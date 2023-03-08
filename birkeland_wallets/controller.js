@@ -13,7 +13,7 @@ exports.create_a_wallet = async (req, res) => {
     if (public_key_resp?.success) {
       let public_address = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "create_chain_address"});
       global.node_public_key = public_key_resp?.public_key;
-      console.log(public_address?.message?.address);
+
       var object = {
         on_chain_address : public_address?.message?.address,
         main_wallet_public_key: global.node_public_key,
@@ -74,7 +74,6 @@ exports.get_one_wallet = async (req, res) => {
         user_id: user_id,
         wallet_id: wallet_id
       };
-      console.log(filter);
 
       // var returnObject = {};
       var result = await birkeland_wallet_item.findOne(filter);

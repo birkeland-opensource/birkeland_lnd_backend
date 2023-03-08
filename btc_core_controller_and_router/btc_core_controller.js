@@ -4,7 +4,6 @@ const { PerformBtcCoreOperations } = require("../btc_core_operations/btc_core_op
 exports.btc_core_ops = async (req, res) => {
     try {
         var ops_res = await PerformBtcCoreOperations(req.body);
-        console.log(ops_res);
         if (ops_res.success) {
             return res.status(200).send({ success: true, message: ops_res?.message });
         }
@@ -13,7 +12,6 @@ exports.btc_core_ops = async (req, res) => {
         }
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send({ success: false, message: err });
     }
 }
