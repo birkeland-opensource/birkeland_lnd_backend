@@ -3,10 +3,8 @@ const fs = require('fs')
 const os = require('os');
 
 
-console.log("Get_Hardware_Monitoring_Installation_Commands")
 const base_path = process.cwd()
 const sys_os = os.type();
-console.log("OS " +sys_os );
 
 exports.get_lnbits_installation_commands = (password) => {
 	
@@ -42,7 +40,6 @@ exports.get_lnbits_installation_commands = (password) => {
 
 exports.Get_bitcoin_installation_command = (passowrd) =>{
 	try{
-		console.log(passowrd)
 		const cmds = `#!/bin/bash \n\n`+
 		`pwd \n`+
 		`echo "${passowrd}" | sudo -S apt-get update \n`+
@@ -66,26 +63,21 @@ exports.Get_bitcoin_installation_command = (passowrd) =>{
 		`bitcoin-qt & \n` +
 		`exit`
 
-		console.log(cmds)
 		var filepath =	base_path+'/btc_installation.sh'
-		console.log(filepath)
 		if(sys_os == 'Darwin'){
-			console.log("It is Darwin")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else if(sys_os == 'Linux'){
-			console.log("It is linux")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else{
-			console.log("Still using linux")
 			fs.writeFileSync(filepath, cmds);
 		}
 	
 		return filepath;
 	}
 	catch(err){
-		console.log(err);
+		return "";
 	}
 }
 
@@ -125,15 +117,12 @@ exports.Get_Hardware_Monitoring_Installation_Commands = (password,key_id) =>{
 	var filepath =	base_path+'/hw_monitor_integration.sh'
 
 	if(sys_os == 'Darwin'){
-		console.log("It is Darwin")
 		fs.writeFileSync(filepath, commands_mac);
 	}
 	else if(sys_os == 'Linux'){
-		console.log("It is linux")
 		fs.writeFileSync(filepath, commands_linux);
 	}
 	else{
-		console.log("Still using linux")
 		fs.writeFileSync(filepath, commands_linux);
 	}
 
@@ -168,15 +157,12 @@ exports.Get_Lnd_Installation_Commands =(password) =>{
 	var filepath =	base_path+'/lnd_installation.sh'
 
 	if(sys_os == 'Darwin'){
-		console.log("It is Darwin")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else if(sys_os == 'Linux'){
-		console.log("It is linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else{
-		console.log("Still using linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 
@@ -189,15 +175,12 @@ exports.Check_Can_Execute_From_Terminal = (username)=> {
 	var filepath =	base_path+'/test_terminal.sh'
 
 	if(sys_os == 'Darwin'){
-		console.log("It is Darwin")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else if(sys_os == 'Linux'){
-		console.log("It is linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else{
-		console.log("Still using linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 
@@ -215,15 +198,12 @@ exports.Get_Check_Lnd_Is_Running_Commands = () =>{
 		var filepath =	base_path+'/check_lnd_running.sh'
 
 		if(sys_os == 'Darwin'){
-			console.log("It is Darwin")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else if(sys_os == 'Linux'){
-			console.log("It is linux")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else{
-			console.log("Still using linux")
 			fs.writeFileSync(filepath, cmds);
 		}
 	
@@ -241,15 +221,12 @@ exports.Check_Node_Monitor_Is_Running = (password) =>{
 	var filepath =	base_path+'/check_node_monitor_running.sh'
 
 	if(sys_os == 'Darwin'){
-		console.log("It is Darwin")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else if(sys_os == 'Linux'){
-		console.log("It is linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else{
-		console.log("Still using linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 	return filepath;
@@ -265,15 +242,12 @@ exports.Check_BTC_Is_Running = (password) =>{
 	var filepath =	base_path+'/check_btc_running.sh'
 
 	if(sys_os == 'Darwin'){
-		console.log("It is Darwin")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else if(sys_os == 'Linux'){
-		console.log("It is linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 	else{
-		console.log("Still using linux")
 		fs.writeFileSync(filepath, cmds);
 	}
 

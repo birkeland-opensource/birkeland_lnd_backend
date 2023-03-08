@@ -19,15 +19,11 @@ const remove_the_file = (path) => {
     if(path.length > 2)
     {
        exec(`rm -rf ${path}`, (error,stdout, stderr) =>{
-           console.log("Attempting to remove shell script")
            if(error){
-               console.log(first)
            }
            if(stdout){
-               console.log(stdout);
            }
            if(stderr){
-               console.log(stderr);
            }
        });
     }
@@ -37,33 +33,24 @@ const remove_the_file = (path) => {
 const execute_commands = (command_file_path) =>{
         exec(`chmod +x ${command_file_path}`, (cmoderror,cmodstdout) =>{
             if(cmoderror){
-                console.log(`error: ${cmoderror.message}`);
-                console.log("returning from cmoderror");
                 remove_the_file(command_file_path);
                 return;   
             }
             if(cmodstdout){
-                console.log(`error: ${cmodstdout}`);
-                console.log("returning from cmodstdout");
                 remove_the_file(command_file_path);
                 return;
             }
             const child = spawn(command_file_path);
             child.stdout.on('data',(data) =>{
-                console.log(`stdout: ${data}`)
             });
             child.stderr.on('data',(data) =>{
-                console.log(`stderr: ${data}`)
             });
             child.on('error',(error) =>{
                 remove_the_file(command_file_path);
-                console.log(`error: ${error.message}`);
             });
             child.on('exit',(code) =>{
                 remove_the_file(command_file_path);
-                console.log("We exit here")
                 if(code){
-                    console.log(`Process exit with code: ${code}`);
                 } 
             });
         });
@@ -71,15 +58,11 @@ const execute_commands = (command_file_path) =>{
 
 const get_commands_with_password = (username,password,key_id,operations) =>{
 
-    console.log("function call  made");
-    console.log(operations)
     var commands = [];
     switch(operations) {
         case available_operations.BTC_INSTALLATION_COMMANDS:
-            //console.log("BTC_INSTALLATION_COMMANDS")
             commands = `${base_path}/shell_scripts/install_btc.sh`
             //commands = Get_bitcoin_installation_command(password)
-            console.log(commands)
           // code block
           break;
         case available_operations.CAN_EXECUTE_COMMAND_FROM_TERMINAL:
@@ -114,19 +97,16 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
             break;
     
         case available_operations.CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG:
-            console.log("CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG")
             commands = create_birkeland_lnd_comm_config_file(password)
             // code block
             break;
         
         case available_operations.LNBITS_INSTALLATION:
-            console.log("LNBITS_INSTALLATION")
             commands = get_lnbits_installation_commands(password)
             // code block
             break;
 
         case available_operations.UPDATE_BIRKELAND_SERVER:
-            console.log("UPDATE_BIRKELAND_SERVER")
             commands = `${base_path}/shell_scripts/update_birkeland_server.sh`
             // code block
             break;

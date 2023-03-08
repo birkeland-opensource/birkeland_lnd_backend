@@ -33,9 +33,7 @@ const get_command_with_params_for_operation = (operation,params) =>{
     var command = "";
     switch(operation){
         case AVAILABLE_OPERATIONS.CREATE_LND_WALLET:
-            let {password} =  params;
             command = `lncli create --nopassphrase`;
-            console.log(command)
             break;
         default:
             break;
@@ -45,17 +43,13 @@ const get_command_with_params_for_operation = (operation,params) =>{
 
 const execute_solo_command = (command_to_execute,res)=>{
    // let command_to_execute = get_command_for_operation(operation);
-    console.log(`Current command executed ${command_to_execute}`);
     exec(command_to_execute, (error, stdout,stderr) =>{
         if(error){
-            console.log(`error from ${error}`);
             return res.status(500).send({success : false});
         }
         if(stdout){
-            console.log(`stdout from ${stdout}`);
         }
         if(stderr){
-            console.log(`stderr from ${stderr}`);
         }
         return res.status(200).send({success : true});
     });
