@@ -17,15 +17,12 @@ const create_birkeland_lnd_comm_config_file = (password) =>{
         var filepath =	base_path+'/birkeland_lnd_config_file_setup.sh'
 
         if(sys_os == 'Darwin'){
-			console.log("It is Darwin")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else if(sys_os == 'Linux'){
-			console.log("It is linux")
 			fs.writeFileSync(filepath, cmds);
 		}
 		else{
-			console.log("Still using linux")
 			fs.writeFileSync(filepath, cmds);
 		}
         

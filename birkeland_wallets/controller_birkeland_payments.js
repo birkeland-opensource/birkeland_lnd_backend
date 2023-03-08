@@ -352,7 +352,6 @@ const create_invoice = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
@@ -365,7 +364,6 @@ const make_a_payment = async (req, res) => {
       var public_key_resp = await get_node_public_key(res);
       if (public_key_resp?.success) {
         global.node_public_key = public_key_resp?.public_key;
-        console.log(global.node_public_key);
         if (global.node_public_key) {
           var decoded_request_hash = invoice.decode(request_hash);
           var from_node_public_key = decoded_request_hash?.desc;
@@ -483,7 +481,6 @@ const make_a_payment = async (req, res) => {
         .send({ success: false, message: "Insufficient params" });
     }
   } catch (err) {
-    console.log(err);
     return res.status(400).send({ success: false });
   }
 };
@@ -533,16 +530,13 @@ const withdraw_to_onchain_address = async (req, res) => {
             var birkeland_wallet_info = await birkeland_wallet_item.findOne(
               filter
             );
-            //console.log(result)
             var wallet_balance =
               birkeland_wallet_info["wallet_balance_in_mstats"] / 1000;
-            console.log(`${tokens_int} < ${wallet_balance}`);
             if (tokens_int < wallet_balance) {
               var withdraw_amount_in_usd = await satoshisToFiat(
                 tokens_int,
                 "USD"
               );
-              console.log(withdraw_amount_in_usd);
               if (withdraw_amount_in_usd > 2.2) {
                 //1. make request to lnd
                 let on_chain_withdraw_params = {
@@ -566,7 +560,7 @@ const withdraw_to_onchain_address = async (req, res) => {
                     filter,
                     updatd_object
                   );
-                  console.log(on_chain_withdraw_repsonse["message"]);
+              
                   var withdraw_transaction_object = {
                     transaction_id: on_chain_withdraw_repsonse["message"]["id"],
                     memo: `Withdraw to chain address ${address}`,
@@ -618,7 +612,6 @@ const withdraw_to_onchain_address = async (req, res) => {
         .send({ success: false, message: "Insufficient params" });
     }
   } catch (err) {
-    console.log(err);
     return res.status(500).send({ success: false, message: err });
   }
 };
@@ -719,7 +712,6 @@ const get_on_chain_tx = async (req, res) => {
       .status(200)
       .send({ success: true, message: "transaction verifcation run" });
   } catch (err) {
-    console.log(err);
     return res.status(500).send({ success: false, message: err });
   }
 };
@@ -728,11 +720,6 @@ const update_auto_loop_setting = async (req, res) => {
   var { user_id, wallet_id } = req.query;
   var { self_custodial_wallet_address, auto_transact_min_sats,do_loop_back_transfer } = req.body;
 
-  console.log({
-    self_custodial_wallet_address : self_custodial_wallet_address,
-    auto_transact_min_sats : auto_transact_min_sats,
-    do_loop_back_transfer : do_loop_back_transfer
-  })
   if (!user_id || !wallet_id || !self_custodial_wallet_address || !auto_transact_min_sats) {
     return res
       .status(400)
