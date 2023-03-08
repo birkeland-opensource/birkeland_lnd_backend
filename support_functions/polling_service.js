@@ -19,7 +19,6 @@ const get_wallet_top_tx_status = (result, utxos) =>{
   for (var i = 0; i < result.length; i++) {
     var chain_address = result[i]["chain_address"];
   for(var count = 0; count < lnd_utxos.length; count++){
-    console.log(`${chain_address} === ${lnd_utxos[count]["address"]}`)
     if(chain_address === lnd_utxos[count]["address"])
     {
       let update_object = lnd_utxos[count]

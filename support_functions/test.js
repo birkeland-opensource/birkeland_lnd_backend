@@ -97,15 +97,9 @@ var unconfirmed_tx = [
   ]
 
   const middleIndex = Math.ceil(lightning_utxos.length / 2);
-  console.log(middleIndex)
 
 
 
 const firstHalf = lightning_utxos.splice(0, middleIndex);   
 const secondHalf = lightning_utxos.splice(-middleIndex);
 
-for (var i=0; i<firstHalf.length;i++){
-    console.log(firstHalf[i]);
-}
-
-console.log(secondHalf)
