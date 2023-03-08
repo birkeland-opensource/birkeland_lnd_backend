@@ -747,7 +747,6 @@ const update_auto_loop_setting = async (req, res) => {
       wallet_filter,
       update_object
     );
-    console.log(user_wallet_info);
     if (!user_wallet_info) {
       return res.status(400).send({ success: false, message: "Wrong params" });
     }
@@ -774,14 +773,11 @@ const make_loop_payment = async (user_info) =>{
     };
 
     var user_wallet_info = await birkeland_wallet_item.findOne(wallet_filter);
-    console.log(user_wallet_info);
     if(!user_wallet_info?.auto_transact_min_sats){
       resp_object["message"] = "Auto transact not set";
       return resp_object;
     }
-    console.log(`${(user_wallet_info?.auto_transact_min_sats *1000)} <= ${user_wallet_info?.wallet_balance_in_mstats}`)
     if((user_wallet_info?.auto_transact_min_sats *1000) > user_wallet_info?.wallet_balance_in_mstats){
-      console.log("insufficient balance")
       resp_object["message"] = "Insufficient balance";
         return resp_object;
     }
@@ -790,10 +786,8 @@ const make_loop_payment = async (user_info) =>{
       self_custodial_wallet_address : user_wallet_info?.self_custodial_wallet_address,
       tokens : (user_wallet_info?.wallet_balance_in_mstats / 1000)
     }
-    console.log(on_chain_transfer_object)
     if(!on_chain_transfer_object?.self_custodial_wallet_address || !on_chain_transfer_object?.tokens){
       resp_object["message"] = "Insufficient balance";
-      console.log("insufficient params")
       return resp_object;
     }
     
@@ -806,15 +800,11 @@ const make_loop_payment = async (user_info) =>{
       await test_birkeland_lnd.PerformAuthenticatedOperation(
         on_chain_withdraw_params
       );
-    console.log(on_chain_withdraw_repsonse)
+
     if(!on_chain_withdraw_repsonse["success"]){
       resp_object["message"] = "Error trasnferring";
-      console.log("error trasnferring")
       return resp_object;
     }
-
-    console.log(on_chain_withdraw_repsonse);
-
     var birkeland_wallet_update_object = {
       wallet_balance_in_mstats : 0
     }
@@ -835,15 +825,13 @@ const make_loop_payment = async (user_info) =>{
     }
     await loop_back_transaction_item.create(loopback_transaction_item);
 
-    console.log(loopback_transaction_item);
-
     resp_object["success"] = true;
     return resp_object;
 
   }
   catch(err){
     resp_object["message"] = err;
-    console.log(err)
+    return resp_object;
   }
 }
 
@@ -953,7 +941,6 @@ const make_birkeland_wallet_payment = async (req, res) => {
     );
 
     if (!receiver_wallet_info) {
-      console.log("Wallet not found");
       return res
         .status(400)
         .send({ success: false, message: "Wallet not found" });
