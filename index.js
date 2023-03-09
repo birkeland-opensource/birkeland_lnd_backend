@@ -32,7 +32,7 @@ app.use('/v1/wallets',birkeland_wallet_router);
 
 app.get("/",(req,res)=>{
 
-    res.status(200).send({success:true, message : "Birkeland server is running", version :packageJson.version});
+    res.status(200).send({success:true, message : "Birkeland server is running", version :packageJson.version, server_type: "no_core"});
 
   });
 
