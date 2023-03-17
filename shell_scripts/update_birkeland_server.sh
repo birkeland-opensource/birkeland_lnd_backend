@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "updating birkeland server"
-cd /root/birkeland/birkeland_lnd_grpc && git pull
+cd /root/birkeland/birkeland_lnd_backend && git pull
 npm i
 pm2 restart index.js
 echo "done updating birkeland server"
