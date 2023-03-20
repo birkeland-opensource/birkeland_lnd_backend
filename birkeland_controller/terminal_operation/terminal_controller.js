@@ -209,7 +209,6 @@ exports.update_lnd_config = async(req,res) =>{
     try{
         
         let {lnd_conf_json} = req.body;
-        console.log(lnd_conf_json)
         if(!lnd_conf_json){
             return res.status(400).send({success : false, message : "insufficient params"});
         }
@@ -217,7 +216,6 @@ exports.update_lnd_config = async(req,res) =>{
         return res.status(200).send({success : true, message : conf_rsp});
     }
     catch(err){
-        console.log(err)
         return res.status(400).send({success : false});
     }
 }
