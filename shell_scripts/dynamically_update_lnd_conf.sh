@@ -61,3 +61,7 @@ while read -r key value; do
 done < <(echo "$input_json_string" | jq -r 'to_entries | .[] | .key + " " + .value')
 
 echo "lnd.conf has been updated."
+
+pkill lnd
+sleep 5
+nohup lnd &

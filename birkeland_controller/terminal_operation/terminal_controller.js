@@ -197,7 +197,7 @@ exports.restore_lnd_config = async(req,res) => {
             "listen" :"0.0.0.0:9735"
         }
        
-        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh ${JSON.stringify(lnd_conf_json)}`);
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh '${JSON.stringify(lnd_conf_json)}'`);
         return res.status(200).send({success : true, message : conf_rsp});
     }
     catch(err){
@@ -212,7 +212,7 @@ exports.update_lnd_config = async(req,res) =>{
         if(!lnd_conf_json){
             return res.status(400).send({success : false, message : "insufficient params"});
         }
-        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh ${JSON.stringify(lnd_conf_json)}`);
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh '${JSON.stringify(lnd_conf_json)}'`);
         return res.status(200).send({success : true, message : conf_rsp});
     }
     catch(err){

