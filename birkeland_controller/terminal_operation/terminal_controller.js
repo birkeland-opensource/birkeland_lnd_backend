@@ -170,6 +170,18 @@ exports.install_lnd = async(req,res) =>{
     }
 }
 
+exports.update_lnd_config = async(req,res) =>{
+    try{
+        
+        let {lnd_conf_json} = req.body;
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/create_lnd_config.sh ${lnd_conf_json}`);
+        return res.status(200).send({success : true, message : rsp});
+    }
+    catch(err){
+        return res.status(400).send({success : false});
+    }
+}
+
 exports.install_node_monitoring = async(req,res) =>{
     try{
         let { password,unique_node_id} = req.body;
