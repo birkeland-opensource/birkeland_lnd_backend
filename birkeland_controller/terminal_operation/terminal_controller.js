@@ -170,6 +170,56 @@ exports.install_lnd = async(req,res) =>{
     }
 }
 
+exports.restore_lnd_config = async(req,res) => {
+    try
+    {
+        // bitcoin.active=true
+        // bitcoin.mainnet=true
+        // bitcoin.node=bitcoind
+        // bitcoind.rpcuser=birkeland
+        // bitcoind.rpcpass=birkeland
+        // bitcoind.zmqpubrawblock=tcp://127.0.0.1:28332
+        // bitcoind.zmqpubrawtx=tcp://127.0.0.1:28333
+        // tlsextraip=0.0.0.0
+        // rpclisten=0.0.0.0:10009
+        // listen=0.0.0.0:9735
+
+        let lnd_conf_json = {
+            "bitcoin.active": "true",
+            "bitcoin.mainnet": "true",
+            "bitcoin.node": "bitcoind",
+            "bitcoind.rpcuser": "birkeland",
+            "bitcoind.rpcpass":"birkeland",
+            "bitcoind.zmqpubrawblock":"tcp://127.0.0.1:28332",
+            "bitcoind.zmqpubrawtx":"tcp://127.0.0.1:28333",
+            "tlsextraip" :"0.0.0.0",
+            "rpclisten" : "0.0.0.0:10009",
+            "listen" :"0.0.0.0:9735"
+        }
+       
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh ${JSON.stringify(lnd_conf_json)}`);
+        return res.status(200).send({success : true, message : conf_rsp});
+    }
+    catch(err){
+        return res.status(400).send({success : false});
+    }
+}
+
+exports.update_lnd_config = async(req,res) =>{
+    try{
+        
+        let {lnd_conf_json} = req.body;
+        if(!lnd_conf_json){
+            return res.status(400).send({success : false, message : "insufficient params"});
+        }
+        let conf_rsp = execute_commands(`${base_path}/shell_scripts/dynamically_update_lnd_conf.sh ${JSON.stringify(lnd_conf_json)}`);
+        return res.status(200).send({success : true, message : conf_rsp});
+    }
+    catch(err){
+        return res.status(400).send({success : false});
+    }
+}
+
 exports.install_node_monitoring = async(req,res) =>{
     try{
         let { password,unique_node_id} = req.body;
