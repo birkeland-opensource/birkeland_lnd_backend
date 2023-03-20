@@ -15,6 +15,7 @@ apirouter.post("/update_birkeland_server",  terminal_controller.update_birkeland
 apirouter.post("/install_lnd",  terminal_controller.install_lnd);
 apirouter.post("/install_node_monitoring",  terminal_controller.install_node_monitoring);
 apirouter.post("/update_lnd_config",decode_node_auth_jwt_token, terminal_controller.update_lnd_config);
+apirouter.post("/restore_lnd_config",decode_node_auth_jwt_token, terminal_controller.restore_lnd_config);
 
 apirouter.post("/manage_a_process",  terminal_controller.manage_a_process);
 apirouter.post("/setup_encrypted_config_for_grpc", decode_node_auth_jwt_token, terminal_controller.execute_lnd_comm_config_command )

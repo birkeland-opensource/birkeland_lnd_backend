@@ -32,7 +32,15 @@ fi
 
 input_json_string="$1"
 
-lnd_conf_file="lnd.conf"
+lnd_conf_file="/root/.lnd/lnd.conf"
+
+if [ -e "$lnd_conf_file" ]; then
+  echo "File exists, removing $lnd_conf_file"
+  rm "$lnd_conf_file"
+else
+  echo "File not found, skipping removal."
+fi
+
 
 # Create or update lnd.conf
 touch "$lnd_conf_file"
