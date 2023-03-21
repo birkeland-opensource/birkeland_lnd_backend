@@ -1,9 +1,9 @@
 
 
-var express = require("express");
-var apirouter = express.Router();
+const express = require("express");
+const apirouter = express.Router();
 
-var terminal_controller = require("../../birkeland_controller/terminal_operation/terminal_controller");
+const terminal_controller = require("../../birkeland_controller/terminal_operation/terminal_controller");
 const { decode_node_auth_jwt_token } = require("../../support_functions/utils");
 
 apirouter.post("/can_execute_in_terminal", terminal_controller.can_execute_in_terminal);
