@@ -6,4 +6,4 @@ if [ -n "$pid" ]; then
   exit 1
 fi
 
-nohup lnd &
+cd /root/.lnd & nohup lnd &
