@@ -15,19 +15,7 @@ const available_operations = {
     "LNBITS_INSTALLATION" : 9,
     "UPDATE_BIRKELAND_SERVER" : 10
 }
-const remove_the_file = (path) => {
-    if(path.length > 2)
-    {
-       exec(`rm -rf ${path}`, (error,stdout, stderr) =>{
-           if(error){
-           }
-           if(stdout){
-           }
-           if(stderr){
-           }
-       });
-    }
-}
+
 
 //FireBox, MultiSig wallet,Anchroga, zodiac, who are licenced and blockdaimond figment
 const execute_commands = (command_file_path) =>{
@@ -48,6 +36,7 @@ const execute_commands = (command_file_path) =>{
             });
             child.on('exit',(code) =>{
                 if(code){
+                    console.log(`exited with ${code}`)
                 } 
             });
         });
