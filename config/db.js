@@ -1,6 +1,6 @@
 
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const mongoatlasUrl = "mongodb://localhost:27017/";
 mongoose.connect(mongoatlasUrl, {
 useNewUrlParser: true,
