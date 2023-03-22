@@ -40,7 +40,6 @@ exports.manage_a_process = async(req,res) =>{
 
         let {operation} = req.body;
         if(operation == AVAILABLE_OPERATIONS.START_LND){
-           // let rsp = execute_commands(`${base_path}/shell_scripts/start_lnd.sh`);
             exec(`${base_path}/shell_scripts/start_lnd.sh`, { env: process.env, cwd: process.cwd() }, (error, stdout, stderr) => {
                 if (error) {
                   return res.status(500).send({success : false,message : error});
