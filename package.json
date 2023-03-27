@@ -1,6 +1,6 @@
 {
   "name": "birkeland_lnd_grpc",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Secure all available endpoints, Added dynamic config updated for lnd.conf file",
   "main": "index.js",
   "scripts": {
