@@ -52,20 +52,19 @@ const create_node_auth_password = async (req, res) => {
 
 exports.get_node_auth_token = async (req, res) => {
   try {
-    var email = req.body.email;
-    var password = req.body.password;
+      const {email,password} = req.body;
       var user = await node_user_schema_item_model.findOne({ email });
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           let payload = {
-            email: user["email"],
-            user_id: user["user_id"],
+            email: user?.email,
+            user_id: user?.user_id,
           };
 
           var token = await create_node_auth_jwt_token(
             payload,
-            user["private_key"]
+            user?.private_key
           );
 
           return res.status(200).json({
@@ -79,7 +78,16 @@ exports.get_node_auth_token = async (req, res) => {
           });
         }
       } else {
-        await create_node_auth_password(req, res);
+        var existing_users = await node_user_schema_item_model.find({});
+        if(existing_users.length == 0){
+          await create_node_auth_password(req, res);
+        }
+        else{
+          return res.status(403).json({
+            message: "Failed login attempt",
+            success: false,
+          });
+        }
       }
     
   } catch (err) {
