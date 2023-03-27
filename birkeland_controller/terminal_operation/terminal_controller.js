@@ -44,7 +44,7 @@ exports.manage_a_process = async(req,res) =>{
                 if (error) {
                   return res.status(500).send({success : false,message : error});
                 }
-                return res.status(200).send({success : true, message : rsp});
+                return res.status(200).send({success : true});
               });
 
            
