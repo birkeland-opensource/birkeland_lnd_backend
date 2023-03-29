@@ -52,8 +52,10 @@ const create_node_auth_password = async (req, res) => {
 
 exports.get_node_auth_token = async (req, res) => {
   try {
+    console.log("pinged get_node_auth_token")
       const {email,password} = req.body;
       var user = await node_user_schema_item_model.findOne({ email });
+      console.log(user)
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
@@ -91,6 +93,7 @@ exports.get_node_auth_token = async (req, res) => {
       }
     
   } catch (err) {
+    console.log(err);
     return res.status(500).send({
       message: err.message,
       success: false,
