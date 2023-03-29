@@ -83,7 +83,8 @@ const get_commands_with_password = (username,password,key_id,operations) =>{
             break;
     
         case available_operations.CREATE_AND_SETUP_BIRKELAND_LND_COMM_CONFIG:
-            commands = create_birkeland_lnd_comm_config_file(password)
+            commands = `${base_path}/shell_scripts/setup_tls_and_macroon.sh`
+            //commands = create_birkeland_lnd_comm_config_file(password)
             // code block
             break;
         
