@@ -1,5 +1,5 @@
 const { exec, spawn } = require('child_process');
-const { Get_bitcoin_installation_command, Get_Hardware_Monitoring_Installation_Commands, Get_Lnd_Installation_Commands, Check_Can_Execute_From_Terminal, Check_Node_Monitor_Is_Running, Check_BTC_Is_Running, get_lnbits_installation_commands } = require('./installation_commands');
+const { Get_Hardware_Monitoring_Installation_Commands, Check_Can_Execute_From_Terminal, Check_Node_Monitor_Is_Running, Check_BTC_Is_Running, get_lnbits_installation_commands } = require('./installation_commands');
 const { create_birkeland_lnd_comm_config_file } = require('./setup_config_files');
 const base_path = process.cwd()
 
@@ -27,11 +27,11 @@ const execute_commands = (command_file_path) =>{
                 return;
             }
             const child = spawn(command_file_path);
-            child.stdout.on('data',(data) =>{
+            child.stdout.on('data',() =>{
             });
-            child.stderr.on('data',(data) =>{
+            child.stderr.on('data',() =>{
             });
-            child.on('error',(error) =>{
+            child.on('error',() =>{
                 
             });
             child.on('exit',(code) =>{
