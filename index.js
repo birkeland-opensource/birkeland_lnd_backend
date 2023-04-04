@@ -21,6 +21,11 @@ app.use('/btc',btc_core_router);
 const birkeland_wallet_router = require("./birkeland_wallets/birkeland_wallet_router");
 app.use('/v1/wallets',birkeland_wallet_router);
 
+
+const automation_router = require("./birkeland_controller/automation_controller/automation_router");
+app.use('/auto',automation_router);
+
+
 app.get("/",(req,res)=>{
 
     res.status(200).send({success:true, message : "Birkeland server is running", version :packageJson.version, });
