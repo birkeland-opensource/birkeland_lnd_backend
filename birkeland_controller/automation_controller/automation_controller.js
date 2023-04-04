@@ -2,8 +2,8 @@ const test_birkeland_lnd = require('test_birkeland_lnd');
 const { LND_GRPC_OPERATION } = require('test_birkeland_lnd/operations');
 
 
-const to_node_address = "031038101cf7d8402958f2a9846d3549c92afc12d8b26732f6442702a80d1337ad";
-const to_socket = "4.193.237.11:9735";
+const to_node_address = "039edc94987c8f3adc28dab455efc00dea876089a120f573bd0b03c40d9d3fb1e1";
+const to_socket = "213.174.156.37:9735";
 const channel_capacity = 100000;
 
 const iterator_operations = {
