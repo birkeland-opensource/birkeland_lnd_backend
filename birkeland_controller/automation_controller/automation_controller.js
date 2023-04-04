@@ -2,8 +2,8 @@ const test_birkeland_lnd = require('test_birkeland_lnd');
 const { LND_GRPC_OPERATION } = require('test_birkeland_lnd/operations');
 
 
-const to_node_address = "0231eccc6510eb2e1c97c8a190d6ea096784aa7c358355442055aac8b20654f932";
-const to_socket = "82.165.119.236:9735";
+const to_node_address = "02cfdc6b60e5931d174a342b20b50d6a2a17c6e4ef8e077ea54069a3541ad50eb0";
+const to_socket = "52.89.237.109:9735";
 const channel_capacity = 100000;
 
 const iterator_operations = {
@@ -28,7 +28,7 @@ const command_list = [
         execution_response : {}
     },
     {
-        params : {operation : LND_GRPC_OPERATION.OPEN_CHANNEL ,local_tokens : channel_capacity, public_key :to_node_address}, // {local_tokens : req.body.local_tokens, public_key :req.body.public_key },
+        params : {operation : LND_GRPC_OPERATION.OPEN_CHANNEL ,local_tokens : channel_capacity, partner_public_key :to_node_address}, // {local_tokens : req.body.local_tokens, public_key :req.body.public_key },
         status : "pending",
         time_executed : "",
         execution_response : {}
