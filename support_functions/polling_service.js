@@ -1,5 +1,5 @@
-const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
-const {PerformAuthenticatedOperation} = require("test_birkeland_lnd");
+const { LND_GRPC_OPERATION } = require("birkeland_lnd_custom_macaroon/operations");
+const {PerformAuthenticatedOperation} = require("birkeland_lnd_custom_macaroon");
 const topup_birkeland_wallet_item = require("./../birkeland_controller/../birkeland_wallets/topup_birkeland_wallet_item");
 
 const poll_and_update_on_chain_transaction = async () => {

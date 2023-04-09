@@ -2,7 +2,7 @@ const birkeland_payment_transaction_item = require("./birkeland_payment_transact
 const topup_birkeland_wallet_item = require("./topup_birkeland_wallet_item");
 const birkeland_wallet_item = require("./birkeland_wallet_item_model");
 const invoice = require("@node-lightning/invoice");
-const test_birkeland_lnd = require("test_birkeland_lnd");
+const birkeland_lnd_custom_macaroon = require("birkeland_lnd_custom_macaroon");
 const { satoshisToFiat } = require("bitcoin-conversion");
 
 const { v4: uuidv4 } = require("uuid");
@@ -10,7 +10,7 @@ const {
   BIRKELAND_WALLET_TRANSACTION_STATUS,
   BIRKELAND_WALLET_TRANSACTION_INTENT,
 } = require("../support_functions/constants");
-const { LND_GRPC_OPERATION } = require("test_birkeland_lnd/operations");
+const { LND_GRPC_OPERATION } = require("birkeland_lnd_custom_macaroon/operations");
 const {
   get_wallet_top_tx_status,
   get_wallet_update_tx,
@@ -27,7 +27,7 @@ const withdraw_from_wallet = async (req, res) => {
       global.node_public_key = public_key_resp?.public_key;
       if (global.node_public_key) {
         let send_to_chain_address_resp =
-          await test_birkeland_lnd.PerformAuthenticatedOperation({
+          await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation({
             operation: LND_GRPC_OPERATION.SEND_TO_CHAIN_ADDRESS,
           });
         if (send_to_chain_address_resp["success"]) {
@@ -53,7 +53,7 @@ const topup_wallet = async (req, res) => {
         global.node_public_key = public_key_resp?.public_key;
         if (global.node_public_key) {
           let create_chain_address_resp =
-            await test_birkeland_lnd.PerformAuthenticatedOperation({
+            await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation({
               operation: LND_GRPC_OPERATION.CREATE_CHAIN_ADDRESS,
             });
 
@@ -136,7 +136,7 @@ const get_wallet_topup_tx_status = async (req, res) => {
         };
         var result = await topup_birkeland_wallet_item.find(filter);
         if (result.length > 0) {
-          let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({
+          let utxos = await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation({
             operation: LND_GRPC_OPERATION.GET_U_TXOS,
             min_confirmations: 3,
           });
@@ -311,7 +311,7 @@ const create_invoice = async (req, res) => {
             };
 
             let create_invoice_resp =
-              await test_birkeland_lnd.PerformAuthenticatedOperation(
+              await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation(
                 create_invoice_params
               );
             if (create_invoice_resp["success"]) {
@@ -545,7 +545,7 @@ const withdraw_to_onchain_address = async (req, res) => {
                   address: address,
                 };
                 let on_chain_withdraw_repsonse =
-                  await test_birkeland_lnd.PerformAuthenticatedOperation(
+                  await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation(
                     on_chain_withdraw_params
                   );
                 if (on_chain_withdraw_repsonse["success"]) {
@@ -640,7 +640,7 @@ const get_on_chain_tx = async (req, res) => {
       return res.status(400).send({ success: false, message: "Wrong params" });
     }
     var on_chain_address = user_wallet_info?.on_chain_address;
-    let utxos = await test_birkeland_lnd.PerformAuthenticatedOperation({
+    let utxos = await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation({
       operation: LND_GRPC_OPERATION.GET_U_TXOS,
       min_confirmations: 3,
     });
@@ -797,7 +797,7 @@ const make_loop_payment = async (user_info) =>{
       address: on_chain_transfer_object?.self_custodial_wallet_address,
     };
     let on_chain_withdraw_repsonse =
-      await test_birkeland_lnd.PerformAuthenticatedOperation(
+      await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation(
         on_chain_withdraw_params
       );
 

@@ -1,9 +1,9 @@
-const test_birkeland_lnd = require('test_birkeland_lnd')
+const birkeland_lnd_custom_macaroon = require('birkeland_lnd_custom_macaroon')
 
 
 exports.unauth_lnd_ops = async(req,res) =>{
     try{
-        var ops_res = await test_birkeland_lnd.PerformUnAuthenticatedOperation(req.body);
+        var ops_res = await birkeland_lnd_custom_macaroon.PerformUnAuthenticatedOperation(req.body);
         if(ops_res.success){
             return res.status(200).send({ success: true, message: ops_res?.message });
         }

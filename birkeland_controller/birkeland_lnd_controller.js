@@ -1,8 +1,8 @@
-const test_birkeland_lnd = require('test_birkeland_lnd')
+const birkeland_lnd_custom_macaroon = require('birkeland_lnd_custom_macaroon')
 
 exports.auth_lnd_ops = async (req, res) => {
     try {
-        let ops_res = await test_birkeland_lnd.PerformAuthenticatedOperation(req.body);
+        let ops_res = await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation(req.body);
         console.log(ops_res)
         if (ops_res.success) {
             if (req.body?.operation == 'get_identity') {

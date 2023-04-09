@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const birkeland_wallet_item = require("./../birkeland_wallets/birkeland_wallet_item_model");
-const test_birkeland_lnd = require('test_birkeland_lnd')
+const birkeland_lnd_custom_macaroon = require('birkeland_lnd_custom_macaroon')
 const jwt_decode = require('jwt-decode');
 const node_user_schema_item_model = require("../node_authentication/node_user_schema_item_model");
 
@@ -75,7 +75,7 @@ exports.auth_birkeland_wallet_access = async (req, res, next) => {
 
 exports.get_node_public_key = async(res) =>{
   try{
-    let get_identity_resp = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "get_identity"});
+    let get_identity_resp = await birkeland_lnd_custom_macaroon.PerformAuthenticatedOperation({operation : "get_identity"});
     if(get_identity_resp.success){
       return { success: true, public_key : get_identity_resp?.message?.public_key}
     }
