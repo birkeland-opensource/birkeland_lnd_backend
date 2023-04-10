@@ -55,7 +55,6 @@ exports.get_node_auth_token = async (req, res) => {
     console.log("pinged get_node_auth_token")
       const {email,password} = req.body;
       const user = await node_user_schema_item_model.findOne({ email });
-      console.log(user)
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
@@ -81,7 +80,6 @@ exports.get_node_auth_token = async (req, res) => {
         }
       } else {
         const existing_users = await node_user_schema_item_model.find({});
-        console.log(existing_users)
         if(existing_users?.length == 0 || !existing_users){
           await create_node_auth_password(req, res);
         }
