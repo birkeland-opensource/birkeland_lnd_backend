@@ -28,8 +28,8 @@ app.get("/",(req,res)=>{
 
   });
 
-const lnd_events_resp = test_birkeland_lnd.ListenToAllEvents();
-console.log(lnd_events_resp)
+test_birkeland_lnd.ListenToAllEvents();
+
 
 const port = 9990;
 
