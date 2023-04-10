@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { AuthenticatedLndOperationsForSubscription } = require('./htlc_analysis/subscribed_events');
+const test_birkeland_lnd = require('test_birkeland_lnd')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
@@ -28,8 +28,8 @@ app.get("/",(req,res)=>{
 
   });
 
-const authenticatedLndOperationsForSubscription = new AuthenticatedLndOperationsForSubscription();
-authenticatedLndOperationsForSubscription.subscribeToAllEvents();
+const lnd_events_resp = test_birkeland_lnd.ListenToAllEvents();
+console.log(lnd_events_resp)
 
 const port = 9990;
 
