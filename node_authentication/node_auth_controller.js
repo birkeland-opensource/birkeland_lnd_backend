@@ -54,8 +54,7 @@ exports.get_node_auth_token = async (req, res) => {
   try {
     console.log("pinged get_node_auth_token")
       const {email,password} = req.body;
-      var user = await node_user_schema_item_model.findOne({ email });
-      console.log(user)
+      const user = await node_user_schema_item_model.findOne({ email });
       if (user) {
         let isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
@@ -64,7 +63,7 @@ exports.get_node_auth_token = async (req, res) => {
             user_id: user?.user_id,
           };
 
-          var token = await create_node_auth_jwt_token(
+          const token = await create_node_auth_jwt_token(
             payload,
             user?.private_key
           );
@@ -80,8 +79,8 @@ exports.get_node_auth_token = async (req, res) => {
           });
         }
       } else {
-        var existing_users = await node_user_schema_item_model.find({});
-        if(existing_users.length == 0){
+        const existing_users = await node_user_schema_item_model.find({});
+        if(existing_users?.length == 0 || !existing_users){
           await create_node_auth_password(req, res);
         }
         else{
