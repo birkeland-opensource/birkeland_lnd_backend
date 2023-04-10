@@ -1,4 +1,4 @@
-const lnService = require('lightning');
+const {authenticatedLndGrpc,subscribeToForwards} = require('lightning');
 const fs = require("fs");
 
 const get_authenticated_lnd = () => {
@@ -26,7 +26,7 @@ const subscribeToForwards = async () => {
 
  console.log("subscribeToForwards")   
  let lnd = get_authenticated_lnd();
-  const forwardEventEmitter = lnService.subscribeToForwards({lnd});
+  const forwardEventEmitter = subscribeToForwards({lnd});
 
   forwardEventEmitter.on('forward', forward => {
     console.log('Forward event:', forward);
