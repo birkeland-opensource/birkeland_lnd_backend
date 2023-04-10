@@ -22,7 +22,7 @@ const get_authenticated_lnd = () => {
   };
 
 
-const subscribeToForwards = async () => {
+const listToSubscribeToForwards = async () => {
 
  console.log("subscribeToForwards")   
  let lnd = get_authenticated_lnd();
@@ -41,4 +41,4 @@ const subscribeToForwards = async () => {
   });
 };
 
-subscribeToForwards();
+listToSubscribeToForwards();
