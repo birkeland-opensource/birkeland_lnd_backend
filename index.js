@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { AuthenticatedLndOperationsForSubscription } = require('./htlc_analysis/subscribed_events');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
@@ -26,6 +27,9 @@ app.get("/",(req,res)=>{
     res.status(200).send({success:true, message : "Birkeland server is running", version :packageJson.version, });
 
   });
+
+const authenticatedLndOperationsForSubscription = new AuthenticatedLndOperationsForSubscription();
+authenticatedLndOperationsForSubscription.subscribeToAllEvents();
 
 const port = 9990;
 

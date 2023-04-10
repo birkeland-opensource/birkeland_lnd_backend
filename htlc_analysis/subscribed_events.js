@@ -1,7 +1,9 @@
 const {authenticatedLndGrpc,subscribeToForwards} = require('lightning');
 const fs = require("fs");
 
-const get_authenticated_lnd = () => {
+class AuthenticatedLndOperationsForSubscription {
+
+get_authenticated_lnd = () => {
     const tls_cert = fs.readFileSync("/etc/birkeland/tlscert", {
       encoding: "utf8",
       flag: "r",
@@ -22,10 +24,10 @@ const get_authenticated_lnd = () => {
   };
 
 
-const listToSubscribeToForwards = async () => {
+listToSubscribeToForwards = async () => {
 
  console.log("subscribeToForwards")   
- let lnd = get_authenticated_lnd();
+ let lnd = this.get_authenticated_lnd();
   const forwardEventEmitter = subscribeToForwards({lnd});
 
   forwardEventEmitter.on('forward', forward => {
@@ -41,4 +43,12 @@ const listToSubscribeToForwards = async () => {
   });
 };
 
-listToSubscribeToForwards();
+subscribeToAllEvents = () => {
+
+  this.listToSubscribeToForwards();
+}
+
+}
+
+module.exports = {AuthenticatedLndOperationsForSubscription};
+
