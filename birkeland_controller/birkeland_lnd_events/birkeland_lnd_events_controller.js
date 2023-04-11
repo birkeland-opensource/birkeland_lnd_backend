@@ -37,10 +37,9 @@ const get_event_info = async (req, res) => {
 
     const count = await birkeland_lnd_events_item.countDocuments();
 
-    let result = (await birkeland_lnd_events_item.find({}))
-      .sort({ _id: -1 })
-      .skip(startIndex)
-      .limit(int_limit);
+    let result = await birkeland_lnd_events_item.find({}).sort({ _id: -1 }).limit(int_limit);
+    const slicedResults = result.slice(startIndex, endIndex);
+
 
     const pagination = {};
     if (endIndex < count) {
@@ -57,7 +56,7 @@ const get_event_info = async (req, res) => {
       };
     }
 
-    return res.status(200).send({ success: true, message: result, pagination });
+    return res.status(200).send({ success: true, message: slicedResults, pagination });
   } catch (err) {
     return res.status(400).send({ success: false });
   }
