@@ -23,6 +23,51 @@ const get_event_info_of_operation = async (req, res) => {
   }
 };
 
+
+const get_event_info_by_operation = async (req, res) => {
+  try {
+    const {operation,page,limit} = req.query;
+
+    if(!operation || !page || !limit){
+      return res.status(400).send({ success: false, message: "missing params" });
+    }
+    let filter = {
+      operation: operation
+    }
+
+    const int_page = parseInt(page) || 1;
+    const int_limit = parseInt(limit) || 10;
+    const startIndex = (int_page - 1) * int_limit;
+    const endIndex = int_page * int_limit;
+
+    const count = await birkeland_lnd_events_item.countDocuments();
+
+    let result = await birkeland_lnd_events_item.find(filter).sort({ _id: -1 }).limit(int_limit);
+    const slicedResults = result.slice(startIndex, endIndex);
+
+
+    const pagination = {};
+    if (endIndex < count) {
+      pagination.next = {
+        page: int_page + 1,
+        limit: int_limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: int_page - 1,
+        limit: int_limit,
+      };
+    }
+
+    return res.status(200).send({ success: true, message: slicedResults, pagination });
+  } catch (err) {
+    return res.status(400).send({ success: false });
+  }
+};
+
+
 const get_event_info = async (req, res) => {
   try {
     const { page, limit } = req.query;
@@ -62,4 +107,4 @@ const get_event_info = async (req, res) => {
   }
 };
 
-module.exports = {get_event_info_of_operation, get_event_info,get_lnd_event_list };
+module.exports = {get_event_info_of_operation, get_event_info,get_lnd_event_list,get_event_info_by_operation };
