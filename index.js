@@ -42,7 +42,7 @@ const subscribe_to_ldn_events = () =>{
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_backups();
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_blocks();
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_channels();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_forward_requests();
+//  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_forward_requests(); // This is not working
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_forwards();
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_invoices();
   test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_open_requests();
