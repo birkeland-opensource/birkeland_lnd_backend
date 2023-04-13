@@ -3,7 +3,6 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const test_birkeland_lnd = require("test_birkeland_lnd");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -37,30 +36,6 @@ app.get("/", (req, res) => {
       version: packageJson.version,
     });
 });
-
-const subscribe_to_ldn_events = () =>{
-  
-  try{
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_backups();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_blocks();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_channels();
-//  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_forward_requests(); // This is not working
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_forwards();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_invoices();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_open_requests();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_past_payments();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_payments();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_peer_messages();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_peers();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_transactions();
-  test_birkeland_lnd.AllEventListeners().listen_to_subscribe_to_wallet_status();
-  }
-  catch(err){
-    console.log(err)
-  }
-  }
-
-  subscribe_to_ldn_events();
 
 const port = 9990;
 
