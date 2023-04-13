@@ -22,11 +22,12 @@
     "js-yaml": "^3.3.0",
     "jsonwebtoken": "^9.0.0",
     "jwt-decode": "^3.1.2",
+    "lightning": "^7.1.9",
     "mocha": "^10.2.0",
     "mongoose": "^6.8.3",
     "node-cron": "^3.0.2",
     "swagger-ui-express": "^4.6.0",
-    "test_birkeland_lnd": "^0.0.29",
+    "test_birkeland_lnd": "^0.1.7",
     "uuid": "^8.3.2"
   }
 }
