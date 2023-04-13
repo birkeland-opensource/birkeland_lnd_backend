@@ -3,8 +3,8 @@ const { exec } = require('child_process');
 exports.rebalance_lnd_channel = async (req, res) => {
 
     try{
-        let {fromChannel, toChannel, amount} = req.body;
-        await rebalanceChannelAsync(fromChannel,toChannel,amount)
+        let {out_public_key, in_public_key, amount,max_fee,max_fee_rate,time_in_mins} = req.body;
+        await rebalanceChannelAsync(out_public_key, in_public_key, amount,max_fee,max_fee_rate,time_in_mins)
     }
     catch(err){
         console.log(err)
@@ -14,11 +14,11 @@ exports.rebalance_lnd_channel = async (req, res) => {
 
 
 
-const rebalanceChannelAsync = (fromChannel, toChannel, amount) => {
-  const command = `bos rebalance --from ${fromChannel} --to ${toChannel} --amount ${amount}`;
-  
+const rebalanceChannelAsync = (out_public_key, in_public_key, amount,max_fee, max_fee_rate,time_in_mins) => {
+  //const command = `bos rebalance --from ${fromChannel} --to ${toChannel} --amount ${amount}`;
+  const command_cid = `bos rebalance --amount ${amount} --out ${out_public_key} --in ${in_public_key} --max-fee ${max_fee} --max-fee-rate ${max_fee_rate} --minutes ${time_in_mins}`;
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command_cid, (error, stdout, stderr) => {
       if (error) {
         reject(new Error(`Error executing command: ${error.message}`));
         return;
