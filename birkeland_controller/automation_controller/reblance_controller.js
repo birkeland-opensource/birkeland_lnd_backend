@@ -1,4 +1,7 @@
 const { exec } = require('child_process');
+const { sort_by_amount_to_rebalance, split_by_balance_ratio, find_rebalance_pairs, generate_reblance_commands } = require('../../support_functions/rebalance_support_functions');
+const fs = require('fs');
+const test_birkeland_lnd = require('test_birkeland_lnd')
 
 exports.rebalance_lnd_channel = async (req, res) => {
 
@@ -13,43 +16,16 @@ exports.rebalance_lnd_channel = async (req, res) => {
     }
 }
 
-
-
-// const rebalanceChannelAsync = (out_public_key, in_public_key, amount,max_fee, max_fee_rate,time_in_mins,res) => {
-//   //const command = `bos rebalance --from ${fromChannel} --to ${toChannel} --amount ${amount}`;
-//   const command_cid = `bos rebalance --amount ${amount} --out ${out_public_key} --in ${in_public_key} --max-fee ${max_fee} --max-fee-rate ${max_fee_rate} --minutes ${time_in_mins}`;
-//   return new Promise((resolve, reject) => {
-//     exec(command_cid, (error, stdout, stderr) => {
-//       if (error) {
-//         reject(new Error(`Error executing command: ${error.message}`));
-//         return res.status(500).send({ success: false, message: error.message });
-//       }
-      
-//       if (stderr) {
-//         reject(new Error(`Error: ${stderr}`));
-//         return res.status(500).send({ success: false, message: stderr });
-//       }
-      
-//       resolve(stdout);
-
-//     });
-//   }).then((stdout) => {
-//     console.log(`Rebalance successful: ${stdout}`);
-//     return res.status(200).send({ success: true, message: stdout });
-//   });
-// }
-
 const rebalanceChannelSync = (out_public_key, in_public_key, amount,max_fee, max_fee_rate,time_in_mins) => {
-    //const command = `bos rebalance --from ${fromChannel} --to ${toChannel} --amount ${amount}`;
     const command_cid = `bos rebalance --amount ${amount} --out ${out_public_key} --in ${in_public_key} --max-fee ${max_fee} --max-fee-rate ${max_fee_rate} --minutes ${time_in_mins}`;
-
       exec(command_cid, (error, stdout, stderr) => {
         if (error) {
-          reject(new Error(`Error executing command: ${error.message}`));
+
+          console.log(new Error(`Error executing command: ${error.message}`));
         }
         
         if (stderr) {
-          reject(new Error(`Error: ${stderr}`));
+          console.log(new Error(`Error: ${stderr}`));
         }
         
         console.log("-----------------------------------------------------------")
@@ -60,26 +36,927 @@ const rebalanceChannelSync = (out_public_key, in_public_key, amount,max_fee, max
   }
 
 
+  exports.auto_rebalance_lnd_channels = async (req, res) => {
 
-
-
-const rebalanceChannel = (fromChannel, toChannel, amount)  => {
-
-  const command = `bos rebalance --from ${fromChannel} --to ${toChannel} --amount ${amount}`;
-  
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error executing command: ${error.message}`);
-      return;
+    try{
+      let channels = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "get_channels"});
+      console.log(channels)
+      do_rebalance_analysis_and_get_commands(channels)
+      return res.status(200).send({ success: true, message: "Rebalance started and status will be updated once done" });
     }
-    
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-      return;
+    catch(err){
+        console.log(err)
+        return res.status(500).send({ success: false, message: err });
     }
-    
-    console.log(`Rebalance successful: ${stdout}`);
-  });
 }
+  const do_rebalance_analysis_and_get_commands = (data_to_analyze) => {
+    let split_data = split_by_balance_ratio(data_to_analyze);
+    const sorted_excess_inbound_list = sort_by_amount_to_rebalance(split_data[0])
+    const sorted_excess_outbound_list = sort_by_amount_to_rebalance(split_data[1])
+    const pairs_to_rebalance = find_rebalance_pairs(sorted_excess_inbound_list, sorted_excess_outbound_list);
+    let rebalance_command_list = generate_reblance_commands(pairs_to_rebalance);
+    //console.log(rebalance_command_list)
+    for (let cmd in rebalance_command_list) {
+      console.log(rebalance_command_list[cmd])
+      //rebalanceChannelAuto(rebalance_command_list[cmd])
+    }
+  }
+
+  const rebalanceChannelAuto = (command) => {
+    
+    let rebalance_status = {
+      "publickey": "node_public_key",
+      "command" : command,
+      "status" : "pending"
+    }    
+    
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+          rebalance_status["status"] = "failed";
+          rebalance_status["message"] = error.message;
+        }
+        
+       else if (stderr) {
+          rebalance_status["status"] = "failed";
+          rebalance_status["message"] = stderr;
+        }
+        else{
+        
+      //  console.log("-----------------------------------------------------------")
+       // console.log(`Rebalance successful: ${stdout}`);
+        rebalance_status["status"] = "success";
+        rebalance_status["message"] = stdout;
+      //  console.log("-----------------------------------------------------------")
+        }
+
+          fs.appendFile('rebalance_status.json', JSON.stringify(rebalance_status), (err) => {
+            if (err) {
+              console.log('Error writing to file:', err);
+            }
+          });
+    
+
+      });
+
+  }
+
+  //  const data_to_analyze = [
+  //   {
+  //     "capacity": 10000000,
+  //     "commit_transaction_fee": 2811,
+  //     "commit_transaction_weight": 1116,
+  //     "id": "785127x1089x0",
+  //     "is_active": true,
+  //     "is_closing": false,
+  //     "is_opening": false,
+  //     "is_partner_initiated": true,
+  //     "is_private": false,
+  //     "local_balance": 1413593,
+  //     "local_csv": 1201,
+  //     "local_dust": 354,
+  //     "local_given": 0,
+  //     "local_max_htlcs": 28,
+  //     "local_max_pending_mtokens": "9900000000",
+  //     "local_min_htlc_mtokens": "1",
+  //     "local_reserve": 100000,
+  //     "other_ids": [],
+  //     "partner_public_key": "024bfaf0cabe7f874fd33ebf7c6f4e5385971fc504ef3f492432e9e3ec77e1b5cf",
+  //     "past_states": 701,
+  //     "pending_payments": [],
+  //     "received": 1512193,
+  //     "remote_balance": 8582936,
+  //     "remote_csv": 1201,
+  //     "remote_dust": 354,
+  //     "remote_given": 0,
+  //     "remote_max_htlcs": 483,
+  //     "remote_max_pending_mtokens": "9900000000",
+  //     "remote_min_htlc_mtokens": "1",
+  //     "remote_reserve": 100000,
+  //     "sent": 98600,
+  //     "time_offline": 8000,
+  //     "time_online": 62142000,
+  //     "transaction_id": "bb0461f18c1478dc16dc64d6e44f4c2c1e23a0a77dbd01a8f1f92d49c1c09c5b",
+  //     "transaction_vout": 0,
+  //     "unsettled_balance": 0
+  //   },
+  //   {
+  //     "capacity": 16000000,
+  //     "commit_transaction_fee": 2811,
+  //     "commit_transaction_weight": 1116,
+  //     "id": "785122x2990x0",
+  //     "is_active": true,
+  //     "is_closing": false,
+  //     "is_opening": false,
+  //     "is_partner_initiated": true,
+  //     "is_private": false,
+  //     "local_balance": 4678953,
+  //     "local_csv": 1922,
+  //     "local_dust": 354,
+  //     "local_given": 0,
+  //     "local_max_htlcs": 28,
+  //     "local_max_pending_mtokens": "15840000000",
+  //     "local_min_htlc_mtokens": "1",
+  //     "local_reserve": 160000,
+  //     "other_ids": [],
+  //     "partner_public_key": "024bfaf0cabe7f874fd33ebf7c6f4e5385971fc504ef3f492432e9e3ec77e1b5cf",
+  //     "past_states": 991,
+  //     "pending_payments": [],
+  //     "received": 5034646,
+  //     "remote_balance": 11317576,
+  //     "remote_csv": 1922,
+  //     "remote_dust": 354,
+  //     "remote_given": 0,
+  //     "remote_max_htlcs": 483,
+  //     "remote_max_pending_mtokens": "15840000000",
+  //     "remote_min_htlc_mtokens": "1",
+  //     "remote_reserve": 160000,
+  //     "sent": 355693,
+  //     "time_offline": 8000,
+  //     "time_online": 62142000,
+  //     "transaction_id": "4191d71b7addcc6ed6199b156ca508006b2e34b7250e39fe8f8cce323909ad8a",
+  //     "transaction_vout": 0,
+  //     "unsettled_balance": 0
+  //   },
+  //   {
+  //     "capacity": 5000000,
+  //     "commit_transaction_fee": 2864,
+  //     "commit_transaction_weight": 724,
+  //     "id": "785125x1656x0",
+  //     "is_active": true,
+  //     "is_closing": false,
+  //     "is_opening": false,
+  //     "is_partner_initiated": true,
+  //     "is_private": false,
+  //     "local_balance": 3643864,
+  //     "local_csv": 600,
+  //     "local_dust": 354,
+  //     "local_given": 0,
+  //     "local_max_htlcs": 483,
+  //     "local_max_pending_mtokens": "4950000000",
+  //     "local_min_htlc_mtokens": "1",
+  //     "local_reserve": 50000,
+  //     "other_ids": [],
+  //     "partner_public_key": "030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f",
+  //     "past_states": 108,
+  //     "pending_payments": [],
+  //     "received": 3643864,
+  //     "remote_balance": 1353272,
+  //     "remote_csv": 600,
+  //     "remote_dust": 354,
+  //     "remote_given": 0,
+  //     "remote_max_htlcs": 483,
+  //     "remote_max_pending_mtokens": "4950000000",
+  //     "remote_min_htlc_mtokens": "1",
+  //     "remote_reserve": 50000,
+  //     "sent": 0,
+  //     "time_offline": 3000,
+  //     "time_online": 62147000,
+  //     "transaction_id": "80f369266d2f59a6a5aca48116b7a7d5dbce87202355003da18d555370428a86",
+  //     "transaction_vout": 0,
+  //     "unsettled_balance": 0
+  //   },
+  //   {
+  //     "capacity": 4000000,
+  //     "commit_transaction_fee": 2811,
+  //     "commit_transaction_weight": 1116,
+  //     "id": "785124x2716x0",
+  //     "is_active": true,
+  //     "is_closing": false,
+  //     "is_opening": false,
+  //     "is_partner_initiated": false,
+  //     "is_private": false,
+  //     "local_balance": 694670,
+  //     "local_csv": 480,
+  //     "local_dust": 354,
+  //     "local_given": 0,
+  //     "local_max_htlcs": 483,
+  //     "local_max_pending_mtokens": "3960000000",
+  //     "local_min_htlc_mtokens": "100000",
+  //     "local_reserve": 40000,
+  //     "other_ids": [],
+  //     "partner_public_key": "03423790614f023e3c0cdaa654a3578e919947e4c3a14bf5044e7c787ebd11af1a",
+  //     "past_states": 1408,
+  //     "pending_payments": [],
+  //     "received": 454299,
+  //     "remote_balance": 3301859,
+  //     "remote_csv": 480,
+  //     "remote_dust": 354,
+  //     "remote_given": 0,
+  //     "remote_max_htlcs": 483,
+  //     "remote_max_pending_mtokens": "3960000000",
+  //     "remote_min_htlc_mtokens": "1",
+  //     "remote_reserve": 40000,
+  //     "sent": 3756158,
+  //     "time_offline": 6000,
+  //     "time_online": 62144000,
+  //     "transaction_id": "b09afd23fabc242b65afd335dd6db9c7456c4af62b141abef44c96984301da31",
+  //     "transaction_vout": 0,
+  //     "unsettled_balance": 0
+  //   },
+  //   {
+  //     "capacity": 5000000,
+  //     "commit_transaction_fee": 2811,
+  //     "commit_transaction_weight": 1116,
+  //     "id": "785148x3090x0",
+  //     "is_active": true,
+  //     "is_closing": false,
+  //     "is_opening": false,
+  //     "is_partner_initiated": false,
+  //     "is_private": false,
+  //     "local_balance": 55701,
+  //     "local_csv": 600,
+  //     "local_dust": 354,
+  //     "local_given": 0,
+  //     "local_max_htlcs": 483,
+  //     "local_max_pending_mtokens": "4950000000",
+  //     "local_min_htlc_mtokens": "1",
+  //     "local_reserve": 50000,
+  //     "other_ids": [],
+  //     "partner_public_key": "035e4ff418fc8b5554c5d9eea66396c227bd429a3251c8cbc711002ba215bfc226",
+  //     "past_states": 108,
+  //     "pending_payments": [],
+  //     "received": 1000,
+  //     "remote_balance": 4940828,
+  //     "remote_csv": 600,
+  //     "remote_dust": 354,
+  //     "remote_given": 0,
+  //     "remote_max_htlcs": 483,
+  //     "remote_max_pending_mtokens": "4950000000",
+  //     "remote_min_htlc_mtokens": "1",
+  //     "remote_reserve": 50000,
+  //     "sent": 4941828,
+  //     "time_offline": 4000,
+  //     "time_online": 62146000,
+  //     "transaction_id": "4a9c026daae271ac5e8137b0990f5101e76f74f281be88e6bb2d6a4836c02628",
+  //     "transaction_vout": 0,
+  //     "unsettled_balance": 0
+  //   }
+  //  ]
+
+
+
+
+const main_data_to_analyze = [
+  {
+    "capacity": 928719,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784858x2742x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 59299,
+    "local_csv": 144,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "919432000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 9287,
+    "other_ids": [],
+    "partner_public_key": "022b213281fad5065c66ed53a53198a04b4cb528ce92d76ed0175471b93f1db74f",
+    "past_states": 2528,
+    "pending_payments": [],
+    "received": 1765232,
+    "remote_balance": 865949,
+    "remote_csv": 144,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "919432000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 9287,
+    "sent": 1705932,
+    "time_offline": 14000,
+    "time_online": 295000,
+    "transaction_id": "8d47c5aacbdd82b1e3ac3f2c976d34be277dca1c7b226b6b6fa063725c8c7091",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 10000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784967x284x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 8231580,
+    "local_csv": 1201,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 28,
+    "local_max_pending_mtokens": "9900000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 100000,
+    "other_ids": [],
+    "partner_public_key": "024bfaf0cabe7f874fd33ebf7c6f4e5385971fc504ef3f492432e9e3ec77e1b5cf",
+    "past_states": 8686,
+    "pending_payments": [],
+    "received": 45433406,
+    "remote_balance": 1764949,
+    "remote_csv": 1201,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "9900000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 100000,
+    "sent": 37201825,
+    "time_offline": 4000,
+    "time_online": 305000,
+    "transaction_id": "18fb8641b4450803d3a447498b80d968228f97f4c2de5a762f2c98f81dd5012e",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 10000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784964x210x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 3351958,
+    "local_csv": 1201,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 28,
+    "local_max_pending_mtokens": "9900000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 100000,
+    "other_ids": [],
+    "partner_public_key": "024bfaf0cabe7f874fd33ebf7c6f4e5385971fc504ef3f492432e9e3ec77e1b5cf",
+    "past_states": 8136,
+    "pending_payments": [],
+    "received": 31344234,
+    "remote_balance": 6644571,
+    "remote_csv": 1201,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "9900000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 100000,
+    "sent": 27992276,
+    "time_offline": 4000,
+    "time_online": 305000,
+    "transaction_id": "16a427d49ad28bb04f501f874aec235c051965a3c5e6bd50ebf14a9502d1b1dd",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784555x877x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 2269439,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "02529db69fd2ebd3126fb66fafa234fc3544477a23d509fe93ed229bb0e92e4fb8",
+    "past_states": 2417,
+    "pending_payments": [],
+    "received": 3491347,
+    "remote_balance": 727090,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 4218437,
+    "time_offline": 23000,
+    "time_online": 286000,
+    "transaction_id": "d969665d98b6bdd4ef7f25fd700f5b9c9bee2ab218ccb30fdfcfadb148faca6e",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785082x301x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 954925,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "0268095e71f2a77e9a21addc3a22d4c90e5318ac0eab0049b9060d24aea472b5b2",
+    "past_states": 532,
+    "pending_payments": [],
+    "received": 0,
+    "remote_balance": 2041604,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 2041604,
+    "time_offline": 0,
+    "time_online": 309000,
+    "transaction_id": "013e7912690b597ad971fcc99cd2ec998824d92d63baa33c9774685b309b72ae",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784555x866x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 2017827,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "0297fc579bb3476cf486cc39de0bf8478e4c04f16a8954d57bcc442ac505e5c9ff",
+    "past_states": 661,
+    "pending_payments": [],
+    "received": 978720,
+    "remote_balance": 978702,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 1957422,
+    "time_offline": 9000,
+    "time_online": 300000,
+    "transaction_id": "76d09097312e71b61b7c03e4dc41d4884505135b55fc800d6708f8a102022720",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 4000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785129x1659x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 552887,
+    "local_csv": 480,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "3960000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 40000,
+    "other_ids": [],
+    "partner_public_key": "02b5e7b8a72966294bfaeb55c04e7ea9cddb587dd40da168ffc4d8ec1d47a652e5",
+    "past_states": 934,
+    "pending_payments": [],
+    "received": 5960830,
+    "remote_balance": 3443642,
+    "remote_csv": 480,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "3960000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 40000,
+    "sent": 5407943,
+    "time_offline": 6000,
+    "time_online": 303000,
+    "transaction_id": "312faf331dd95ca2a765d6c270cfd31d63f6014c6c2d0f7c3be0af1d61a76c3d",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 4000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785249x1990x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 58462,
+    "local_csv": 480,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "3960000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 40000,
+    "other_ids": [],
+    "partner_public_key": "02b5e7b8a72966294bfaeb55c04e7ea9cddb587dd40da168ffc4d8ec1d47a652e5",
+    "past_states": 303,
+    "pending_payments": [],
+    "received": 1293119,
+    "remote_balance": 3938067,
+    "remote_csv": 480,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "3960000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 40000,
+    "sent": 5231186,
+    "time_offline": 6000,
+    "time_online": 303000,
+    "transaction_id": "8bdd0e6c3c9ab3e7d655ac75ca9e1876d5fb58b53d1d9e36822c8cea336d8aa0",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 9000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785081x962x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 2397027,
+    "local_csv": 1081,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "8910000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 90000,
+    "other_ids": [],
+    "partner_public_key": "02c73c8ac3f37bb28d9fc3819dc17baecdf24b137d476a2a9e22395d490d842bec",
+    "past_states": 4471,
+    "pending_payments": [],
+    "received": 3161924,
+    "remote_balance": 6599502,
+    "remote_csv": 1081,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "8910000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 90000,
+    "sent": 9761426,
+    "time_offline": 1000,
+    "time_online": 308000,
+    "transaction_id": "69a9cd68f3984c8c17624fc02a4f004289f15b418a9c7e40897ce61e26f47e67",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 6000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785081x955x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 5903308,
+    "local_csv": 720,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "5940000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 60000,
+    "other_ids": [],
+    "partner_public_key": "02fe80fb6a2dc0fb6e9bec49c76d048889c91355d4e900fcb026bf095665790325",
+    "past_states": 2501,
+    "pending_payments": [],
+    "received": 27513771,
+    "remote_balance": 93221,
+    "remote_csv": 720,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "5940000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 60000,
+    "sent": 27606992,
+    "time_offline": 2000,
+    "time_online": 307000,
+    "transaction_id": "bf2a9c6143000c294f366f234e85469db25ba6e29592722af5f275559d3c5d35",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784556x2011x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 2950846,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "02fe80fb6a2dc0fb6e9bec49c76d048889c91355d4e900fcb026bf095665790325",
+    "past_states": 2662,
+    "pending_payments": [],
+    "received": 7398877,
+    "remote_balance": 45683,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 7444561,
+    "time_offline": 2000,
+    "time_online": 307000,
+    "transaction_id": "9bd40ccc4ada774faab3be98474e85ef4a2e5a397c42b7aa2ab9bd31a062a2fc",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "785080x441x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 828542,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "10000",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "0301c3924df01f1a376ab20ce9273ee2c4a1f2354c3400e6357d3d4144981ae728",
+    "past_states": 70,
+    "pending_payments": [],
+    "received": 0,
+    "remote_balance": 2167987,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 2167987,
+    "time_offline": 2000,
+    "time_online": 307000,
+    "transaction_id": "3e3b433bb912ccf5853a66b41bcf8c396cb266f28ad64d084b9cac15091b7742",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 2100000,
+    "commit_transaction_fee": 3140,
+    "commit_transaction_weight": 772,
+    "id": "785092x802x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 0,
+    "local_csv": 252,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2079000000",
+    "local_min_htlc_mtokens": "10000",
+    "local_reserve": 21000,
+    "other_ids": [],
+    "partner_public_key": "0301c3924df01f1a376ab20ce9273ee2c4a1f2354c3400e6357d3d4144981ae728",
+    "past_states": 0,
+    "pending_payments": [],
+    "received": 0,
+    "remote_balance": 2096530,
+    "remote_csv": 252,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2079000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 21000,
+    "sent": 0,
+    "time_offline": 2000,
+    "time_online": 307000,
+    "transaction_id": "d4e9161ec8b5c0fbb91498c4f5270eb608e6000b225d9599497798f4a6be3fb1",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 8000000,
+    "commit_transaction_fee": 2864,
+    "commit_transaction_weight": 724,
+    "id": "784679x2613x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 4442122,
+    "local_csv": 961,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "7920000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 80000,
+    "other_ids": [],
+    "partner_public_key": "030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f",
+    "past_states": 333,
+    "pending_payments": [],
+    "received": 4442122,
+    "remote_balance": 3555014,
+    "remote_csv": 961,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "7920000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 80000,
+    "sent": 0,
+    "time_offline": 1000,
+    "time_online": 308000,
+    "transaction_id": "f62a2c3a97a249a7fc49b5a19b391bd84e4e6a4cedcedfd9897f7ff89ae2b039",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 110000,
+    "commit_transaction_fee": 3140,
+    "commit_transaction_weight": 772,
+    "id": "785368x1065x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 0,
+    "local_csv": 144,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "108900000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 1100,
+    "other_ids": [],
+    "partner_public_key": "034aff6ce872ea4fff040fa776f9d3a7d68e31e15c075a060180e7decc84d8068e",
+    "past_states": 0,
+    "pending_payments": [],
+    "received": 0,
+    "remote_balance": 106530,
+    "remote_csv": 144,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "108900000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 1100,
+    "sent": 0,
+    "time_offline": 48000,
+    "time_online": 261000,
+    "transaction_id": "82a8270deb66514467ad29721c24671378ab5f287c5736b5a5ceeabb23fd2c75",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 8272978,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784969x1663x1",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": true,
+    "is_private": false,
+    "local_balance": 84838,
+    "local_csv": 994,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "8190249000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 82729,
+    "other_ids": [],
+    "partner_public_key": "035f5236d7e6c6d16107c1f86e4514e6ccdd6b2c13c2abc1d7a83cd26ecb4c1d0e",
+    "past_states": 2038,
+    "pending_payments": [],
+    "received": 35567860,
+    "remote_balance": 8184669,
+    "remote_csv": 994,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "8190249000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 82729,
+    "sent": 35483021,
+    "time_offline": 3000,
+    "time_online": 306000,
+    "transaction_id": "cef21cefd4b91301abaa87cf971f1e0add4735e093d692f27a0336033249e56f",
+    "transaction_vout": 1,
+    "unsettled_balance": 0
+  },
+  {
+    "capacity": 3000000,
+    "commit_transaction_fee": 2811,
+    "commit_transaction_weight": 1116,
+    "id": "784554x2680x0",
+    "is_active": true,
+    "is_closing": false,
+    "is_opening": false,
+    "is_partner_initiated": false,
+    "is_private": false,
+    "local_balance": 2710884,
+    "local_csv": 360,
+    "local_dust": 354,
+    "local_given": 0,
+    "local_max_htlcs": 483,
+    "local_max_pending_mtokens": "2970000000",
+    "local_min_htlc_mtokens": "1",
+    "local_reserve": 30000,
+    "other_ids": [],
+    "partner_public_key": "0375e72599fe94284e3eab6a395f9e9dfd9e6678431bd4fb62418a7c545db15a99",
+    "past_states": 1097,
+    "pending_payments": [],
+    "received": 1281614,
+    "remote_balance": 285645,
+    "remote_csv": 360,
+    "remote_dust": 354,
+    "remote_given": 0,
+    "remote_max_htlcs": 483,
+    "remote_max_pending_mtokens": "2970000000",
+    "remote_min_htlc_mtokens": "1",
+    "remote_reserve": 30000,
+    "sent": 1567259,
+    "time_offline": 14000,
+    "time_online": 295000,
+    "transaction_id": "32dd0ea06776295094bd01b13f48fcf300e3f73a1b12b3670d7d2cb16e476f39",
+    "transaction_vout": 0,
+    "unsettled_balance": 0
+  }
+]
+
+
+
+
+
+
+
+
+//do_rebalance_analysis_and_get_commands(main_data_to_analyze);
+
+
+  
+
+
 
 
