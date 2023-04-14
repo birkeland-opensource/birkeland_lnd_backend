@@ -86,7 +86,7 @@ const sort_by_amount_to_rebalance = (pairs) => {
      const out_public_key = pair?.outbound?.partner_public_key;
      const in_public_key = pair?.inbound?.partner_public_key;
      const max_fee = Math.round(amount * .005);
-     const max_fee_rate = 100;
+     const max_fee_rate = max_fee;
      const time_in_mins = 5;
     // console.log(pair)
      const command_cid = `bos rebalance --amount ${amount} --out ${out_public_key} --in ${in_public_key} --max-fee ${max_fee} --max-fee-rate ${max_fee_rate} --minutes ${time_in_mins}`;
