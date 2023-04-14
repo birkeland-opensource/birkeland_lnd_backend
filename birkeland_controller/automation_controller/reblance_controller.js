@@ -64,7 +64,7 @@ const rebalanceChannelSync = (out_public_key, in_public_key, amount,max_fee, max
     //console.log(rebalance_command_list)
     for (let cmd in rebalance_command_list) {
       console.log(rebalance_command_list[cmd])
-      //rebalanceChannelAuto(rebalance_command_list[cmd])
+      rebalanceChannelAuto(rebalance_command_list[cmd])
     }
   }
 
