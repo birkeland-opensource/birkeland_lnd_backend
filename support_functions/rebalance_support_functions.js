@@ -15,8 +15,8 @@ data_to_analyze.filter(channel => {
         "channel_id" : channel_id,
         "outbound_liquidity" : localBalance,
         "inbound_liquidity" : remoteBalance,
-        "amount_to_send" : (localBalance - remoteBalance),
-        "amount_to_rebalance" : (localBalance - remoteBalance)
+        "amount_to_send" : Math.round(((localBalance + remoteBalance)/2) -remoteBalance),
+        "amount_to_rebalance" :  Math.round(((localBalance + remoteBalance)/2) -remoteBalance)
       }
       excess_outbound_list.push(excess_outbound);
     }
@@ -26,8 +26,8 @@ data_to_analyze.filter(channel => {
         "channel_id" : channel_id,
         "outbound_liquidity" : localBalance,
         "inbound_liquidity" : remoteBalance,
-        "amount_to_receive" : (remoteBalance - localBalance),
-        "amount_to_rebalance" : (remoteBalance - localBalance)
+        "amount_to_receive" :   Math.round(((localBalance + remoteBalance)/2) -localBalance),
+        "amount_to_rebalance" : Math.round(((localBalance + remoteBalance)/2) -localBalance)    
     }
     excess_inbound_list.push(excess_inbound);
   }
@@ -79,6 +79,7 @@ const sort_by_amount_to_rebalance = (pairs) => {
 
   const generate_reblance_commands = (pairs_to_rebalance) => {
   
+    console.log(pairs_to_rebalance)
     let commands_to_run = [];
    for (const pair of pairs_to_rebalance) {
      const amount = Math.round((pair?.inbound?.amount_to_rebalance + pair?.outbound?.amount_to_rebalance)/2);
