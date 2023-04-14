@@ -39,10 +39,16 @@ const rebalanceChannelSync = (out_public_key, in_public_key, amount,max_fee, max
   exports.auto_rebalance_lnd_channels = async (req, res) => {
 
     try{
-      let channels = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "get_channels"});
-      console.log(channels)
-      do_rebalance_analysis_and_get_commands(channels)
+      let get_channels_resp = await test_birkeland_lnd.PerformAuthenticatedOperation({operation : "get_channels"});
+   
+      if(get_channels_resp?.success && get_channels_resp?.message?.channels?.length > 0){
+      console.log(get_channels_resp?.message?.channels)
+      do_rebalance_analysis_and_get_commands(get_channels_resp?.message?.channels)
       return res.status(200).send({ success: true, message: "Rebalance started and status will be updated once done" });
+      }
+      else{
+        return res.status(500).send({ success: false, message: "No channels found" });
+      }
     }
     catch(err){
         console.log(err)
