@@ -53,11 +53,10 @@ const get_channels_accounting_info = async () => {
         // after :  after_date_main.toISOString(),
         // before :before_date_main.toISOString(),
         operation: "get_forwards",
-        limit: 10000,
+        limit: 30000,
       });
 
     if (forwardsResult?.success) {
-        console.log( forwardsResult.message?.forwards);
       unique_incoming_channel_id_total_mtokens_processed_total_fee_mtokens =
         get_forwads_and_return_unique_incoming_channel_id_total_mtokens_processed_total_fee_mtokens(
           forwardsResult.message?.forwards

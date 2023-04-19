@@ -1,34 +1,35 @@
 const axios = require('axios');
 
 
-const merge_with_incoming =(arr1, arr2) =>{
-    let merge_with_incoming = [];
-     arr1.forEach(item1 => {
-      arr2.forEach(item2 => {
-      if(item1.id == item2.incoming_unique_channel_id){
-        item1.incoming_info = item2
-        merge_with_incoming.push(item1);
-      }
-      });
-    });
-    return merge_with_incoming;
-  }
+
+const merge_with_incoming = (arr1,arr2) =>{
+
+    for(var i=0;i<arr1?.length;i++){
+        for(var j=0;j<arr2?.length;j++){
+            if(arr1[i]?.id == arr2[j]?.incoming_unique_channel_id){
+            arr1[i].incoming_info = arr2[j];
+            }
+        }
+    }
+    return arr1;
+
+}
   
-  
-  const merge_with_outgoing = (arr1, arr2) => {
-    let merge_with_outgoing = [];
-     arr1.forEach(item1 => {
-      arr2.forEach(item2 => {
-      console.log(item1.id)
-      console.log(item2)
-      if(item1.id == item2.outgoing_unique_channel_id){
-        item1.outgoing_info = item2
-        merge_with_outgoing.push(item1);
-      }
-      });
-    });
-    return merge_with_outgoing;
-  }
+
+const merge_with_outgoing = (arr1, arr2) => {
+
+    for(var i=0;i<arr1?.length;i++){
+        for(var j=0;j<arr2?.length;j++){
+            if(arr1[i]?.id == arr2[j]?.outgoing_unique_channel_id){
+            arr1[i].outgoing_info = arr2[j];
+            }
+        }
+    }
+    return arr1;
+
+}
+
+
   
   
   const get_on_chain_transaction_fee = async  (transactionId) => {
