@@ -37,7 +37,8 @@ const get_channels_accounting_info = async () => {
       }
     }
     else{
-        return new Error("Error getting channels")
+        console.log("Error getting channels");
+        throw new Error("Error getting channels")
     }
 
 
@@ -79,7 +80,7 @@ const get_channels_accounting_info = async () => {
       return merged_with_outgoing;
     }
     else{
-        return new Error("Error getting forwards")
+        throw new Error("Error getting forwards")
     }
   } catch (err) {
     console.log(err)
