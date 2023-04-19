@@ -5,6 +5,7 @@ const {
 
 const get_channels_accounting_info = async () => {
   try {
+
     let unique_channel_ids = [];
     let unique_incoming_channel_id_total_mtokens_processed_total_fee_mtokens =
       [];
@@ -39,13 +40,23 @@ const get_channels_accounting_info = async () => {
         return new Error("Error getting channels")
     }
 
+
+    // Create a new Date object
+    // const after_date_main = new Date(after_date);
+    // const before_date_main = new Date(before_date);
+    // console.log(after_date_main.toISOString());
+    // console.log(before_date_main.toISOString());
+
     const forwardsResult =
       await test_birkeland_lnd.PerformAuthenticatedOperation({
+        // after :  after_date_main.toISOString(),
+        // before :before_date_main.toISOString(),
         operation: "get_forwards",
-        limit: 2000,
+        limit: 10000,
       });
 
     if (forwardsResult?.success) {
+        console.log( forwardsResult.message?.forwards);
       unique_incoming_channel_id_total_mtokens_processed_total_fee_mtokens =
         get_forwads_and_return_unique_incoming_channel_id_total_mtokens_processed_total_fee_mtokens(
           forwardsResult.message?.forwards
@@ -71,6 +82,7 @@ const get_channels_accounting_info = async () => {
         return new Error("Error getting forwards")
     }
   } catch (err) {
+    console.log(err)
     throw new Error(err?.message);
   }
 };
@@ -78,7 +90,6 @@ const get_channels_accounting_info = async () => {
 exports.get_aacounting_info = async(req,res) =>{
     try{
         let message = await get_channels_accounting_info();
-
         return res.status(200).send({success:true, message : message})
     }
     catch(err){
