@@ -23,6 +23,8 @@ app.use('/v1/wallets',birkeland_wallet_router);
 const automation_router = require("./birkeland_controller/automation_controller/automation_router");
 app.use('/auto',automation_router);
 
+const data_router = require("./birkeland_controller/data_controller/data_router");
+app.use('/accounting',data_router);
 
 const birkeland_lnd_events_router = require("./birkeland_controller/birkeland_lnd_events/birkeland_lnd_events_router");
 app.use("/lnd_events", birkeland_lnd_events_router);
