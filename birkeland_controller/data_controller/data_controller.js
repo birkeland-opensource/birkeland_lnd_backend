@@ -87,6 +87,26 @@ const get_channels_accounting_info = async () => {
   }
 };
 
+
+exports.get_forwards = async(req,res) =>{
+    try{
+        
+        const forwardsResult =
+      await test_birkeland_lnd.PerformAuthenticatedOperation({
+        // after :  after_date_main.toISOString(),
+        // before :before_date_main.toISOString(),
+        operation: "get_forwards",
+        limit: 30000,
+      });
+
+      return res.status(200).send({success:true, message : forwardsResult})
+    }
+    catch(err){
+        return res.status(500).send({ success: false, message: forwardsResult });
+    }
+}
+
+
 exports.get_aacounting_info = async(req,res) =>{
     try{
         let message = await get_channels_accounting_info();
